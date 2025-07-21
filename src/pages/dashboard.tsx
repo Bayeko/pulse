@@ -23,7 +23,7 @@ const Dashboard = () => {
               <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center shadow-glow">
                 <span className="text-xl">💝</span>
               </div>
-              <h1 className="text-2xl font-serif font-bold text-foreground">Pulse</h1>
+              <h1 className="text-2xl font-serif font-bold text-foreground">Pulse - Sofia</h1>
             </div>
             
             <div className="flex items-center gap-3">

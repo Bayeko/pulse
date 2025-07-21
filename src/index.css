@@ -7,38 +7,38 @@
 
 @layer base {
   :root {
-    /* Core Brand Colors - Warm & Intimate */
-    --background: 350 25% 98%;
-    --foreground: 340 15% 15%;
+    /* Core Brand Colors - Professional & Clean */
+    --background: 220 15% 98%;
+    --foreground: 220 10% 15%;
 
-    --card: 350 30% 97%;
-    --card-foreground: 340 15% 15%;
+    --card: 220 20% 97%;
+    --card-foreground: 220 10% 15%;
 
-    --popover: 350 30% 97%;
-    --popover-foreground: 340 15% 15%;
+    --popover: 220 20% 97%;
+    --popover-foreground: 220 10% 15%;
 
-    /* Primary: Deep Rose */
-    --primary: 340 75% 65%;
-    --primary-foreground: 350 30% 98%;
-    --primary-soft: 340 45% 85%;
-    --primary-glow: 340 75% 75%;
+    /* Primary: Sophisticated Blue */
+    --primary: 220 60% 55%;
+    --primary-foreground: 220 15% 98%;
+    --primary-soft: 220 30% 85%;
+    --primary-glow: 220 60% 65%;
 
-    /* Secondary: Soft Purple */
-    --secondary: 280 35% 88%;
-    --secondary-foreground: 340 15% 15%;
+    /* Secondary: Neutral Gray */
+    --secondary: 220 15% 88%;
+    --secondary-foreground: 220 10% 15%;
 
-    /* Muted: Warm Neutrals */
-    --muted: 340 15% 94%;
-    --muted-foreground: 340 10% 55%;
+    /* Muted: Cool Neutrals */
+    --muted: 220 15% 94%;
+    --muted-foreground: 220 8% 55%;
 
-    /* Accent: Rose Gold */
-    --accent: 25 50% 85%;
-    --accent-foreground: 340 15% 15%;
+    /* Accent: Subtle Warmth */
+    --accent: 25 20% 85%;
+    --accent-foreground: 220 10% 15%;
 
     /* Status Colors */
-    --pulse-active: 340 75% 65%;
-    --pulse-away: 280 35% 75%;
-    --pulse-offline: 340 10% 70%;
+    --pulse-active: 220 60% 55%;
+    --pulse-away: 220 30% 65%;
+    --pulse-offline: 220 8% 60%;
 
     /* Success & Error */
     --success: 140 50% 60%;
@@ -47,9 +47,9 @@
     --destructive-foreground: 350 30% 98%;
 
     /* Borders & Inputs */
-    --border: 340 20% 88%;
-    --input: 340 20% 88%;
-    --ring: 340 75% 65%;
+    --border: 220 15% 88%;
+    --input: 220 15% 88%;
+    --ring: 220 60% 55%;
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
@@ -84,42 +84,42 @@
   }
 
   .dark {
-    /* Dark Mode: Deep, Intimate Tones */
-    --background: 340 20% 8%;
-    --foreground: 350 30% 95%;
+    /* Dark Mode: Professional & Clean */
+    --background: 220 15% 8%;
+    --foreground: 220 10% 95%;
 
-    --card: 340 25% 12%;
-    --card-foreground: 350 30% 95%;
+    --card: 220 20% 12%;
+    --card-foreground: 220 10% 95%;
 
-    --popover: 340 25% 12%;
-    --popover-foreground: 350 30% 95%;
+    --popover: 220 20% 12%;
+    --popover-foreground: 220 10% 95%;
 
-    --primary: 340 75% 65%;
-    --primary-foreground: 340 20% 8%;
-    --primary-soft: 340 45% 25%;
-    --primary-glow: 340 75% 75%;
+    --primary: 220 60% 55%;
+    --primary-foreground: 220 15% 8%;
+    --primary-soft: 220 30% 25%;
+    --primary-glow: 220 60% 65%;
 
-    --secondary: 280 25% 20%;
-    --secondary-foreground: 350 30% 95%;
+    --secondary: 220 15% 20%;
+    --secondary-foreground: 220 10% 95%;
 
-    --muted: 340 15% 18%;
-    --muted-foreground: 340 10% 65%;
+    --muted: 220 15% 18%;
+    --muted-foreground: 220 8% 65%;
 
-    --accent: 25 30% 25%;
-    --accent-foreground: 350 30% 95%;
+    --accent: 25 20% 25%;
+    --accent-foreground: 220 10% 95%;
 
-    --pulse-active: 340 75% 65%;
-    --pulse-away: 280 35% 65%;
-    --pulse-offline: 340 10% 50%;
+    --pulse-active: 220 60% 55%;
+    --pulse-away: 220 30% 65%;
+    --pulse-offline: 220 8% 50%;
 
     --success: 140 50% 60%;
     --success-foreground: 340 20% 8%;
     --destructive: 0 75% 65%;
     --destructive-foreground: 340 20% 8%;
 
-    --border: 340 20% 25%;
-    --input: 340 20% 25%;
-    --ring: 340 75% 65%;
+    --border: 220 15% 25%;
+    --input: 220 15% 25%;
+    --ring: 220 60% 55%;
 
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
     --gradient-soft: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
