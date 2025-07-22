@@ -5,12 +5,22 @@ import { SharedCalendar } from '@/components/calendar/shared-calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Bell, Settings, Shield, Calendar, MessageCircle } from 'lucide-react';
+import { Heart, Bell, Settings, Shield, Calendar, MessageCircle, LogOut } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  
   const handleEmojiSend = (emoji: string, category: string) => {
     console.log(`Sending ${emoji} from ${category} category`);
     // Here you would implement the actual sending logic
+  };
+  
+  const handleLogout = () => {
+    logout();
+    navigate('/');
   };
 
   return (
@@ -23,15 +33,15 @@ const Dashboard = () => {
               <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center shadow-glow">
                 <span className="text-xl">💝</span>
               </div>
-              <h1 className="text-2xl font-serif font-bold text-foreground">Pulse - Sofia</h1>
+              <h1 className="text-2xl font-serif font-bold text-foreground">Pulse - {user?.name}</h1>
             </div>
             
             <div className="flex items-center gap-3">
               <PulseButton variant="ghost" size="sm">
                 <Bell className="w-4 h-4" />
               </PulseButton>
-              <PulseButton variant="ghost" size="sm">
-                <Settings className="w-4 h-4" />
+              <PulseButton variant="ghost" size="sm" onClick={handleLogout}>
+                <LogOut className="w-4 h-4" />
               </PulseButton>
               <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
                 <span className="text-sm">👤</span>

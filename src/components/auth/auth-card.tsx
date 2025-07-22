@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Heart, Shield, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthCardProps {
   mode: 'login' | 'register' | 'connect';
@@ -13,6 +15,57 @@ interface AuthCardProps {
 }
 
 export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, className }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    partnerCode: ''
+  });
+  
+  const { login, register, connectPartner } = useAuth();
+  const navigate = useNavigate();
+  
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    try {
+      let success = false;
+      
+      switch (mode) {
+        case 'login':
+          success = await login(formData.email, formData.password);
+          break;
+        case 'register':
+          if (formData.password !== formData.confirmPassword) {
+            alert('Passwords do not match');
+            return;
+          }
+          success = await register(formData.name, formData.email, formData.password);
+          break;
+        case 'connect':
+          success = await connectPartner(formData.partnerCode, 'Alex');
+          break;
+      }
+      
+      if (success) {
+        if (mode === 'register') {
+          onModeChange('connect');
+        } else {
+          navigate('/dashboard');
+        }
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const getContent = () => {
     switch (mode) {
       case 'login':
@@ -24,11 +77,25 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
             <>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="your@email.com" />
+                <Input 
+                  id="email" 
+                  type="email" 
+                  placeholder="your@email.com"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" placeholder="••••••••" />
+                <Input 
+                  id="password" 
+                  type="password" 
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={(e) => handleInputChange('password', e.target.value)}
+                  required
+                />
               </div>
             </>
           ),
@@ -55,19 +122,47 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
             <>
               <div className="space-y-2">
                 <Label htmlFor="name">Your Name</Label>
-                <Input id="name" type="text" placeholder="Your beautiful name" />
+                <Input 
+                  id="name" 
+                  type="text" 
+                  placeholder="Your beautiful name"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="your@email.com" />
+                <Input 
+                  id="email" 
+                  type="email" 
+                  placeholder="your@email.com"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" placeholder="••••••••" />
+                <Input 
+                  id="password" 
+                  type="password" 
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={(e) => handleInputChange('password', e.target.value)}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input id="confirmPassword" type="password" placeholder="••••••••" />
+                <Input 
+                  id="confirmPassword" 
+                  type="password" 
+                  placeholder="••••••••"
+                  value={formData.confirmPassword}
+                  onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                  required
+                />
               </div>
             </>
           ),
@@ -113,7 +208,14 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
               </div>
               <div className="space-y-2">
                 <Label htmlFor="partnerCode">Partner's Code</Label>
-                <Input id="partnerCode" type="text" placeholder="Enter partner's code" />
+                <Input 
+                  id="partnerCode" 
+                  type="text" 
+                  placeholder="Enter partner's code"
+                  value={formData.partnerCode}
+                  onChange={(e) => handleInputChange('partnerCode', e.target.value)}
+                  required
+                />
               </div>
             </>
           ),
@@ -148,12 +250,20 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="space-y-4">
-          {content.fields}
-        </div>
-        <PulseButton variant="pulse" size="lg" className="w-full">
-          {content.button}
-        </PulseButton>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-4">
+            {content.fields}
+          </div>
+          <PulseButton 
+            type="submit"
+            variant="pulse" 
+            size="lg" 
+            className="w-full"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Loading...' : content.button}
+          </PulseButton>
+        </form>
         {content.footer}
       </CardContent>
     </Card>
