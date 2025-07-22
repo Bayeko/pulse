@@ -5,7 +5,7 @@ import { SharedCalendar } from '@/components/calendar/shared-calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Bell, Settings, Shield, Calendar, MessageCircle, LogOut } from 'lucide-react';
+import { Heart, Bell, Settings, Shield, Calendar, MessageCircle, LogOut, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -36,16 +36,19 @@ const Dashboard = () => {
               <h1 className="text-2xl font-serif font-bold text-foreground">Pulse - {user?.name}</h1>
             </div>
             
-            <div className="flex items-center gap-3">
-              <PulseButton variant="ghost" size="sm">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground mr-2">
+                Connected with {user?.partnerName || 'No partner'}
+              </span>
+              <PulseButton variant="ghost" size="sm" title="Notifications">
                 <Bell className="w-4 h-4" />
               </PulseButton>
-              <PulseButton variant="ghost" size="sm" onClick={handleLogout}>
+              <PulseButton variant="ghost" size="sm" title="Profile">
+                <User className="w-4 h-4" />
+              </PulseButton>
+              <PulseButton variant="ghost" size="sm" onClick={handleLogout} title="Logout">
                 <LogOut className="w-4 h-4" />
               </PulseButton>
-              <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
-                <span className="text-sm">👤</span>
-              </div>
             </div>
           </div>
         </div>
