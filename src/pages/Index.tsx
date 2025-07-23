@@ -1,11 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { Heart, Shield, Calendar, Sparkles, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import heroImage from '@/assets/pulse-hero.jpg';
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, isLoading, navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-soft">

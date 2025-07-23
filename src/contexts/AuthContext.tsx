@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { User as SupabaseUser, Session } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface User {
@@ -30,36 +32,86 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check for stored user data
-    const storedUser = localStorage.getItem('pulse_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session);
+        if (session?.user) {
+          await fetchUserProfile(session.user);
+        } else {
+          setUser(null);
+        }
+        setIsLoading(false);
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session?.user) {
+        setTimeout(() => {
+          fetchUserProfile(session.user);
+        }, 0);
+      } else {
+        setIsLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  const fetchUserProfile = async (supabaseUser: SupabaseUser) => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select(`
+          *,
+          partner:partner_id(name)
+        `)
+        .eq('user_id', supabaseUser.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return;
+      }
+
+      if (profile) {
+        setUser({
+          id: profile.user_id,
+          name: profile.name,
+          email: profile.email,
+          partnerId: profile.partner_id,
+          partnerName: profile.partner?.name
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+  };
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock successful login
-      const userData: User = {
-        id: '1',
-        name: 'Sofia',
+      const { error } = await supabase.auth.signInWithPassword({
         email,
-        partnerId: '2',
-        partnerName: 'Alex'
-      };
-      
-      setUser(userData);
-      localStorage.setItem('pulse_user', JSON.stringify(userData));
-      
+        password,
+      });
+
+      if (error) {
+        toast({
+          title: "Login failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return false;
+      }
+
       toast({
         title: "Welcome back!",
         description: "Successfully logged in to Pulse.",
@@ -69,7 +121,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       toast({
         title: "Login failed",
-        description: "Please check your credentials and try again.",
+        description: "An unexpected error occurred.",
         variant: "destructive",
       });
       return false;
@@ -81,19 +133,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const redirectUrl = `${window.location.origin}/`;
       
-      // Mock successful registration
-      const userData: User = {
-        id: '1',
-        name,
-        email
-      };
-      
-      setUser(userData);
-      localStorage.setItem('pulse_user', JSON.stringify(userData));
-      
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            name: name
+          }
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Registration failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return false;
+      }
+
       toast({
         title: "Account created!",
         description: "Welcome to Pulse. Connect with your partner to get started.",
@@ -103,7 +164,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       toast({
         title: "Registration failed",
-        description: "Unable to create account. Please try again.",
+        description: "An unexpected error occurred.",
         variant: "destructive",
       });
       return false;
@@ -115,31 +176,65 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const connectPartner = async (partnerCode: string, partnerName: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      if (user) {
-        const updatedUser = {
-          ...user,
-          partnerId: '2',
-          partnerName
-        };
-        
-        setUser(updatedUser);
-        localStorage.setItem('pulse_user', JSON.stringify(updatedUser));
-        
+      if (!user || !session) {
         toast({
-          title: "Partner connected!",
-          description: `Successfully connected with ${partnerName}.`,
+          title: "Connection failed",
+          description: "You must be logged in to connect with a partner.",
+          variant: "destructive",
         });
-        
-        return true;
+        return false;
       }
-      return false;
+
+      // Find partner by their unique code (we'll implement this as email for now)
+      const { data: partnerProfile, error: findError } = await supabase
+        .from('profiles')
+        .select('id, user_id, name')
+        .eq('email', partnerCode) // Using email as partner code for simplicity
+        .single();
+
+      if (findError || !partnerProfile) {
+        toast({
+          title: "Connection failed",
+          description: "Partner not found. Please check the code.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Update current user's partner_id
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ partner_id: partnerProfile.user_id })
+        .eq('user_id', user.id);
+
+      if (updateError) {
+        toast({
+          title: "Connection failed",
+          description: "Unable to connect with partner. Please try again.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Also update partner's partner_id to create mutual connection
+      await supabase
+        .from('profiles')
+        .update({ partner_id: user.id })
+        .eq('user_id', partnerProfile.user_id);
+
+      // Refresh user profile
+      await fetchUserProfile(session.user);
+      
+      toast({
+        title: "Partner connected!",
+        description: `Successfully connected with ${partnerProfile.name}.`,
+      });
+      
+      return true;
     } catch (error) {
       toast({
         title: "Connection failed",
-        description: "Unable to connect with partner. Check the code and try again.",
+        description: "An unexpected error occurred.",
         variant: "destructive",
       });
       return false;
@@ -148,9 +243,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    localStorage.removeItem('pulse_user');
+    setSession(null);
     toast({
       title: "Logged out",
       description: "See you soon!",

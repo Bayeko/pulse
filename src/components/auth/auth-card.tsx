@@ -3,10 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { PulseButton } from '@/components/ui/pulse-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Heart, Shield, Users } from 'lucide-react';
+import { Heart, Shield, Users, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 interface AuthCardProps {
   mode: 'login' | 'register' | 'connect';
@@ -24,8 +25,9 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
     partnerCode: ''
   });
   
-  const { login, register, connectPartner } = useAuth();
+  const { login, register, connectPartner, user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -50,7 +52,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
           success = await register(formData.name, formData.email, formData.password);
           break;
         case 'connect':
-          success = await connectPartner(formData.partnerCode, 'Alex');
+          success = await connectPartner(formData.partnerCode, '');
           break;
       }
       
@@ -181,20 +183,40 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
         };
         
       case 'connect':
+        const copyToClipboard = () => {
+          if (user?.email) {
+            navigator.clipboard.writeText(user.email);
+            toast({
+              title: "Copied!",
+              description: "Your connection code has been copied to clipboard.",
+            });
+          }
+        };
+
         return {
           title: 'Connect with Partner',
-          description: 'Share your unique code or enter your partner\'s code',
+          description: 'Share your email address or enter your partner\'s email',
           icon: <Users className="w-6 h-6 text-primary" />,
           fields: (
             <>
               <div className="space-y-2">
                 <Label>Your Connection Code</Label>
-                <div className="p-4 bg-muted rounded-lg text-center">
-                  <span className="text-lg font-mono font-semibold text-primary">
-                    HEART-2024-PULSE
-                  </span>
+                <div className="p-4 bg-muted rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-mono font-semibold text-primary">
+                      {user?.email || 'Loading...'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={copyToClipboard}
+                      className="ml-2 p-1 text-muted-foreground hover:text-primary transition-colors"
+                      title="Copy to clipboard"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </button>
+                  </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Share this code with your partner
+                    Share this email with your partner
                   </p>
                 </div>
               </div>
@@ -207,11 +229,11 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="partnerCode">Partner's Code</Label>
+                <Label htmlFor="partnerCode">Partner's Email</Label>
                 <Input 
                   id="partnerCode" 
-                  type="text" 
-                  placeholder="Enter partner's code"
+                  type="email" 
+                  placeholder="partner@email.com"
                   value={formData.partnerCode}
                   onChange={(e) => handleInputChange('partnerCode', e.target.value)}
                   required
