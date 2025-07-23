@@ -43,7 +43,12 @@ const Dashboard = () => {
               <PulseButton variant="ghost" size="sm" title="Notifications">
                 <Bell className="w-4 h-4" />
               </PulseButton>
-              <PulseButton variant="ghost" size="sm" title="Profile">
+              <PulseButton 
+                variant="ghost" 
+                size="sm" 
+                title="Profile"
+                onClick={() => navigate('/settings')}
+              >
                 <User className="w-4 h-4" />
               </PulseButton>
               <PulseButton variant="ghost" size="sm" onClick={handleLogout} title="Logout">
