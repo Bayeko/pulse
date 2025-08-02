@@ -35,21 +35,23 @@ export interface PulseButtonProps
 
 const PulseButton = React.forwardRef<HTMLButtonElement, PulseButtonProps>(
   ({ className, variant, size, asChild = false, children, ...props }, ref) => {
-    const Comp = asChild ? "span" : "button";
-    
+    const content = (
+      <>
+        {children}
+        {variant === "pulse" && (
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite] pointer-events-none" />
+        )}
+      </>
+    );
+
     return (
       <Button
         className={cn(pulseButtonVariants({ variant, size, className }))}
         ref={ref}
-        {...props}
         asChild={asChild}
+        {...props}
       >
-        <Comp>
-          {children}
-          {variant === "pulse" && (
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite] pointer-events-none" />
-          )}
-        </Comp>
+        {asChild ? <span>{content}</span> : content}
       </Button>
     );
   }
