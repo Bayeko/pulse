@@ -201,10 +201,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false;
       }
 
+      // Get current user's profile ID
+      const { data: currentProfile, error: currentProfileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (currentProfileError || !currentProfile) {
+        toast({
+          title: "Connection failed",
+          description: "Unable to retrieve your profile.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
       // Update current user's partner_id
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ partner_id: partnerProfile.user_id })
+        .update({ partner_id: partnerProfile.id })
         .eq('user_id', user.id);
 
       if (updateError) {
@@ -219,7 +235,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Also update partner's partner_id to create mutual connection
       await supabase
         .from('profiles')
-        .update({ partner_id: user.id })
+        .update({ partner_id: currentProfile.id })
         .eq('user_id', partnerProfile.user_id);
 
       // Refresh user profile
