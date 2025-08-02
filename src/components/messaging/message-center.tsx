@@ -34,7 +34,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
   const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Fetch messages on component mount
+  // Récupère les messages lorsque l’utilisateur et son partenaire sont disponibles
   useEffect(() => {
     if (user && user.partnerId) {
       fetchMessages();
