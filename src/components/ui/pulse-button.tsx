@@ -1,7 +1,7 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { cva, type VariantProps } from 'class-variance-authority';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { cva, type VariantProps } from "class-variance-authority";
 
 const pulseButtonVariants = cva(
   "relative overflow-hidden transition-all duration-300 font-medium",
@@ -30,31 +30,41 @@ const pulseButtonVariants = cva(
 export interface PulseButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof pulseButtonVariants> {
-  asChild?: boolean;
+  asChild?: boolean
 }
 
 const PulseButton = React.forwardRef<HTMLButtonElement, PulseButtonProps>(
   ({ className, variant, size, asChild = false, children, ...props }, ref) => {
-    const Comp = asChild ? "span" : "button";
-    
+    const shimmer =
+      variant === "pulse" ? (
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite] pointer-events-none" />
+      ) : null
+
     return (
       <Button
         className={cn(pulseButtonVariants({ variant, size, className }))}
         ref={ref}
-        {...props}
         asChild={asChild}
+        {...props}
       >
-        <Comp>
-          {children}
-          {variant === "pulse" && (
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite] pointer-events-none" />
-          )}
-        </Comp>
+        {asChild && React.isValidElement(children)
+          ? React.cloneElement(children as React.ReactElement, {}, (
+              <>
+                {children.props.children}
+                {shimmer}
+              </>
+            ))
+          : (
+              <>
+                {children}
+                {shimmer}
+              </>
+            )}
       </Button>
-    );
+    )
   }
-);
+)
 
-PulseButton.displayName = "PulseButton";
+PulseButton.displayName = "PulseButton"
 
-export { PulseButton, pulseButtonVariants };
+export { PulseButton, pulseButtonVariants }

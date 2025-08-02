@@ -79,7 +79,7 @@ const Settings: React.FC = () => {
     { id: 'notifications', name: 'Notifications', icon: Bell },
     { id: 'privacy', name: 'Privacy', icon: Shield },
     { id: 'general', name: 'General', icon: SettingsIcon },
-  ];
+  ] as const;
 
   return (
     <div className="min-h-screen bg-gradient-soft p-4">
@@ -111,7 +111,7 @@ const Settings: React.FC = () => {
                   return (
                     <button
                       key={section.id}
-                      onClick={() => setActiveSection(section.id as any)}
+                      onClick={() => setActiveSection(section.id)}
                       className={cn(
                         "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all duration-200",
                         activeSection === section.id
@@ -353,14 +353,14 @@ const Settings: React.FC = () => {
                     <div>
                       <h3 className="font-medium mb-3">Theme</h3>
                       <div className="grid grid-cols-3 gap-3">
-                        {[
+                        {([
                           { id: 'light', name: 'Light', icon: Sun },
                           { id: 'dark', name: 'Dark', icon: Moon },
                           { id: 'auto', name: 'Auto', icon: Smartphone },
-                        ].map(({ id, name, icon: Icon }) => (
+                        ] as const).map(({ id, name, icon: Icon }) => (
                           <button
                             key={id}
-                            onClick={() => setSettings({ ...settings, theme: id as any })}
+                            onClick={() => setSettings({ ...settings, theme: id })}
                             className={cn(
                               "p-3 rounded-lg border text-center transition-all duration-200",
                               settings.theme === id
