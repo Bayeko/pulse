@@ -16,7 +16,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
-  connectPartner: (partnerCode: string, partnerName: string) => Promise<boolean>;
+  connectPartner: (partnerEmail: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -173,7 +173,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const connectPartner = async (partnerCode: string, partnerName: string): Promise<boolean> => {
+  const connectPartner = async (partnerEmail: string): Promise<boolean> => {
     setIsLoading(true);
     try {
       if (!user || !session) {
@@ -185,17 +185,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false;
       }
 
-      // Find partner by their unique code (we'll implement this as email for now)
+      // Find partner by email (used as unique identifier)
       const { data: partnerProfile, error: findError } = await supabase
         .from('profiles')
         .select('id, user_id, name')
-        .eq('email', partnerCode) // Using email as partner code for simplicity
+        .eq('email', partnerEmail)
         .single();
 
       if (findError || !partnerProfile) {
         toast({
           title: "Connection failed",
-          description: "Partner not found. Please check the code.",
+          description: "Partner not found. Please check the email address.",
           variant: "destructive",
         });
         return false;
