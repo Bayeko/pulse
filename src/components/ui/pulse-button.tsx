@@ -67,4 +67,4 @@ const PulseButton = React.forwardRef<HTMLButtonElement, PulseButtonProps>(
 
 PulseButton.displayName = "PulseButton"
 
-export { PulseButton, pulseButtonVariants }
+export { PulseButton }
