@@ -4,6 +4,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { useTranslation } from '@/i18n';
+import { LanguageSwitcher } from '@/components/ui/language-switcher';
 
 const items = [
   { title: 'Code Pulse', description: 'Exprimez vos envies par pulsations discrètes.' },
@@ -17,6 +18,9 @@ export const StepIntro: React.FC = () => {
 
   return (
     <div className="space-y-8">
+      <div className="flex justify-end">
+        <LanguageSwitcher />
+      </div>
       <Carousel className="w-full max-w-md mx-auto">
         <CarouselContent>
           {items.map((item, index) => (
