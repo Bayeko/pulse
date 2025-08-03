@@ -9,13 +9,14 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
-  Settings as SettingsIcon, 
-  User, 
-  Bell, 
-  Heart, 
-  Shield, 
-  Smartphone, 
-  Moon, 
+  Settings as SettingsIcon,
+  User,
+  Bell,
+  Heart,
+  Shield,
+  LifeBuoy,
+  Smartphone,
+  Moon,
   Sun,
   Camera,
   Save,
@@ -421,6 +422,17 @@ const Settings: React.FC = () => {
                           </button>
                         ))}
                       </div>
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-3">
+                      <h3 className="font-medium">Support</h3>
+                      <p className="text-sm text-muted-foreground">Need help with Pulse?</p>
+                      <PulseButton onClick={() => navigate('/faq')}>
+                        <LifeBuoy className="w-4 h-4 mr-2" />
+                        Help Center
+                      </PulseButton>
                     </div>
 
                     <Separator />
