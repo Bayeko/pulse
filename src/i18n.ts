@@ -5,11 +5,13 @@ const translations = {
     createAccount: 'Create account',
     joinPartner: 'Join partner',
     invitePartner: 'Invite partner',
+    autoDelete30d: 'Auto delete messages after 30 days',
   },
   fr: {
     createAccount: 'Créer un compte',
     joinPartner: 'Rejoindre mon/ma partenaire',
     invitePartner: 'Inviter mon/ma partenaire',
+    autoDelete30d: 'Supprimer automatiquement les messages après 30 jours',
   },
 } as const;
 
