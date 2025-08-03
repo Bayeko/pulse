@@ -32,6 +32,7 @@ interface SettingsData {
   email: string;
   bio: string;
   avatar: string;
+  historyEnabled: boolean;
   notifications: {
     pulses: boolean;
     messages: boolean;
@@ -55,6 +56,7 @@ const Settings: React.FC = () => {
     email: user?.email || '',
     bio: 'Living life with my amazing partner 💕',
     avatar: '',
+    historyEnabled: true,
     notifications: {
       pulses: true,
       messages: true,
@@ -70,6 +72,13 @@ const Settings: React.FC = () => {
   });
 
   const [activeSection, setActiveSection] = useState<'profile' | 'notifications' | 'privacy' | 'general'>('profile');
+
+  useEffect(() => {
+    const stored = localStorage.getItem('historyEnabled');
+    if (stored !== null) {
+      setSettings((prev) => ({ ...prev, historyEnabled: stored === 'true' }));
+    }
+  }, []);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -398,6 +407,24 @@ const Settings: React.FC = () => {
               {activeSection === 'general' && (
                 <div className="space-y-6">
                   <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-medium">Pulse History</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Save and display your pulse history
+                        </p>
+                      </div>
+                      <Switch
+                        checked={settings.historyEnabled}
+                        onCheckedChange={(checked) => {
+                          setSettings({ ...settings, historyEnabled: checked });
+                          localStorage.setItem('historyEnabled', String(checked));
+                        }}
+                      />
+                    </div>
+
+                    <Separator />
+
                     <div>
                       <h3 className="font-medium mb-3">Theme</h3>
                       <div className="grid grid-cols-3 gap-3">
