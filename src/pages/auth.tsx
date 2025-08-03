@@ -1,9 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthCard } from '@/components/auth/auth-card';
 import heroImage from '@/assets/pulse-hero.jpg';
+import { useSearchParams } from 'react-router-dom';
 
 const Auth = () => {
-  const [authMode, setAuthMode] = useState<'login' | 'register' | 'connect'>('login');
+  const [searchParams] = useSearchParams();
+  const initialMode = (searchParams.get('mode') as 'login' | 'register' | 'connect') || 'login';
+  const [authMode, setAuthMode] = useState<'login' | 'register' | 'connect'>(initialMode);
+
+  useEffect(() => {
+    const mode = searchParams.get('mode') as 'login' | 'register' | 'connect' | null;
+    if (mode) {
+      setAuthMode(mode);
+    }
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen bg-gradient-soft">
