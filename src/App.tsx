@@ -15,11 +15,15 @@ import Calendar from "./pages/calendar";
 import Settings from "./pages/settings";
 import NotFound from "./pages/NotFound";
 import PairPage from "./pages/pair";
+ codex/add-insights-page-with-frequency-chart
+import Insights from "./pages/insights";
+
 codex/add-paywall-page-with-visuals-and-pricing
 import Paywall from "./pages/paywall";
 
 import FAQ from "./pages/faq";
 main
+ main
 import { usePushNotifications } from "@/hooks/use-push-notifications";
 import FAQ from "./pages/faq";
 import Contact from "./pages/contact";
@@ -54,6 +58,11 @@ const App = () => {
               <Route path="/calendar" element={
                 <ProtectedRoute>
                   <Calendar />
+                </ProtectedRoute>
+              } />
+              <Route path="/insights" element={
+                <ProtectedRoute>
+                  <Insights />
                 </ProtectedRoute>
               } />
                 <Route path="/settings" element={
