@@ -8,6 +8,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+ codex/add-face-id-switch-in-settings
+import {
+  Settings as SettingsIcon,
+  User,
+  Bell,
+  Heart, 
+  Shield, 
+  Smartphone, 
+  Moon, 
+
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/i18n';
 import { 
@@ -23,6 +33,7 @@ import {
  main
   Smartphone,
   Moon,
+ main
   Sun,
   Camera,
   Save,
@@ -34,6 +45,10 @@ import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables, TablesUpdate } from '@/integrations/supabase/types';
 import { useToast } from '@/hooks/use-toast';
+ codex/add-face-id-switch-in-settings
+import { useTranslation } from '@/i18n';
+
+ main
 
 interface SettingsData {
   name: string;
@@ -50,7 +65,11 @@ interface SettingsData {
     shareLocation: boolean;
     showOnlineStatus: boolean;
     readReceipts: boolean;
+ codex/add-face-id-switch-in-settings
+    useFaceID: boolean;
+
     autoDelete30d: boolean;
+ main
   };
   theme: 'light' | 'dark' | 'auto';
 }
@@ -59,12 +78,16 @@ const Settings: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+ codex/add-face-id-switch-in-settings
+  const { t } = useTranslation();
+
  codex/add-auto-delete-setting-for-messages
   const { t } = useTranslation();
 
 codex/add-export-data-feature-in-settings
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+ main
  main
  main
   
@@ -79,6 +102,16 @@ codex/add-export-data-feature-in-settings
       calendar: true,
       reminders: false,
     },
+ codex/add-face-id-switch-in-settings
+    privacy: {
+      shareLocation: false,
+      showOnlineStatus: true,
+      readReceipts: true,
+      useFaceID: false,
+    },
+    theme: 'light',
+  });
+
       privacy: {
         shareLocation: false,
         showOnlineStatus: true,
@@ -87,6 +120,7 @@ codex/add-export-data-feature-in-settings
       },
       theme: 'light',
     });
+ main
 
   const [activeSection, setActiveSection] = useState<'profile' | 'notifications' | 'privacy' | 'general' | 'help'>('profile');
 
@@ -95,7 +129,7 @@ codex/add-export-data-feature-in-settings
       if (!user) return;
       const { data, error } = await supabase
         .from('profiles')
-        .select('name, email, bio, avatar')
+        .select('name, email, bio, avatar, use_face_id')
         .eq('user_id', user.id)
         .single();
 
@@ -113,6 +147,10 @@ codex/add-export-data-feature-in-settings
           email: profile.email || '',
           bio: profile.bio || '',
           avatar: profile.avatar || '',
+          privacy: {
+            ...prev.privacy,
+            useFaceID: profile.use_face_id ?? false,
+          },
         }));
       }
     };
@@ -258,6 +296,59 @@ codex/add-export-data-feature-in-settings
         variant: 'destructive',
       });
  main
+    }
+  };
+
+  const registerBiometrics = async () => {
+    if (!window.PublicKeyCredential) {
+      toast({ description: 'Biometrics not supported', variant: 'destructive' });
+      return false;
+    }
+    try {
+      const publicKey: PublicKeyCredentialCreationOptions = {
+        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        rp: { name: 'Pulse' },
+        user: {
+          id: crypto.getRandomValues(new Uint8Array(16)),
+          name: user?.email || 'user@example.com',
+          displayName: user?.name || 'User',
+        },
+        pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+        authenticatorSelection: { userVerification: 'preferred' },
+        timeout: 60000,
+        attestation: 'none',
+      };
+      await navigator.credentials.create({ publicKey });
+      const authOptions: PublicKeyCredentialRequestOptions = {
+        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        userVerification: 'preferred',
+      };
+      await navigator.credentials.get({ publicKey: authOptions });
+      return true;
+    } catch (error) {
+      console.error('Biometric registration failed', error);
+      return false;
+    }
+  };
+
+  const handleFaceIDToggle = async (checked: boolean) => {
+    if (!user) return;
+    if (checked) {
+      const ok = await registerBiometrics();
+      if (!ok) return;
+    }
+    setSettings({
+      ...settings,
+      privacy: { ...settings.privacy, useFaceID: checked },
+    });
+    const { error } = await supabase
+      .from('profiles')
+      .update({ use_face_id: checked })
+      .eq('user_id', user.id);
+    if (error) {
+      toast({ description: 'Unable to update Face ID preference', variant: 'destructive' });
+    } else {
+      toast({ description: checked ? 'Face ID enabled' : 'Face ID disabled' });
     }
   };
 
@@ -495,11 +586,11 @@ codex/add-export-data-feature-in-settings
               {activeSection === 'privacy' && (
                 <div className="space-y-6">
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-medium">Share Location</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Let your partner see your location
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-medium">Share Location</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Let your partner see your location
                         </p>
                       </div>
                       <Switch
@@ -573,6 +664,18 @@ codex/add-export-data-feature-in-settings
                             privacy: { ...settings.privacy, autoDelete30d: checked }
                           })
                         }
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-medium">{t('useFaceID')}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Secure your account with biometrics
+                        </p>
+                      </div>
+                      <Switch
+                        checked={settings.privacy.useFaceID}
+                        onCheckedChange={handleFaceIDToggle}
                       />
                     </div>
                   </div>
