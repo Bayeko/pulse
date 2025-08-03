@@ -38,6 +38,7 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [selectedDate, setSelectedDate] = useState('2024-01-15');
   const [view, setView] = useState<'week' | 'suggestions'>('week');
+  const [showMutualOnly, setShowMutualOnly] = useState(false);
 
   const parseTime = (time: string) => {
     const [h, m] = time.split(':').map(Number);
@@ -276,8 +277,15 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
   };
 
   const getSlotsForDate = (date: string) => {
-    return timeSlots.filter(slot => slot.date === date);
+    return timeSlots.filter(
+      slot => slot.date === date && (!showMutualOnly || slot.type === 'mutual')
+    );
   };
+
+  const slotsForSelectedDate = getSlotsForDate(selectedDate);
+  const allSlotsForSelectedDate = timeSlots.filter(
+    slot => slot.date === selectedDate
+  );
 
   return (
     <Card className={cn("shadow-card animate-scale-in", className)}>
@@ -349,15 +357,24 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
                      day: 'numeric'
                    })}
                 </h3>
-                <PulseButton variant="ghost" size="sm" onClick={addTimeSlot}>
-                  <Plus className="w-4 h-4 mr-1" />
-                  Add Time Slot
-                </PulseButton>
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant={showMutualOnly ? 'default' : 'secondary'}
+                    className="cursor-pointer"
+                    onClick={() => setShowMutualOnly(!showMutualOnly)}
+                  >
+                    Mutual Only
+                  </Badge>
+                  <PulseButton variant="ghost" size="sm" onClick={addTimeSlot}>
+                    <Plus className="w-4 h-4 mr-1" />
+                    Add Time Slot
+                  </PulseButton>
+                </div>
               </div>
 
-              {getSlotsForDate(selectedDate).length > 0 ? (
+              {slotsForSelectedDate.length > 0 ? (
                 <div className="space-y-2">
-                  {getSlotsForDate(selectedDate).map((slot) => {
+                  {slotsForSelectedDate.map((slot) => {
                     const typeInfo = getSlotTypeInfo(slot.type);
                     return (
                       <div
@@ -402,7 +419,11 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p>No time slots for this day</p>
+                  <p>
+                    {showMutualOnly && allSlotsForSelectedDate.length > 0
+                      ? 'No mutual time slots for this day'
+                      : 'No time slots for this day'}
+                  </p>
                 </div>
               )}
             </div>
