@@ -6,10 +6,14 @@ const translations = {
     createAccount: 'Create account',
     joinPartner: 'Join partner',
     invitePartner: 'Invite partner',
+ codex/handle-absent-user.partnerid-in-dashboard
+    notLinked: 'Not linked to a partner',
+
  codex/add-face-id-switch-in-settings
     useFaceID: 'Use Face ID',
 
     autoDelete30d: 'Auto delete messages after 30 days',
+ main
  main
   },
   fr: {
@@ -17,10 +21,14 @@ const translations = {
     createAccount: 'Créer un compte',
     joinPartner: 'Rejoindre mon/ma partenaire',
     invitePartner: 'Inviter mon/ma partenaire',
+ codex/handle-absent-user.partnerid-in-dashboard
+    notLinked: 'Pas de partenaire lié',
+
  codex/add-face-id-switch-in-settings
     useFaceID: 'Utiliser Face ID',
 
     autoDelete30d: 'Supprimer automatiquement les messages après 30 jours',
+ main
  main
   },
 } as const;
