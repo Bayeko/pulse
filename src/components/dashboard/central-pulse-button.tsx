@@ -64,10 +64,13 @@ export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ classNam
       onClick={handleClick}
       className={cn(
         'relative w-16 h-16 rounded-full flex items-center justify-center bg-gradient-primary text-primary-foreground shadow-glow',
-        state !== 'idle' && 'animate-pulse',
+        state === 'sending' && 'animate-pulse',
         className
       )}
     >
+      {state === 'sending' && (
+        <span className="pointer-events-none absolute inset-0 rounded-full bg-primary/40 animate-ping" />
+      )}
       {state === 'sent' ? (
         <Check className="w-8 h-8" />
       ) : (
