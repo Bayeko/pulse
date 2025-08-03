@@ -13,6 +13,7 @@ type PulseState = 'idle' | 'sending' | 'sent';
 export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ className }) => {
   const { user } = useAuth();
   const [state, setState] = useState<PulseState>('idle');
+  const [showHalo, setShowHalo] = useState(false);
 
   const handleClick = async () => {
     if (!user || !user.partnerId) return;
@@ -20,6 +21,7 @@ export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ classNam
     navigator.vibrate?.(50);
 
     setState('sending');
+    setShowHalo(true);
 
     try {
       await supabase.from('messages').insert({
@@ -32,11 +34,13 @@ export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ classNam
     } catch (error) {
       console.error('Error sending pulse:', error);
       setState('idle');
+      setShowHalo(false);
       return;
     }
 
     setTimeout(() => {
       setState('idle');
+      setShowHalo(false);
     }, 1000);
   };
 
@@ -50,10 +54,18 @@ export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ classNam
         className
       )}
     >
+      {showHalo && (
+        <span className="absolute inset-0 rounded-full border-4 border-primary/50 pointer-events-none animate-pulse-halo" />
+      )}
       {state === 'sent' ? (
-        <Check className="w-8 h-8" />
+        <Check className="w-8 h-8 animate-scale-in" />
       ) : (
-        <Heart className="w-8 h-8" />
+        <Heart
+          className={cn(
+            'w-8 h-8 transition-opacity',
+            state === 'sending' && 'opacity-50'
+          )}
+        />
       )}
     </button>
   );

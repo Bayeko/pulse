@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
 	darkMode: ["class"],
@@ -122,20 +123,35 @@ export default {
 						transform: 'scale(1)'
 					}
 				},
-				'heartbeat': {
-					'0%, 28%, 70%': { transform: 'scale(1)' },
-					'14%, 42%': { transform: 'scale(1.1)' }
-				}
-			},
-			animation: {
-				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out',
-				'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
-				'fade-in-up': 'fade-in-up 0.5s ease-out',
-				'scale-in': 'scale-in 0.3s ease-out',
-				'heartbeat': 'heartbeat 1.5s ease-in-out infinite'
-			}
-		}
-	},
-	plugins: [require("tailwindcss-animate")],
+                                'heartbeat': {
+                                        '0%, 28%, 70%': { transform: 'scale(1)' },
+                                        '14%, 42%': { transform: 'scale(1.1)' }
+                                },
+                                'pulse-halo': {
+                                        '0%': {
+                                                opacity: '0.6',
+                                                transform: 'scale(1)'
+                                        },
+                                        '70%': {
+                                                opacity: '0',
+                                                transform: 'scale(1.8)'
+                                        },
+                                        '100%': {
+                                                opacity: '0',
+                                                transform: 'scale(2)'
+                                        }
+                                }
+                        },
+                        animation: {
+                                'accordion-down': 'accordion-down 0.2s ease-out',
+                                'accordion-up': 'accordion-up 0.2s ease-out',
+                                'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+                                'fade-in-up': 'fade-in-up 0.5s ease-out',
+                                'scale-in': 'scale-in 0.3s ease-out',
+                                'heartbeat': 'heartbeat 1.5s ease-in-out infinite',
+                                'pulse-halo': 'pulse-halo 0.8s ease-out forwards'
+                        }
+                }
+        },
+        plugins: [tailwindcssAnimate],
 } satisfies Config;
