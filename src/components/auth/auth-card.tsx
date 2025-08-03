@@ -52,7 +52,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
           success = await register(formData.name, formData.email, formData.password);
           break;
         case 'connect':
-          success = await connectPartner(formData.partnerEmail, '');
+          success = await connectPartner(formData.partnerEmail);
           break;
       }
       

@@ -16,7 +16,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
-  connectPartner: (partnerEmail: string, partnerName: string) => Promise<boolean>;
+  connectPartner: (partnerEmail: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -173,7 +173,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const connectPartner = async (partnerEmail: string, partnerName: string): Promise<boolean> => {
+  const connectPartner = async (partnerEmail: string): Promise<boolean> => {
     setIsLoading(true);
     try {
       if (!user || !session) {
