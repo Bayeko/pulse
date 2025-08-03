@@ -1,33 +1,93 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, Heart, Plus, Sparkles } from 'lucide-react';
+import { Calendar, Clock, Heart, Plus, Sparkles, Trash2, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface TimeSlot {
   id: string;
+  user_id: string;
   start: string;
   end: string;
   date: string;
   type: 'mutual' | 'suggested' | 'booked';
-  title?: string;
+  title?: string | null;
 }
-
-const mockTimeSlots: TimeSlot[] = [
-  { id: '1', start: '19:00', end: '21:00', date: '2024-01-15', type: 'mutual', title: 'Evening Together' },
-  { id: '2', start: '14:00', end: '16:00', date: '2024-01-16', type: 'suggested' },
-  { id: '3', start: '20:00', end: '22:00', date: '2024-01-17', type: 'mutual' },
-  { id: '4', start: '18:30', end: '20:30', date: '2024-01-18', type: 'booked', title: 'Date Night' },
-];
 
 interface SharedCalendarProps {
   className?: string;
 }
 
 export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => {
+  const { user } = useAuth();
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [selectedDate, setSelectedDate] = useState('2024-01-15');
   const [view, setView] = useState<'week' | 'suggestions'>('week');
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchSlots = async () => {
+      const { data, error } = await supabase
+        .from('time_slots')
+        .select('*')
+        .eq('user_id', user.id);
+      if (!error && data) {
+        setTimeSlots(data as TimeSlot[]);
+      }
+    };
+
+    fetchSlots();
+  }, [user]);
+
+  const addTimeSlot = async () => {
+    if (!user) return;
+    const start = prompt('Start time (HH:MM)');
+    const end = prompt('End time (HH:MM)');
+    if (!start || !end) return;
+    const title = prompt('Title') || null;
+    const { data, error } = await supabase
+      .from('time_slots')
+      .insert({ user_id: user.id, start, end, date: selectedDate, type: 'mutual', title })
+      .select()
+      .single();
+    if (!error && data) {
+      setTimeSlots(prev => [...prev, data as TimeSlot]);
+    }
+  };
+
+  const updateTimeSlot = async (id: string) => {
+    if (!user) return;
+    const start = prompt('Start time (HH:MM)');
+    const end = prompt('End time (HH:MM)');
+    if (!start || !end) return;
+    const title = prompt('Title') || null;
+    const { data, error } = await supabase
+      .from('time_slots')
+      .update({ start, end, title })
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select()
+      .single();
+    if (!error && data) {
+      setTimeSlots(prev => prev.map(slot => (slot.id === id ? (data as TimeSlot) : slot)));
+    }
+  };
+
+  const deleteTimeSlot = async (id: string) => {
+    if (!user) return;
+    const { error } = await supabase
+      .from('time_slots')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id);
+    if (!error) {
+      setTimeSlots(prev => prev.filter(slot => slot.id !== id));
+    }
+  };
 
   const weekDays = [
     { date: '2024-01-15', day: 'Mon', dayNum: '15' },
@@ -63,7 +123,7 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
   };
 
   const getSlotsForDate = (date: string) => {
-    return mockTimeSlots.filter(slot => slot.date === date);
+    return timeSlots.filter(slot => slot.date === date);
   };
 
   return (
@@ -126,16 +186,22 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
 
             {/* Selected Date Slots */}
             <div className="space-y-3">
-              <h3 className="font-medium text-foreground flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                {selectedDate === '2024-01-15' ? 'Today' : 
-                 new Date(selectedDate).toLocaleDateString('en-US', { 
-                   weekday: 'long', 
-                   month: 'short', 
-                   day: 'numeric' 
-                 })}
-              </h3>
-              
+              <div className="flex items-center justify-between">
+                <h3 className="font-medium text-foreground flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  {selectedDate === '2024-01-15' ? 'Today' :
+                   new Date(selectedDate).toLocaleDateString('en-US', {
+                     weekday: 'long',
+                     month: 'short',
+                     day: 'numeric'
+                   })}
+                </h3>
+                <PulseButton variant="ghost" size="sm" onClick={addTimeSlot}>
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add Time Slot
+                </PulseButton>
+              </div>
+
               {getSlotsForDate(selectedDate).length > 0 ? (
                 <div className="space-y-2">
                   {getSlotsForDate(selectedDate).map((slot) => {
@@ -155,9 +221,23 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
                               {slot.start} - {slot.end}
                             </span>
                           </div>
-                          <Badge variant="outline" className="text-xs">
-                            {typeInfo.label}
-                          </Badge>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-xs">
+                              {typeInfo.label}
+                            </Badge>
+                            <button
+                              onClick={() => updateTimeSlot(slot.id)}
+                              className="p-1 hover:text-foreground text-muted-foreground"
+                            >
+                              <Pencil className="w-3 h-3" />
+                            </button>
+                            <button
+                              onClick={() => deleteTimeSlot(slot.id)}
+                              className="p-1 hover:text-destructive text-destructive/80"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
                         </div>
                         {slot.title && (
                           <p className="text-sm mt-1 opacity-90">{slot.title}</p>
@@ -170,10 +250,6 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
                 <div className="text-center py-8 text-muted-foreground">
                   <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
                   <p>No time slots for this day</p>
-                  <PulseButton variant="ghost" size="sm" className="mt-2">
-                    <Plus className="w-4 h-4 mr-1" />
-                    Add Time Slot
-                  </PulseButton>
                 </div>
               )}
             </div>
