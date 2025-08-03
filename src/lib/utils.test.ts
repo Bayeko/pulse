@@ -13,4 +13,8 @@ describe("cn", () => {
   it("supprime les doublons", () => {
     expect(cn("p-2", "p-4")).toBe("p-4");
   });
+
+  it("ignore les valeurs falsy", () => {
+    expect(cn("foo", null, undefined, false, "bar")).toBe("foo bar");
+  });
 });

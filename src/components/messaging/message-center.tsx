@@ -21,6 +21,16 @@ interface Message {
   sender_name?: string;
 }
 
+interface DatabaseMessage {
+  id: string;
+  content: string;
+  type: 'text' | 'emoji';
+  sender_id: string;
+  receiver_id: string;
+  created_at: string;
+  read_at: string | null;
+}
+
 interface MessageCenterProps {
   className?: string;
 }
@@ -57,15 +67,9 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
         },
         (payload) => {
           console.log('New message received:', payload);
-          const newMessage = payload.new as any;
+          const newMessage = payload.new as DatabaseMessage;
           const formattedMessage: Message = {
-            id: newMessage.id,
-            content: newMessage.content,
-            type: newMessage.type as 'text' | 'emoji',
-            sender_id: newMessage.sender_id,
-            receiver_id: newMessage.receiver_id,
-            created_at: newMessage.created_at,
-            read_at: newMessage.read_at,
+            ...newMessage,
             sender_name: newMessage.sender_id === user.id ? user.name : user.partnerName
           };
           setMessages(prev => [...prev, formattedMessage]);
@@ -81,9 +85,9 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
         },
         (payload) => {
           console.log('Message updated:', payload);
-          const updatedMessage = payload.new as any;
-          setMessages(prev => prev.map(msg => 
-            msg.id === updatedMessage.id 
+          const updatedMessage = payload.new as DatabaseMessage;
+          setMessages(prev => prev.map(msg =>
+            msg.id === updatedMessage.id
               ? { ...msg, read_at: updatedMessage.read_at }
               : msg
           ));
@@ -365,7 +369,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
               placeholder="Type your message..."
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
                   sendMessage(newMessage);
