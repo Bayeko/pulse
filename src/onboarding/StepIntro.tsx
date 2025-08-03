@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from '@/components/ui/carousel';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
+import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/i18n';
 
 const items = [
@@ -14,6 +15,15 @@ const items = [
 export const StepIntro: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { user } = useAuth();
+
+  const handleInvite = () => {
+    if (user) {
+      navigate('/pair');
+    } else {
+      navigate('/auth?mode=connect');
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -41,6 +51,11 @@ export const StepIntro: React.FC = () => {
         </PulseButton>
         <PulseButton variant="ghost" onClick={() => navigate('/auth?mode=connect')}>
           {t('joinPartner')}
+        </PulseButton>
+      </div>
+      <div className="flex justify-center">
+        <PulseButton onClick={handleInvite}>
+          {t('invitePartner')}
         </PulseButton>
       </div>
     </div>

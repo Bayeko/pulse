@@ -2,10 +2,12 @@ const translations = {
   en: {
     createAccount: 'Create account',
     joinPartner: 'Join partner',
+    invitePartner: 'Invite partner',
   },
   fr: {
     createAccount: 'Créer un compte',
     joinPartner: 'Rejoindre mon/ma partenaire',
+    invitePartner: 'Inviter mon/ma partenaire',
   },
 } as const;
 
