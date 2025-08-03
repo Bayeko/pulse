@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { scheduleReminder } from '@/lib/reminders';
+import { useTranslation } from '@/i18n';
 
 interface TimeSlot {
   id: string;
@@ -33,6 +34,7 @@ interface SharedCalendarProps {
 
 export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [partnerSlots, setPartnerSlots] = useState<TimeSlot[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -401,8 +403,19 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
                 </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
-                  <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p>No time slots for this day</p>
+                  <svg
+                    className="w-16 h-16 mx-auto mb-4 opacity-50"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <path d="M8 12h8M12 8v8" />
+                  </svg>
+                  <p>{t('addFirstAvailability')}</p>
                 </div>
               )}
             </div>
