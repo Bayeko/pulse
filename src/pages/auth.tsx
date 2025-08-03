@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AuthCard } from '@/components/auth/auth-card';
 import heroImage from '@/assets/pulse-hero.jpg';
 import { useSearchParams } from 'react-router-dom';
+import { LanguageSwitcher } from '@/components/ui/language-switcher';
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -19,7 +20,10 @@ const Auth = () => {
     <div className="min-h-screen bg-gradient-soft">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
-        <div 
+        <div className="absolute top-4 right-4 z-20">
+          <LanguageSwitcher />
+        </div>
+        <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
           style={{ backgroundImage: `url(${heroImage})` }}
         />
