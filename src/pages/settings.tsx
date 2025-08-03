@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { Badge } from '@/components/ui/badge';
@@ -9,13 +9,14 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
-  Settings as SettingsIcon, 
-  User, 
-  Bell, 
-  Heart, 
-  Shield, 
-  Smartphone, 
-  Moon, 
+  Settings as SettingsIcon,
+  User,
+  Bell,
+  Heart,
+  Shield,
+  LifeBuoy,
+  Smartphone,
+  Moon,
   Sun,
   Camera,
   Save,
@@ -51,6 +52,10 @@ const Settings: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+codex/add-export-data-feature-in-settings
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+ main
   
   const [settings, setSettings] = useState<SettingsData>({
     name: user?.name || '',
@@ -119,8 +124,36 @@ const Settings: React.FC = () => {
 
     if (error) {
       console.error('Error saving settings:', error);
+      toast({
+        title: 'Save failed',
+        description: 'Could not update settings.',
+        variant: 'destructive',
+      });
     } else {
-      console.log('Settings saved');
+      toast({ title: 'Settings saved', description: 'Your changes have been saved.' });
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    try {
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${user.id}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+      setSettings({ ...settings, avatar: data.publicUrl });
+      toast({ title: 'Avatar updated' });
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      toast({
+        title: 'Upload failed',
+        description: 'Could not upload avatar.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -277,13 +310,18 @@ const Settings: React.FC = () => {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                    <PulseButton variant="ghost" size="sm">
-                      <Camera className="w-4 h-4 mr-2" />
-                      Change Photo
-                    </PulseButton>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        JPG, PNG up to 5MB
-                      </p>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleAvatarUpload}
+                      />
+                      <PulseButton variant="ghost" size="sm" onClick={() => fileInputRef.current?.click()}>
+                        <Camera className="w-4 h-4 mr-2" />
+                        Change Photo
+                      </PulseButton>
+                      <p className="text-sm text-muted-foreground mt-1">JPG, PNG up to 5MB</p>
                     </div>
                   </div>
 
@@ -348,12 +386,15 @@ const Settings: React.FC = () => {
                       </div>
                       <Switch
                         checked={settings.notifications.pulses}
-                        onCheckedChange={(checked) =>
+                        onCheckedChange={(checked) => {
                           setSettings({
                             ...settings,
-                            notifications: { ...settings.notifications, pulses: checked }
-                          })
-                        }
+                            notifications: { ...settings.notifications, pulses: checked },
+                          });
+                          toast({
+                            title: `Pulse notifications ${checked ? 'enabled' : 'disabled'}`,
+                          });
+                        }}
                       />
                     </div>
 
@@ -366,12 +407,15 @@ const Settings: React.FC = () => {
                       </div>
                       <Switch
                         checked={settings.notifications.messages}
-                        onCheckedChange={(checked) =>
+                        onCheckedChange={(checked) => {
                           setSettings({
                             ...settings,
-                            notifications: { ...settings.notifications, messages: checked }
-                          })
-                        }
+                            notifications: { ...settings.notifications, messages: checked },
+                          });
+                          toast({
+                            title: `Message notifications ${checked ? 'enabled' : 'disabled'}`,
+                          });
+                        }}
                       />
                     </div>
 
@@ -384,12 +428,15 @@ const Settings: React.FC = () => {
                       </div>
                       <Switch
                         checked={settings.notifications.calendar}
-                        onCheckedChange={(checked) =>
+                        onCheckedChange={(checked) => {
                           setSettings({
                             ...settings,
-                            notifications: { ...settings.notifications, calendar: checked }
-                          })
-                        }
+                            notifications: { ...settings.notifications, calendar: checked },
+                          });
+                          toast({
+                            title: `Calendar notifications ${checked ? 'enabled' : 'disabled'}`,
+                          });
+                        }}
                       />
                     </div>
 
@@ -402,12 +449,15 @@ const Settings: React.FC = () => {
                       </div>
                       <Switch
                         checked={settings.notifications.reminders}
-                        onCheckedChange={(checked) =>
+                        onCheckedChange={(checked) => {
                           setSettings({
                             ...settings,
-                            notifications: { ...settings.notifications, reminders: checked }
-                          })
-                        }
+                            notifications: { ...settings.notifications, reminders: checked },
+                          });
+                          toast({
+                            title: `Daily reminders ${checked ? 'enabled' : 'disabled'}`,
+                          });
+                        }}
                       />
                     </div>
                   </div>
@@ -426,12 +476,15 @@ const Settings: React.FC = () => {
                       </div>
                       <Switch
                         checked={settings.privacy.shareLocation}
-                        onCheckedChange={(checked) =>
+                        onCheckedChange={(checked) => {
                           setSettings({
                             ...settings,
-                            privacy: { ...settings.privacy, shareLocation: checked }
-                          })
-                        }
+                            privacy: { ...settings.privacy, shareLocation: checked },
+                          });
+                          toast({
+                            title: `Location sharing ${checked ? 'enabled' : 'disabled'}`,
+                          });
+                        }}
                       />
                     </div>
 
@@ -444,12 +497,15 @@ const Settings: React.FC = () => {
                       </div>
                       <Switch
                         checked={settings.privacy.showOnlineStatus}
-                        onCheckedChange={(checked) =>
+                        onCheckedChange={(checked) => {
                           setSettings({
                             ...settings,
-                            privacy: { ...settings.privacy, showOnlineStatus: checked }
-                          })
-                        }
+                            privacy: { ...settings.privacy, showOnlineStatus: checked },
+                          });
+                          toast({
+                            title: `Online status ${checked ? 'shown' : 'hidden'}`,
+                          });
+                        }}
                       />
                     </div>
 
@@ -462,12 +518,15 @@ const Settings: React.FC = () => {
                       </div>
                       <Switch
                         checked={settings.privacy.readReceipts}
-                        onCheckedChange={(checked) =>
+                        onCheckedChange={(checked) => {
                           setSettings({
                             ...settings,
-                            privacy: { ...settings.privacy, readReceipts: checked }
-                          })
-                        }
+                            privacy: { ...settings.privacy, readReceipts: checked },
+                          });
+                          toast({
+                            title: `Read receipts ${checked ? 'enabled' : 'disabled'}`,
+                          });
+                        }}
                       />
                     </div>
                   </div>
@@ -487,7 +546,10 @@ const Settings: React.FC = () => {
                         ] as const).map(({ id, name, icon: Icon }) => (
                           <button
                             key={id}
-                            onClick={() => setSettings({ ...settings, theme: id })}
+                            onClick={() => {
+                              setSettings({ ...settings, theme: id });
+                              toast({ title: `${name} theme selected` });
+                            }}
                             className={cn(
                               "p-3 rounded-lg border text-center transition-all duration-200",
                               settings.theme === id
@@ -505,6 +567,7 @@ const Settings: React.FC = () => {
                     <Separator />
 
                     <div className="space-y-3">
+codex/add-export-data-feature-in-settings
                       <h3 className="font-medium">Data</h3>
                       <div className="p-4 border rounded-lg">
                         <PulseButton variant="ghost" onClick={exportUserData}>
@@ -513,6 +576,18 @@ const Settings: React.FC = () => {
                       </div>
                     </div>
 
+
+                      <h3 className="font-medium">Support</h3>
+                      <p className="text-sm text-muted-foreground">Need help with Pulse?</p>
+                      <PulseButton onClick={() => navigate('/faq')}>
+                        <LifeBuoy className="w-4 h-4 mr-2" />
+                        Help Center
+                      </PulseButton>
+                    </div>
+
+                    <Separator />
+
+main
                     <div className="space-y-3">
                       <h3 className="font-medium text-destructive">Danger Zone</h3>
                       <div className="p-4 border border-destructive/20 rounded-lg">
