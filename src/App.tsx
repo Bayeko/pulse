@@ -14,6 +14,7 @@ import Calendar from "./pages/calendar";
 import Settings from "./pages/settings";
 import NotFound from "./pages/NotFound";
 import PairPage from "./pages/pair";
+import Insights from "./pages/insights";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,11 @@ const App = () => {
               <Route path="/calendar" element={
                 <ProtectedRoute>
                   <Calendar />
+                </ProtectedRoute>
+              } />
+              <Route path="/insights" element={
+                <ProtectedRoute>
+                  <Insights />
                 </ProtectedRoute>
               } />
                 <Route path="/settings" element={
