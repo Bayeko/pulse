@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { scheduleReminder } from '@/lib/reminders';
+import { useTranslation } from '@/i18n';
 
 interface TimeSlot {
   id: string;
@@ -33,11 +34,13 @@ interface SharedCalendarProps {
 
 export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [partnerSlots, setPartnerSlots] = useState<TimeSlot[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [selectedDate, setSelectedDate] = useState('2024-01-15');
   const [view, setView] = useState<'week' | 'suggestions'>('week');
+  const [showMutualOnly, setShowMutualOnly] = useState(false);
 
   const parseTime = (time: string) => {
     const [h, m] = time.split(':').map(Number);
@@ -287,9 +290,12 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
   };
 
   const getSlotsForDate = (date: string) => {
-    return timeSlots.filter(slot => slot.date === date);
+    return timeSlots.filter(
+      slot => slot.date === date && (!showMutualOnly || slot.type === 'mutual')
+    );
   };
 
+ codex/modify-calendar-to-support-half-hour-rows
   const findOverlaps = (slots: TimeSlot[]) => {
     const overlapping = new Set<string>();
     for (let i = 0; i < slots.length; i++) {
@@ -309,6 +315,12 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
   const slotsForSelectedDate = getSlotsForDate(selectedDate);
   const overlappingSlots = findOverlaps(slotsForSelectedDate);
   const halfHourMarks = Array.from({ length: 48 }, (_, i) => minutesToTime(i * 30));
+
+  const slotsForSelectedDate = getSlotsForDate(selectedDate);
+  const allSlotsForSelectedDate = timeSlots.filter(
+    slot => slot.date === selectedDate
+  );
+ main
 
   return (
     <Card className={cn("shadow-card animate-scale-in", className)}>
@@ -380,12 +392,22 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
                      day: 'numeric'
                    })}
                 </h3>
-                <PulseButton variant="ghost" size="sm" onClick={addTimeSlot}>
-                  <Plus className="w-4 h-4 mr-1" />
-                  Add Time Slot
-                </PulseButton>
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant={showMutualOnly ? 'default' : 'secondary'}
+                    className="cursor-pointer"
+                    onClick={() => setShowMutualOnly(!showMutualOnly)}
+                  >
+                    Mutual Only
+                  </Badge>
+                  <PulseButton variant="ghost" size="sm" onClick={addTimeSlot}>
+                    <Plus className="w-4 h-4 mr-1" />
+                    Add Time Slot
+                  </PulseButton>
+                </div>
               </div>
 
+ codex/modify-calendar-to-support-half-hour-rows
               <div className="relative border rounded-md overflow-hidden">
                 <div
                   className="grid w-full"
@@ -443,8 +465,47 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
                           >
                             <Trash2 className="w-3 h-3" />
                           </button>
+
+              {slotsForSelectedDate.length > 0 ? (
+                <div className="space-y-2">
+                  {slotsForSelectedDate.map((slot) => {
+                    const typeInfo = getSlotTypeInfo(slot.type);
+                    return (
+                      <div
+                        key={slot.id}
+                        className={cn(
+                          "p-3 rounded-lg border transition-all duration-200 hover:scale-[1.02]",
+                          typeInfo.color
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {typeInfo.icon}
+                            <span className="font-medium">
+                              {slot.start} - {slot.end}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-xs">
+                              {typeInfo.label}
+                            </Badge>
+                            <button
+                              onClick={() => updateTimeSlot(slot.id)}
+                              className="p-1 hover:text-foreground text-muted-foreground"
+                            >
+                              <Pencil className="w-3 h-3" />
+                            </button>
+                            <button
+                              onClick={() => deleteTimeSlot(slot.id)}
+                              className="p-1 hover:text-destructive text-destructive/80"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+ main
                         </div>
                       </div>
+ codex/modify-calendar-to-support-half-hour-rows
                       {slot.title && (
                         <p className="text-[10px] mt-1 opacity-90">{slot.title}</p>
                       )}
@@ -461,6 +522,37 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
                   </div>
                 )}
               </div>
+
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+ codex/replace-no-time-slots-block-with-illustration
+                  <svg
+                    className="w-16 h-16 mx-auto mb-4 opacity-50"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <path d="M8 12h8M12 8v8" />
+                  </svg>
+                  <p>{t('addFirstAvailability')}</p>
+
+                  <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <p>
+                    {showMutualOnly && allSlotsForSelectedDate.length > 0
+                      ? 'No mutual time slots for this day'
+                      : 'No time slots for this day'}
+                  </p>
+ main
+                </div>
+              )}
+ main
             </div>
           </>
         ) : (

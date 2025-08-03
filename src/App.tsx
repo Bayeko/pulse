@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import NetworkStatusBanner from "./components/ui/network-status-banner";
 import ErrorBoundary from "./components/ui/error-boundary";
 import Index from "./pages/Index";
 import Auth from "./pages/auth";
@@ -14,7 +15,22 @@ import Calendar from "./pages/calendar";
 import Settings from "./pages/settings";
 import NotFound from "./pages/NotFound";
 import PairPage from "./pages/pair";
+ codex/add-history-page-with-overlay-settings
+import History from "./pages/history";
+
+ codex/add-insights-page-with-frequency-chart
+import Insights from "./pages/insights";
+
+codex/add-paywall-page-with-visuals-and-pricing
+import Paywall from "./pages/paywall";
+
+import FAQ from "./pages/faq";
+main
+ main
+ main
 import { usePushNotifications } from "@/hooks/use-push-notifications";
+import FAQ from "./pages/faq";
+import Contact from "./pages/contact";
 
 const queryClient = new QueryClient();
 
@@ -25,14 +41,16 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <TooltipProvider>
+            <NetworkStatusBanner />
             <Toaster />
             <Sonner />
             <BrowserRouter>
               <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/paywall" element={<Paywall />} />
               <Route path="/dashboard" element={
-                <ProtectedRoute>
+                <ProtectedRoute requiresPremium>
                   <Dashboard />
                 </ProtectedRoute>
               } />
@@ -46,14 +64,40 @@ const App = () => {
                   <Calendar />
                 </ProtectedRoute>
               } />
+ codex/add-history-page-with-overlay-settings
+              <Route path="/history" element={
+                <ProtectedRoute>
+                  <History />
+
+              <Route path="/insights" element={
+                <ProtectedRoute>
+                  <Insights />
+ main
+                </ProtectedRoute>
+              } />
                 <Route path="/settings" element={
                   <ProtectedRoute>
                     <Settings />
                   </ProtectedRoute>
                 } />
+                <Route path="/faq" element={
+                  <ProtectedRoute>
+                    <FAQ />
+                  </ProtectedRoute>
+                } />
+                <Route path="/contact" element={
+                  <ProtectedRoute>
+                    <Contact />
+                  </ProtectedRoute>
+                } />
                 <Route path="/pair/:code?" element={
                   <ProtectedRoute>
                     <PairPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/faq" element={
+                  <ProtectedRoute>
+                    <FAQ />
                   </ProtectedRoute>
                 } />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

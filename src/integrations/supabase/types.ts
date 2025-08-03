@@ -52,6 +52,7 @@ export type Database = {
           name: string
           partner_id: string | null
           snooze_until: string | null
+          use_face_id: boolean | null
           updated_at: string
           user_id: string
         }
@@ -62,6 +63,7 @@ export type Database = {
           name: string
           partner_id?: string | null
           snooze_until?: string | null
+          use_face_id?: boolean | null
           updated_at?: string
           user_id: string
         }
@@ -72,6 +74,7 @@ export type Database = {
           name?: string
           partner_id?: string | null
           snooze_until?: string | null
+          use_face_id?: boolean | null
           updated_at?: string
           user_id?: string
         }
