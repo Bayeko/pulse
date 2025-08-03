@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { AuthCard } from '@/components/auth/auth-card';
 import heroImage from '@/assets/pulse-hero.jpg';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const Auth = () => {
   const [authMode, setAuthMode] = useState<'login' | 'register' | 'connect'>('login');
 
   return (
-    <div className="min-h-screen bg-gradient-soft">
+    <div className="relative min-h-screen bg-gradient-soft">
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div 

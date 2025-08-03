@@ -1,13 +1,16 @@
 import React, { useEffect } from 'react';
 import { PulseButton } from '@/components/ui/pulse-button';
-import { Heart, Shield, Calendar, Sparkles, ArrowRight } from 'lucide-react';
+import { Heart, Shield, Calendar, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import heroImage from '@/assets/pulse-hero.jpg';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 const Index = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -16,7 +19,10 @@ const Index = () => {
   }, [user, isLoading, navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-soft">
+    <div className="relative min-h-screen bg-gradient-soft">
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div 
@@ -47,23 +53,22 @@ const Index = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-              <PulseButton 
-                variant="pulse" 
+              <PulseButton
+                variant="pulse"
                 size="xl"
-                onClick={() => navigate('/auth')}
+                onClick={() => navigate('/auth?mode=register')}
                 className="animate-scale-in"
               >
-                Start Your Journey
-                <ArrowRight className="w-5 h-5 ml-2" />
+                {t('createAccount')}
               </PulseButton>
-              <PulseButton 
-                variant="ghost" 
+              <PulseButton
+                variant="ghost"
                 size="xl"
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/auth?mode=connect')}
                 className="animate-scale-in"
                 style={{ animationDelay: '0.1s' }}
               >
-                View Demo
+                {t('joinPartner')}
               </PulseButton>
             </div>
 

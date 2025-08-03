@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,11 +15,23 @@ import Calendar from "./pages/calendar";
 import Settings from "./pages/settings";
 import NotFound from "./pages/NotFound";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
+import SplashScreen from "./components/SplashScreen";
 
 const queryClient = new QueryClient();
 
 const App = () => {
   usePushNotifications();
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (showSplash) {
+    return <SplashScreen />;
+  }
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
