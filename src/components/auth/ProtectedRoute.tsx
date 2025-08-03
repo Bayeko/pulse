@@ -4,9 +4,10 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  requiresPremium?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiresPremium }) => {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
@@ -24,6 +25,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   if (!user) {
     return <Navigate to="/auth" replace />;
+  }
+
+  if (requiresPremium && !user.isPremium) {
+    return <Navigate to="/paywall" replace />;
   }
 
   return <>{children}</>;
