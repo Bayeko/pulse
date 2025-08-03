@@ -208,6 +208,75 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
       return;
     }
 
+    // Check partner availability through status or explicit message
+    const partnerStatus = (user as unknown as { partnerStatus?: string })?.partnerStatus;
+    if (partnerStatus === 'away' || partnerStatus === 'offline') {
+      const feedback: Message = {
+        id: `local-${Date.now()}`,
+        content: 'Merci, on se retrouve plus tard !',
+        type: 'text',
+        sender_id: user.id,
+        receiver_id: user.partnerId,
+        created_at: new Date().toISOString(),
+        read_at: null,
+        sender_name: user.name,
+      };
+      setMessages(prev => [...prev, feedback]);
+      toast({ description: 'Merci, on se retrouve plus tard !' });
+      return;
+    }
+
+    try {
+      const { data: profile, error: statusError } = await supabase
+        .from('profiles')
+        .select('status')
+        .eq('user_id', user.partnerId)
+        .maybeSingle();
+
+      if (!statusError && (profile?.status === 'away' || profile?.status === 'offline')) {
+        const feedback: Message = {
+          id: `local-${Date.now()}`,
+          content: 'Merci, on se retrouve plus tard !',
+          type: 'text',
+          sender_id: user.id,
+          receiver_id: user.partnerId,
+          created_at: new Date().toISOString(),
+          read_at: null,
+          sender_name: user.name,
+        };
+        setMessages(prev => [...prev, feedback]);
+        toast({ description: 'Merci, on se retrouve plus tard !' });
+        return;
+      }
+
+      const { data: lastMessage, error: messageError } = await supabase
+        .from('messages')
+        .select('content')
+        .eq('sender_id', user.partnerId)
+        .eq('receiver_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (!messageError && lastMessage?.content === '⏰ Pas dispo') {
+        const feedback: Message = {
+          id: `local-${Date.now()}`,
+          content: 'Merci, on se retrouve plus tard !',
+          type: 'text',
+          sender_id: user.id,
+          receiver_id: user.partnerId,
+          created_at: new Date().toISOString(),
+          read_at: null,
+          sender_name: user.name,
+        };
+        setMessages(prev => [...prev, feedback]);
+        toast({ description: 'Merci, on se retrouve plus tard !' });
+        return;
+      }
+    } catch (err) {
+      console.error('Error checking partner availability:', err);
+    }
+
     try {
       const { error } = await supabase
         .from('messages')
