@@ -6,6 +6,7 @@ import { Calendar, Clock, Heart, Plus, Sparkles, Trash2, Pencil } from 'lucide-r
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { scheduleReminder } from '@/lib/reminders';
 
 interface TimeSlot {
   id: string;
@@ -17,6 +18,15 @@ interface TimeSlot {
   title?: string | null;
 }
 
+interface Suggestion {
+  date: string;
+  start: string;
+  end: string;
+  display: string;
+  match: string;
+  reason: string;
+}
+
 interface SharedCalendarProps {
   className?: string;
 }
@@ -26,6 +36,33 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [selectedDate, setSelectedDate] = useState('2024-01-15');
   const [view, setView] = useState<'week' | 'suggestions'>('week');
+
+  const suggestions: Suggestion[] = [
+    {
+      date: '2024-01-15',
+      start: '20:00',
+      end: '22:00',
+      display: 'Tonight, 8:00 PM - 10:00 PM',
+      match: '95%',
+      reason: 'Both free, favorite time'
+    },
+    {
+      date: '2024-01-16',
+      start: '14:00',
+      end: '16:00',
+      display: 'Tomorrow, 2:00 PM - 4:00 PM',
+      match: '87%',
+      reason: 'Weekend afternoon'
+    },
+    {
+      date: '2024-01-19',
+      start: '19:30',
+      end: '21:30',
+      display: 'Friday, 7:30 PM - 9:30 PM',
+      match: '92%',
+      reason: 'End of week celebration'
+    }
+  ];
 
   useEffect(() => {
     if (!user) return;
@@ -86,6 +123,55 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
       .eq('user_id', user.id);
     if (!error) {
       setTimeSlots(prev => prev.filter(slot => slot.id !== id));
+    }
+  };
+
+  const handleAcceptSuggestion = async (suggestion: Suggestion) => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from('time_slots')
+      .insert({
+        user_id: user.id,
+        start: suggestion.start,
+        end: suggestion.end,
+        date: suggestion.date,
+        type: 'booked',
+        title: suggestion.reason
+      })
+      .select()
+      .single();
+    if (!error && data) {
+      setTimeSlots(prev => [...prev, data as TimeSlot]);
+    }
+  };
+
+  const handleDeferSuggestion = async (suggestion: Suggestion) => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from('time_slots')
+      .insert({
+        user_id: user.id,
+        start: suggestion.start,
+        end: suggestion.end,
+        date: suggestion.date,
+        type: 'suggested',
+        title: suggestion.reason
+      })
+      .select()
+      .single();
+    if (!error && data) {
+      setTimeSlots(prev => [...prev, data as TimeSlot]);
+    }
+
+    const now = new Date();
+    const nextSlot = timeSlots
+      .filter(s => s.type === 'mutual')
+      .map(s => ({ ...s, dateTime: new Date(`${s.date}T${s.start}`) }))
+      .filter(s => s.dateTime > now)
+      .sort((a, b) => a.dateTime.getTime() - b.dateTime.getTime())[0];
+
+    if (nextSlot) {
+      scheduleReminder(user.id, nextSlot);
     }
   };
 
@@ -262,30 +348,41 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
               <span className="font-medium">AI-Powered Suggestions</span>
             </div>
             
-            <div className="space-y-3">
-              {[
-                { time: 'Tonight, 8:00 PM - 10:00 PM', match: '95%', reason: 'Both free, favorite time' },
-                { time: 'Tomorrow, 2:00 PM - 4:00 PM', match: '87%', reason: 'Weekend afternoon' },
-                { time: 'Friday, 7:30 PM - 9:30 PM', match: '92%', reason: 'End of week celebration' }
-              ].map((suggestion, index) => (
-                <div
-                  key={index}
-                  className="p-4 bg-gradient-card rounded-lg border border-primary/20 animate-fade-in-up"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium">{suggestion.time}</span>
-                    <Badge variant="outline" className="text-primary border-primary">
-                      {suggestion.match} match
-                    </Badge>
+              <div className="space-y-3">
+                {suggestions.map((suggestion, index) => (
+                  <div
+                    key={index}
+                    className="p-4 bg-gradient-card rounded-lg border border-primary/20 animate-fade-in-up"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium">{suggestion.display}</span>
+                      <Badge variant="outline" className="text-primary border-primary">
+                        {suggestion.match} match
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3">{suggestion.reason}</p>
+                    <div className="flex gap-2">
+                      <PulseButton
+                        variant="soft"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => handleAcceptSuggestion(suggestion)}
+                      >
+                        Accepter
+                      </PulseButton>
+                      <PulseButton
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => handleDeferSuggestion(suggestion)}
+                      >
+                        Plus tard
+                      </PulseButton>
+                    </div>
                   </div>
-                  <p className="text-sm text-muted-foreground mb-3">{suggestion.reason}</p>
-                  <PulseButton variant="soft" size="sm" className="w-full">
-                    Book This Time
-                  </PulseButton>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
           </div>
         )}
       </CardContent>
