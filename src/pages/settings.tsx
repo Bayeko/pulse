@@ -15,9 +15,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+ codex/refactor-routes-and-clean-up-imports
 
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/i18n';
+
+ main
 import {
   Settings as SettingsIcon,
   User,
@@ -33,12 +36,17 @@ import {
   Save,
   ArrowLeft,
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/i18n';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables, TablesUpdate } from '@/integrations/supabase/types';
+ codex/refactor-routes-and-clean-up-imports
 
+
+ main
 
 interface SettingsData {
   name: string;
@@ -57,7 +65,6 @@ interface SettingsData {
     showOnlineStatus: boolean;
     readReceipts: boolean;
     useFaceID: boolean;
-
     autoDelete30d: boolean;
   };
   theme: 'light' | 'dark' | 'auto';
@@ -74,10 +81,15 @@ const Settings: React.FC = () => {
     toast({ description: `Language set to ${value === 'en' ? 'English' : 'Français'}` });
   };
 
+ codex/refactor-routes-and-clean-up-imports
 
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+ main
   const [settings, setSettings] = useState<SettingsData>({
     name: user?.name || '',
     email: user?.email || '',
@@ -225,6 +237,10 @@ const Settings: React.FC = () => {
         profile: profileRes.data,
         messages: messagesRes.data,
         time_slots: timeSlotsRes.data,
+      } as {
+        profile: Tables<'profiles'> | null;
+        messages: Tables<'messages'>[];
+        time_slots: Tables<'time_slots'>[];
       };
 
       const jsonBlob = new Blob([JSON.stringify(exportData, null, 2)], {
@@ -236,7 +252,7 @@ const Settings: React.FC = () => {
       jsonLink.download = 'pulse-data.json';
       jsonLink.click();
 
-      const convertToCsv = (items: any[]) => {
+      const convertToCsv = <T extends Record<string, unknown>>(items: T[]) => {
         if (!items || items.length === 0) return '';
         const headers = Object.keys(items[0]);
         const rows = items.map((row) =>
@@ -248,15 +264,15 @@ const Settings: React.FC = () => {
       const csvSections: string[] = [];
       if (exportData.profile) {
         csvSections.push('Profiles');
-        csvSections.push(convertToCsv([exportData.profile] as any));
+        csvSections.push(convertToCsv([exportData.profile]));
       }
       if (exportData.messages) {
         csvSections.push('Messages');
-        csvSections.push(convertToCsv(exportData.messages as any));
+        csvSections.push(convertToCsv(exportData.messages));
       }
       if (exportData.time_slots) {
         csvSections.push('Time Slots');
-        csvSections.push(convertToCsv(exportData.time_slots as any));
+        csvSections.push(convertToCsv(exportData.time_slots));
       }
 
       const csvBlob = new Blob([csvSections.join('\n\n')], {

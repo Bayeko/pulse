@@ -7,6 +7,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import NetworkStatusBanner from "./components/ui/network-status-banner";
 import ErrorBoundary from "./components/ui/error-boundary";
+import { usePushNotifications } from "@/hooks/use-push-notifications";
 import Index from "./pages/Index";
 import Auth from "./pages/auth";
 import Dashboard from "./pages/dashboard";
@@ -17,15 +18,22 @@ import Insights from "./pages/insights";
 import Settings from "./pages/settings";
 import FAQ from "./pages/faq";
 import Contact from "./pages/contact";
+ codex/refactor-routes-and-clean-up-imports
 import PairPage from "./pages/pair";
 import Paywall from "./pages/paywall";
 import NotFound from "./pages/NotFound";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
 
+import NotFound from "./pages/NotFound";
+import PairPage from "./pages/pair";
+import Paywall from "./pages/paywall";
+ main
+
 const queryClient = new QueryClient();
 
 const App = () => {
   usePushNotifications();
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
@@ -34,6 +42,7 @@ const App = () => {
             <NetworkStatusBanner />
             <Toaster />
             <Sonner />
+ codex/refactor-routes-and-clean-up-imports
               <BrowserRouter>
                 <Routes>
                   <Route path="/" element={<Index />} />
@@ -114,6 +123,89 @@ const App = () => {
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>
+
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/paywall" element={<Paywall />} />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute requiresPremium>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/messages"
+                  element={
+                    <ProtectedRoute>
+                      <Messages />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/calendar"
+                  element={
+                    <ProtectedRoute>
+                      <Calendar />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/history"
+                  element={
+                    <ProtectedRoute>
+                      <History />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/insights"
+                  element={
+                    <ProtectedRoute>
+                      <Insights />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/settings"
+                  element={
+                    <ProtectedRoute>
+                      <Settings />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/faq"
+                  element={
+                    <ProtectedRoute>
+                      <FAQ />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/contact"
+                  element={
+                    <ProtectedRoute>
+                      <Contact />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/pair/:code?"
+                  element={
+                    <ProtectedRoute>
+                      <PairPage />
+                    </ProtectedRoute>
+                  }
+                />
+                {/* Catch-all route */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+ main
           </TooltipProvider>
         </AuthProvider>
       </QueryClientProvider>
@@ -122,3 +214,4 @@ const App = () => {
 };
 
 export default App;
+

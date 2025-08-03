@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -72,3 +77,4 @@ const FAQ: React.FC = () => {
 };
 
 export default FAQ;
+
