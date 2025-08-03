@@ -108,6 +108,36 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      },
+      time_slots: {
+        Row: {
+          id: string
+          user_id: string
+          start: string
+          end: string
+          date: string
+          type: string
+          title: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          start: string
+          end: string
+          date: string
+          type: string
+          title?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          start?: string
+          end?: string
+          date?: string
+          type?: string
+          title?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {
