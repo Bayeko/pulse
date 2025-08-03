@@ -35,6 +35,44 @@ export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ classNam
       return;
     }
 
+    // Check partner availability via status field if present
+    const partnerStatus = (user as unknown as { partnerStatus?: string })?.partnerStatus;
+    if (partnerStatus === 'away' || partnerStatus === 'offline') {
+      toast({
+        description: 'Merci, on se retrouve plus tard !',
+      });
+      return;
+    }
+
+    try {
+      const { data: profile, error: statusError } = await supabase
+        .from('profiles')
+        .select('status')
+        .eq('user_id', user.partnerId)
+        .maybeSingle();
+
+      if (!statusError && (profile?.status === 'away' || profile?.status === 'offline')) {
+        toast({ description: 'Merci, on se retrouve plus tard !' });
+        return;
+      }
+
+      const { data: lastMessage, error: messageError } = await supabase
+        .from('messages')
+        .select('content')
+        .eq('sender_id', user.partnerId)
+        .eq('receiver_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (!messageError && lastMessage?.content === '⏰ Pas dispo') {
+        toast({ description: 'Merci, on se retrouve plus tard !' });
+        return;
+      }
+    } catch (err) {
+      console.error('Error checking partner availability:', err);
+    }
+
     navigator.vibrate?.(50);
 
     setState('sending');
