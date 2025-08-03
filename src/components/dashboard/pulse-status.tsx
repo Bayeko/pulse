@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PulseButton } from '@/components/ui/pulse-button';
+import { CentralPulseButton } from './central-pulse-button';
 import { StatusIndicator } from '@/components/ui/status-indicator';
 import { Heart, Moon, Coffee, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -111,9 +111,9 @@ export const PulseStatusCard: React.FC<PulseStatusProps> = ({ className }) => {
             <p className="text-sm text-muted-foreground mb-3">
               Perfect timing! You're both available for connection.
             </p>
-            <PulseButton variant="pulse" size="sm" className="w-full">
-              Send Pulse
-            </PulseButton>
+            <div className="flex justify-center">
+              <CentralPulseButton />
+            </div>
           </div>
         )}
       </CardContent>
