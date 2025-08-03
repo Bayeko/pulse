@@ -15,6 +15,9 @@ import Calendar from "./pages/calendar";
 import Settings from "./pages/settings";
 import NotFound from "./pages/NotFound";
 import PairPage from "./pages/pair";
+ codex/add-history-page-with-overlay-settings
+import History from "./pages/history";
+
  codex/add-insights-page-with-frequency-chart
 import Insights from "./pages/insights";
 
@@ -23,6 +26,7 @@ import Paywall from "./pages/paywall";
 
 import FAQ from "./pages/faq";
 main
+ main
  main
 import { usePushNotifications } from "@/hooks/use-push-notifications";
 import FAQ from "./pages/faq";
@@ -60,9 +64,15 @@ const App = () => {
                   <Calendar />
                 </ProtectedRoute>
               } />
+ codex/add-history-page-with-overlay-settings
+              <Route path="/history" element={
+                <ProtectedRoute>
+                  <History />
+
               <Route path="/insights" element={
                 <ProtectedRoute>
                   <Insights />
+ main
                 </ProtectedRoute>
               } />
                 <Route path="/settings" element={
