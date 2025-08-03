@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 const translations = {
   en: {
+    addFirstAvailability: 'Add your first availability',
     createAccount: 'Create account',
     joinPartner: 'Join partner',
     invitePartner: 'Invite partner',
@@ -12,6 +13,7 @@ const translations = {
  main
   },
   fr: {
+    addFirstAvailability: 'Ajoutez votre première disponibilité',
     createAccount: 'Créer un compte',
     joinPartner: 'Rejoindre mon/ma partenaire',
     invitePartner: 'Inviter mon/ma partenaire',
