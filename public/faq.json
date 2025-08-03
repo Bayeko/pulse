@@ -1,0 +1,12 @@
+[
+  {"question": "What is Pulse?", "answer": "Pulse is an app that helps couples stay connected through shared activities and messages."},
+  {"question": "How do I create an account?", "answer": "Sign up using your email address on the authentication page."},
+  {"question": "How do I reset my password?", "answer": "Use the password reset link on the sign in page to receive reset instructions."},
+  {"question": "Can I use Pulse offline?", "answer": "Some features are available offline, and data will sync when you're back online."},
+  {"question": "How do I contact support?", "answer": "Use the Contact support button on this page to reach our team."},
+  {"question": "How do I update my profile?", "answer": "Navigate to Settings and select the Profile section to edit your details."},
+  {"question": "Is my data secure?", "answer": "Pulse uses Supabase authentication and secure storage for your data."},
+  {"question": "How do I delete my account?", "answer": "You can delete your account from the Danger Zone in Settings."},
+  {"question": "What browsers are supported?", "answer": "Pulse works best on modern browsers like Chrome, Firefox, and Edge."},
+  {"question": "How do I pair with my partner?", "answer": "Use the Pair page and share the pairing code with your partner."}
+]
