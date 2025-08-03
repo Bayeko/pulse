@@ -9,6 +9,8 @@ interface User {
   email: string;
   partnerId?: string;
   partnerName?: string;
+  snoozeUntil?: string | null;
+  partnerSnoozeUntil?: string | null;
 }
 
 interface AuthContextType {
@@ -19,6 +21,7 @@ interface AuthContextType {
   connectPartner: (partnerEmail: string) => Promise<boolean>;
   connectByCode: (code: string) => Promise<boolean>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -72,7 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .from('profiles')
         .select(`
           *,
-          partner:partner_id(name)
+          partner:partner_id(name, snooze_until)
         `)
         .eq('user_id', supabaseUser.id)
         .single();
@@ -88,11 +91,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           name: profile.name,
           email: profile.email,
           partnerId: profile.partner_id,
-          partnerName: profile.partner?.name
+          partnerName: profile.partner?.name,
+          snoozeUntil: profile.snooze_until,
+          partnerSnoozeUntil: profile.partner?.snooze_until
         });
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
+    }
+  };
+
+  const refreshUser = async () => {
+    if (session?.user) {
+      await fetchUserProfile(session.user);
     }
   };
 
@@ -358,7 +369,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     register,
     connectPartner,
     connectByCode,
-    logout
+    logout,
+    refreshUser
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
