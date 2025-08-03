@@ -245,10 +245,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // Also update partner's partner_id to create mutual connection
-      await supabase
+      const { error: partnerUpdateError } = await supabase
         .from('profiles')
         .update({ partner_id: currentProfile.id })
         .eq('user_id', partnerProfile.user_id);
+
+      if (partnerUpdateError) {
+        toast({
+          title: "Connection failed",
+          description: "Unable to connect with partner. Please try again.",
+          variant: "destructive",
+        });
+        return false;
+      }
 
       // Refresh user profile
       await fetchUserProfile(session.user);
@@ -327,10 +336,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false;
       }
 
-      await supabase
+      const { error: partnerUpdateError } = await supabase
         .from('profiles')
         .update({ partner_id: currentProfile.id })
         .eq('user_id', partnerProfile.user_id);
+
+      if (partnerUpdateError) {
+        toast({
+          title: "Connection failed",
+          description: "Unable to connect with partner. Please try again.",
+          variant: "destructive",
+        });
+        return false;
+      }
 
       await fetchUserProfile(session.user);
 
