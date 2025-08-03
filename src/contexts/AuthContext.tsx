@@ -17,6 +17,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
   connectPartner: (partnerEmail: string) => Promise<boolean>;
+  connectByCode: (code: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -259,6 +260,87 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const connectByCode = async (code: string): Promise<boolean> => {
+    setIsLoading(true);
+    try {
+      if (!user || !session) {
+        toast({
+          title: "Connection failed",
+          description: "You must be logged in to connect with a partner.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      const { data: partnerProfile, error: findError } = await supabase
+        .from('profiles')
+        .select('id, user_id, name')
+        .like('id', `${code}%`)
+        .single();
+
+      if (findError || !partnerProfile) {
+        toast({
+          title: "Connection failed",
+          description: "Partner not found. Please check the code.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      const { data: currentProfile, error: currentProfileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (currentProfileError || !currentProfile) {
+        toast({
+          title: "Connection failed",
+          description: "Unable to retrieve your profile.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ partner_id: partnerProfile.id })
+        .eq('user_id', user.id);
+
+      if (updateError) {
+        toast({
+          title: "Connection failed",
+          description: "Unable to connect with partner. Please try again.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      await supabase
+        .from('profiles')
+        .update({ partner_id: currentProfile.id })
+        .eq('user_id', partnerProfile.user_id);
+
+      await fetchUserProfile(session.user);
+
+      toast({
+        title: "Partner connected!",
+        description: `Successfully connected with ${partnerProfile.name}.`,
+      });
+
+      return true;
+    } catch (error) {
+      toast({
+        title: "Connection failed",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
@@ -275,6 +357,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login,
     register,
     connectPartner,
+    connectByCode,
     logout
   };
 
