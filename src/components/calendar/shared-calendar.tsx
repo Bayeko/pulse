@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { Badge } from '@/components/ui/badge';
@@ -34,51 +34,118 @@ interface SharedCalendarProps {
 export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => {
   const { user } = useAuth();
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
+  const [partnerSlots, setPartnerSlots] = useState<TimeSlot[]>([]);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [selectedDate, setSelectedDate] = useState('2024-01-15');
   const [view, setView] = useState<'week' | 'suggestions'>('week');
 
-  const suggestions: Suggestion[] = [
-    {
-      date: '2024-01-15',
-      start: '20:00',
-      end: '22:00',
-      display: 'Tonight, 8:00 PM - 10:00 PM',
-      match: '95%',
-      reason: 'Both free, favorite time'
-    },
-    {
-      date: '2024-01-16',
-      start: '14:00',
-      end: '16:00',
-      display: 'Tomorrow, 2:00 PM - 4:00 PM',
-      match: '87%',
-      reason: 'Weekend afternoon'
-    },
-    {
-      date: '2024-01-19',
-      start: '19:30',
-      end: '21:30',
-      display: 'Friday, 7:30 PM - 9:30 PM',
-      match: '92%',
-      reason: 'End of week celebration'
+  const parseTime = (time: string) => {
+    const [h, m] = time.split(':').map(Number);
+    return h * 60 + m;
+  };
+
+  const minutesToTime = (mins: number) => {
+    const h = Math.floor(mins / 60).toString().padStart(2, '0');
+    const m = (mins % 60).toString().padStart(2, '0');
+    return `${h}:${m}`;
+  };
+
+  const formatDisplay = (date: string, start: string, end: string) => {
+    const dateObj = new Date(`${date}T${start}`);
+    const today = new Date().toISOString().split('T')[0];
+    const dayLabel = date === today
+      ? 'Today'
+      : dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+    const startStr = new Date(`${date}T${start}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    const endStr = new Date(`${date}T${end}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    return `${dayLabel}, ${startStr} - ${endStr}`;
+  };
+
+  const computeMatchAndReason = (date: string, startMinutes: number) => {
+    const day = new Date(date).getDay();
+    const isWeekend = day === 0 || day === 6;
+    let match = 85;
+    let reason = 'Morning time';
+    if (startMinutes >= 18 * 60) {
+      match = 95;
+      reason = 'Evening time';
+    } else if (startMinutes >= 12 * 60) {
+      match = 90;
+      reason = 'Afternoon time';
     }
-  ];
+    if (isWeekend) {
+      match += 2;
+      reason += ' on weekend';
+    }
+    return { match: `${match}%`, reason };
+  };
+
+  const generateSuggestions = useCallback((mine: TimeSlot[], partner: TimeSlot[]): Suggestion[] => {
+    const suggestions: Suggestion[] = [];
+    const partnerByDate = partner.reduce<Record<string, TimeSlot[]>>((acc, slot) => {
+      if (slot.type === 'booked') return acc;
+      acc[slot.date] = acc[slot.date] || [];
+      acc[slot.date].push(slot);
+      return acc;
+    }, {});
+
+    mine.forEach(slot => {
+      if (slot.type === 'booked') return;
+      const sameDay = partnerByDate[slot.date] || [];
+      sameDay.forEach(pSlot => {
+        const start = Math.max(parseTime(slot.start), parseTime(pSlot.start));
+        const end = Math.min(parseTime(slot.end), parseTime(pSlot.end));
+        if (start < end) {
+          const startStr = minutesToTime(start);
+          const endStr = minutesToTime(end);
+          const { match, reason } = computeMatchAndReason(slot.date, start);
+          suggestions.push({
+            date: slot.date,
+            start: startStr,
+            end: endStr,
+            display: formatDisplay(slot.date, startStr, endStr),
+            match,
+            reason
+          });
+        }
+      });
+    });
+
+    return suggestions.sort((a, b) => parseInt(b.match) - parseInt(a.match)).slice(0, 3);
+  }, []);
 
   useEffect(() => {
     if (!user) return;
 
     const fetchSlots = async () => {
-      const { data, error } = await supabase
+      const { data: myData, error: myError } = await supabase
         .from('time_slots')
         .select('*')
         .eq('user_id', user.id);
-      if (!error && data) {
-        setTimeSlots(data as TimeSlot[]);
+      if (!myError && myData) {
+        setTimeSlots(myData as TimeSlot[]);
+      }
+
+      if (user.partnerId) {
+        const { data: partnerData, error: partnerError } = await supabase
+          .from('time_slots')
+          .select('*')
+          .eq('user_id', user.partnerId);
+        if (!partnerError && partnerData) {
+          setPartnerSlots(partnerData as TimeSlot[]);
+        }
+      } else {
+        setPartnerSlots([]);
       }
     };
 
     fetchSlots();
   }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    setSuggestions(generateSuggestions(timeSlots, partnerSlots));
+  }, [timeSlots, partnerSlots, user, generateSuggestions]);
 
   const addTimeSlot = async () => {
     if (!user) return;
@@ -347,9 +414,10 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
               <Sparkles className="w-4 h-4" />
               <span className="font-medium">AI-Powered Suggestions</span>
             </div>
-            
-              <div className="space-y-3">
-                {suggestions.map((suggestion, index) => (
+
+            <div className="space-y-3">
+              {suggestions.length > 0 ? (
+                suggestions.map((suggestion, index) => (
                   <div
                     key={index}
                     className="p-4 bg-gradient-card rounded-lg border border-primary/20 animate-fade-in-up"
@@ -381,8 +449,14 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
                       </PulseButton>
                     </div>
                   </div>
-                ))}
-              </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Sparkles className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <p>No matching time slots found</p>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </CardContent>
