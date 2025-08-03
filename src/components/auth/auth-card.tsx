@@ -22,7 +22,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
     email: '',
     password: '',
     confirmPassword: '',
-    partnerCode: ''
+    partnerEmail: ''
   });
   
   const { login, register, connectPartner, user } = useAuth();
@@ -52,7 +52,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
           success = await register(formData.name, formData.email, formData.password);
           break;
         case 'connect':
-          success = await connectPartner(formData.partnerCode, '');
+          success = await connectPartner(formData.partnerEmail, '');
           break;
       }
       
@@ -182,7 +182,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
           )
         };
         
-      case 'connect':
+      case 'connect': {
         const copyToClipboard = () => {
           if (user?.email) {
             navigator.clipboard.writeText(user.email);
@@ -229,13 +229,13 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="partnerCode">Partner's Email</Label>
-                <Input 
-                  id="partnerCode" 
-                  type="email" 
+                <Label htmlFor="partnerEmail">Partner's Email</Label>
+                <Input
+                  id="partnerEmail"
+                  type="email"
                   placeholder="partner@email.com"
-                  value={formData.partnerCode}
-                  onChange={(e) => handleInputChange('partnerCode', e.target.value)}
+                  value={formData.partnerEmail}
+                  onChange={(e) => handleInputChange('partnerEmail', e.target.value)}
                   required
                 />
               </div>
@@ -251,6 +251,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
             </p>
           )
         };
+      }
     }
   };
 
