@@ -359,8 +359,11 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
     minutesToTime(i * 30),
   );
 
+ codex/refactor-routes-and-clean-up-imports
+
 
   const halfHourMarks = Array.from({ length: 48 }, (_, i) => minutesToTime(i * 30));
+ main
  main
   const allSlotsForSelectedDate = timeSlots.filter(
     (slot) => slot.date === selectedDate,
@@ -509,6 +512,8 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
                           >
                             <Trash2 className="w-3 h-3" />
                           </button>
+ codex/refactor-routes-and-clean-up-imports
+
                         </div>
                       </div>
                     </div>
@@ -561,6 +566,7 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
                               <Trash2 className="w-3 h-3" />
                             </button>
                           </div>
+ main
                         </div>
                         {slot.title && (
                           <p className="text-[10px] mt-1 opacity-90">
@@ -568,11 +574,14 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
                           </p>
                         )}
                       </div>
+ codex/refactor-routes-and-clean-up-imports
+
  codex/remove-codex-lines-and-main-tokens
 
                       {slot.title && (
                         <p className="text-[10px] mt-1 opacity-90">{slot.title}</p>
                       )}
+ main
                     </div>
                   );
                 })}
@@ -586,6 +595,8 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
                   </div>
                 )}
               </div>
+ codex/refactor-routes-and-clean-up-imports
+
 
  main
                     );
@@ -615,6 +626,7 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
                   </p>
                 </div>
               )}
+ main
             </div>
           </>
         ) : (

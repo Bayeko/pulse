@@ -7,6 +7,10 @@ const translations = {
     joinPartner: 'Join partner',
     invitePartner: 'Invite partner',
     notLinked: 'Not linked to a partner',
+ codex/refactor-routes-and-clean-up-imports
+
+
+ main
     useFaceID: 'Use Face ID',
     autoDelete30d: 'Auto delete messages after 30 days',
   },
@@ -16,6 +20,10 @@ const translations = {
     joinPartner: 'Rejoindre mon/ma partenaire',
     invitePartner: 'Inviter mon/ma partenaire',
     notLinked: 'Pas de partenaire lié',
+ codex/refactor-routes-and-clean-up-imports
+
+
+ main
     useFaceID: 'Utiliser Face ID',
     autoDelete30d: 'Supprimer automatiquement les messages après 30 jours',
   },
