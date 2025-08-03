@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { Badge } from '@/components/ui/badge';
@@ -8,24 +8,66 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  Settings as SettingsIcon, 
-  User, 
-  Bell, 
+ codex/add-language-selection-in-settings
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+ codex/add-face-id-switch-in-settings
+ main
+import {
+  Settings as SettingsIcon,
+  User,
+  Bell,
+ codex/add-language-selection-in-settings
+  Heart,
+
   Heart, 
+ main
   Shield, 
   Smartphone, 
   Moon, 
+
+import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/i18n';
+import { 
+  Settings as SettingsIcon,
+  User,
+  Bell,
+  Heart,
+  Shield,
+ codex/add-help-center-section-in-settings
+  HelpCircle,
+
+  LifeBuoy,
+ main
+  Smartphone,
+  Moon,
+ main
   Sun,
   Camera,
   Save,
   ArrowLeft
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables, TablesUpdate } from '@/integrations/supabase/types';
+ codex/add-language-selection-in-settings
+import { useTranslation } from '@/i18n';
+import { useToast } from '@/hooks/use-toast';
+
+import { useToast } from '@/hooks/use-toast';
+ codex/add-face-id-switch-in-settings
+import { useTranslation } from '@/i18n';
+
+ main
+ main
 
 interface SettingsData {
   name: string;
@@ -43,6 +85,11 @@ interface SettingsData {
     shareLocation: boolean;
     showOnlineStatus: boolean;
     readReceipts: boolean;
+ codex/add-face-id-switch-in-settings
+    useFaceID: boolean;
+
+    autoDelete30d: boolean;
+ main
   };
   theme: 'light' | 'dark' | 'auto';
 }
@@ -50,7 +97,31 @@ interface SettingsData {
 const Settings: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+ codex/add-language-selection-in-settings
+  const { lang, setLang } = useTranslation();
+  const { toast } = useToast();
+
+  const handleLanguageChange = (value: string) => {
+    setLang(value as 'en' | 'fr');
+    toast({ description: `Language set to ${value === 'en' ? 'English' : 'Français'}` });
+  };
+
+
+  const { toast } = useToast();
+ codex/add-face-id-switch-in-settings
+  const { t } = useTranslation();
+
+ codex/add-auto-delete-setting-for-messages
+  const { t } = useTranslation();
+
+codex/add-export-data-feature-in-settings
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+ main
+ main
+ main
   
+ main
   const [settings, setSettings] = useState<SettingsData>({
     name: user?.name || '',
     email: user?.email || '',
@@ -63,15 +134,27 @@ const Settings: React.FC = () => {
       calendar: true,
       reminders: false,
     },
+ codex/add-face-id-switch-in-settings
     privacy: {
       shareLocation: false,
       showOnlineStatus: true,
       readReceipts: true,
+      useFaceID: false,
     },
     theme: 'light',
   });
 
-  const [activeSection, setActiveSection] = useState<'profile' | 'notifications' | 'privacy' | 'general'>('profile');
+      privacy: {
+        shareLocation: false,
+        showOnlineStatus: true,
+        readReceipts: true,
+        autoDelete30d: false,
+      },
+      theme: 'light',
+    });
+ main
+
+  const [activeSection, setActiveSection] = useState<'profile' | 'notifications' | 'privacy' | 'general' | 'help'>('profile');
 
   useEffect(() => {
     const stored = localStorage.getItem('historyEnabled');
@@ -85,7 +168,7 @@ const Settings: React.FC = () => {
       if (!user) return;
       const { data, error } = await supabase
         .from('profiles')
-        .select('name, email, bio, avatar')
+        .select('name, email, bio, avatar, use_face_id')
         .eq('user_id', user.id)
         .single();
 
@@ -103,6 +186,10 @@ const Settings: React.FC = () => {
           email: profile.email || '',
           bio: profile.bio || '',
           avatar: profile.avatar || '',
+          privacy: {
+            ...prev.privacy,
+            useFaceID: profile.use_face_id ?? false,
+          },
         }));
       }
     };
@@ -124,10 +211,183 @@ const Settings: React.FC = () => {
       .update(updates)
       .eq('user_id', user.id);
 
+ codex/add-auto-delete-setting-for-messages
+    const { error: scheduleError } = await supabase.functions.invoke(
+      'schedule-auto-delete',
+      {
+        body: { enabled: settings.privacy.autoDelete30d },
+      }
+    );
+
+    if (error || scheduleError) {
+      console.error('Error saving settings:', error || scheduleError);
+      toast({ description: 'Failed to save settings' });
+    } else {
+      toast({ description: 'Settings saved' });
+
     if (error) {
       console.error('Error saving settings:', error);
+      toast({
+        title: 'Save failed',
+        description: 'Could not update settings.',
+        variant: 'destructive',
+      });
     } else {
-      console.log('Settings saved');
+      toast({ title: 'Settings saved', description: 'Your changes have been saved.' });
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    try {
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${user.id}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+      setSettings({ ...settings, avatar: data.publicUrl });
+      toast({ title: 'Avatar updated' });
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      toast({
+        title: 'Upload failed',
+        description: 'Could not upload avatar.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const exportUserData = async () => {
+    if (!user) return;
+    try {
+      const [profileRes, messagesRes, timeSlotsRes] = await Promise.all([
+        supabase.from('profiles').select('*').eq('user_id', user.id).single(),
+        supabase
+          .from('messages')
+          .select('*')
+          .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`),
+        supabase.from('time_slots').select('*').eq('user_id', user.id),
+      ]);
+
+      if (profileRes.error || messagesRes.error || timeSlotsRes.error) {
+        throw new Error('Error fetching data');
+      }
+
+      const exportData = {
+        profile: profileRes.data,
+        messages: messagesRes.data,
+        time_slots: timeSlotsRes.data,
+      };
+
+      const jsonBlob = new Blob([JSON.stringify(exportData, null, 2)], {
+        type: 'application/json',
+      });
+      const jsonUrl = URL.createObjectURL(jsonBlob);
+      const jsonLink = document.createElement('a');
+      jsonLink.href = jsonUrl;
+      jsonLink.download = 'pulse-data.json';
+      jsonLink.click();
+
+      const convertToCsv = (items: any[]) => {
+        if (!items || items.length === 0) return '';
+        const headers = Object.keys(items[0]);
+        const rows = items.map((row) =>
+          headers.map((field) => JSON.stringify(row[field] ?? '')).join(',')
+        );
+        return [headers.join(','), ...rows].join('\n');
+      };
+
+      const csvSections: string[] = [];
+      if (exportData.profile) {
+        csvSections.push('Profiles');
+        csvSections.push(convertToCsv([exportData.profile] as any));
+      }
+      if (exportData.messages) {
+        csvSections.push('Messages');
+        csvSections.push(convertToCsv(exportData.messages as any));
+      }
+      if (exportData.time_slots) {
+        csvSections.push('Time Slots');
+        csvSections.push(convertToCsv(exportData.time_slots as any));
+      }
+
+      const csvBlob = new Blob([csvSections.join('\n\n')], {
+        type: 'text/csv;charset=utf-8;',
+      });
+      const csvUrl = URL.createObjectURL(csvBlob);
+      const csvLink = document.createElement('a');
+      csvLink.href = csvUrl;
+      csvLink.download = 'pulse-data.csv';
+      csvLink.click();
+
+      toast({
+        title: 'Export complete',
+        description: 'Your data has been downloaded.',
+      });
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      toast({
+        title: 'Export failed',
+        description: 'Could not export your data.',
+        variant: 'destructive',
+      });
+ main
+    }
+  };
+
+  const registerBiometrics = async () => {
+    if (!window.PublicKeyCredential) {
+      toast({ description: 'Biometrics not supported', variant: 'destructive' });
+      return false;
+    }
+    try {
+      const publicKey: PublicKeyCredentialCreationOptions = {
+        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        rp: { name: 'Pulse' },
+        user: {
+          id: crypto.getRandomValues(new Uint8Array(16)),
+          name: user?.email || 'user@example.com',
+          displayName: user?.name || 'User',
+        },
+        pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+        authenticatorSelection: { userVerification: 'preferred' },
+        timeout: 60000,
+        attestation: 'none',
+      };
+      await navigator.credentials.create({ publicKey });
+      const authOptions: PublicKeyCredentialRequestOptions = {
+        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        userVerification: 'preferred',
+      };
+      await navigator.credentials.get({ publicKey: authOptions });
+      return true;
+    } catch (error) {
+      console.error('Biometric registration failed', error);
+      return false;
+    }
+  };
+
+  const handleFaceIDToggle = async (checked: boolean) => {
+    if (!user) return;
+    if (checked) {
+      const ok = await registerBiometrics();
+      if (!ok) return;
+    }
+    setSettings({
+      ...settings,
+      privacy: { ...settings.privacy, useFaceID: checked },
+    });
+    const { error } = await supabase
+      .from('profiles')
+      .update({ use_face_id: checked })
+      .eq('user_id', user.id);
+    if (error) {
+      toast({ description: 'Unable to update Face ID preference', variant: 'destructive' });
+    } else {
+      toast({ description: checked ? 'Face ID enabled' : 'Face ID disabled' });
     }
   };
 
@@ -136,6 +396,7 @@ const Settings: React.FC = () => {
     { id: 'notifications', name: 'Notifications', icon: Bell },
     { id: 'privacy', name: 'Privacy', icon: Shield },
     { id: 'general', name: 'General', icon: SettingsIcon },
+    { id: 'help', name: 'Help Center', icon: HelpCircle },
   ] as const;
 
   return (
@@ -207,13 +468,18 @@ const Settings: React.FC = () => {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                    <PulseButton variant="ghost" size="sm">
-                      <Camera className="w-4 h-4 mr-2" />
-                      Change Photo
-                    </PulseButton>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        JPG, PNG up to 5MB
-                      </p>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleAvatarUpload}
+                      />
+                      <PulseButton variant="ghost" size="sm" onClick={() => fileInputRef.current?.click()}>
+                        <Camera className="w-4 h-4 mr-2" />
+                        Change Photo
+                      </PulseButton>
+                      <p className="text-sm text-muted-foreground mt-1">JPG, PNG up to 5MB</p>
                     </div>
                   </div>
 
@@ -278,12 +544,15 @@ const Settings: React.FC = () => {
                       </div>
                       <Switch
                         checked={settings.notifications.pulses}
-                        onCheckedChange={(checked) =>
+                        onCheckedChange={(checked) => {
                           setSettings({
                             ...settings,
-                            notifications: { ...settings.notifications, pulses: checked }
-                          })
-                        }
+                            notifications: { ...settings.notifications, pulses: checked },
+                          });
+                          toast({
+                            title: `Pulse notifications ${checked ? 'enabled' : 'disabled'}`,
+                          });
+                        }}
                       />
                     </div>
 
@@ -296,12 +565,15 @@ const Settings: React.FC = () => {
                       </div>
                       <Switch
                         checked={settings.notifications.messages}
-                        onCheckedChange={(checked) =>
+                        onCheckedChange={(checked) => {
                           setSettings({
                             ...settings,
-                            notifications: { ...settings.notifications, messages: checked }
-                          })
-                        }
+                            notifications: { ...settings.notifications, messages: checked },
+                          });
+                          toast({
+                            title: `Message notifications ${checked ? 'enabled' : 'disabled'}`,
+                          });
+                        }}
                       />
                     </div>
 
@@ -314,12 +586,15 @@ const Settings: React.FC = () => {
                       </div>
                       <Switch
                         checked={settings.notifications.calendar}
-                        onCheckedChange={(checked) =>
+                        onCheckedChange={(checked) => {
                           setSettings({
                             ...settings,
-                            notifications: { ...settings.notifications, calendar: checked }
-                          })
-                        }
+                            notifications: { ...settings.notifications, calendar: checked },
+                          });
+                          toast({
+                            title: `Calendar notifications ${checked ? 'enabled' : 'disabled'}`,
+                          });
+                        }}
                       />
                     </div>
 
@@ -332,12 +607,15 @@ const Settings: React.FC = () => {
                       </div>
                       <Switch
                         checked={settings.notifications.reminders}
-                        onCheckedChange={(checked) =>
+                        onCheckedChange={(checked) => {
                           setSettings({
                             ...settings,
-                            notifications: { ...settings.notifications, reminders: checked }
-                          })
-                        }
+                            notifications: { ...settings.notifications, reminders: checked },
+                          });
+                          toast({
+                            title: `Daily reminders ${checked ? 'enabled' : 'disabled'}`,
+                          });
+                        }}
                       />
                     </div>
                   </div>
@@ -347,21 +625,24 @@ const Settings: React.FC = () => {
               {activeSection === 'privacy' && (
                 <div className="space-y-6">
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-medium">Share Location</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Let your partner see your location
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-medium">Share Location</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Let your partner see your location
                         </p>
                       </div>
                       <Switch
                         checked={settings.privacy.shareLocation}
-                        onCheckedChange={(checked) =>
+                        onCheckedChange={(checked) => {
                           setSettings({
                             ...settings,
-                            privacy: { ...settings.privacy, shareLocation: checked }
-                          })
-                        }
+                            privacy: { ...settings.privacy, shareLocation: checked },
+                          });
+                          toast({
+                            title: `Location sharing ${checked ? 'enabled' : 'disabled'}`,
+                          });
+                        }}
                       />
                     </div>
 
@@ -374,12 +655,15 @@ const Settings: React.FC = () => {
                       </div>
                       <Switch
                         checked={settings.privacy.showOnlineStatus}
-                        onCheckedChange={(checked) =>
+                        onCheckedChange={(checked) => {
                           setSettings({
                             ...settings,
-                            privacy: { ...settings.privacy, showOnlineStatus: checked }
-                          })
-                        }
+                            privacy: { ...settings.privacy, showOnlineStatus: checked },
+                          });
+                          toast({
+                            title: `Online status ${checked ? 'shown' : 'hidden'}`,
+                          });
+                        }}
                       />
                     </div>
 
@@ -392,12 +676,45 @@ const Settings: React.FC = () => {
                       </div>
                       <Switch
                         checked={settings.privacy.readReceipts}
+                        onCheckedChange={(checked) => {
+                          setSettings({
+                            ...settings,
+                            privacy: { ...settings.privacy, readReceipts: checked },
+                          });
+                          toast({
+                            title: `Read receipts ${checked ? 'enabled' : 'disabled'}`,
+                          });
+                        }}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-medium">{t('autoDelete30d')}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Automatically remove messages older than 30 days
+                        </p>
+                      </div>
+                      <Switch
+                        checked={settings.privacy.autoDelete30d}
                         onCheckedChange={(checked) =>
                           setSettings({
                             ...settings,
-                            privacy: { ...settings.privacy, readReceipts: checked }
+                            privacy: { ...settings.privacy, autoDelete30d: checked }
                           })
                         }
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-medium">{t('useFaceID')}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Secure your account with biometrics
+                        </p>
+                      </div>
+                      <Switch
+                        checked={settings.privacy.useFaceID}
+                        onCheckedChange={handleFaceIDToggle}
                       />
                     </div>
                   </div>
@@ -435,7 +752,10 @@ const Settings: React.FC = () => {
                         ] as const).map(({ id, name, icon: Icon }) => (
                           <button
                             key={id}
-                            onClick={() => setSettings({ ...settings, theme: id })}
+                            onClick={() => {
+                              setSettings({ ...settings, theme: id });
+                              toast({ title: `${name} theme selected` });
+                            }}
                             className={cn(
                               "p-3 rounded-lg border text-center transition-all duration-200",
                               settings.theme === id
@@ -452,6 +772,43 @@ const Settings: React.FC = () => {
 
                     <Separator />
 
+                    <div>
+                      <h3 className="font-medium mb-3">Language</h3>
+                      <Select value={lang} onValueChange={handleLanguageChange}>
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="en">English</SelectItem>
+                          <SelectItem value="fr">Français</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-3">
+codex/add-export-data-feature-in-settings
+                      <h3 className="font-medium">Data</h3>
+                      <div className="p-4 border rounded-lg">
+                        <PulseButton variant="ghost" onClick={exportUserData}>
+                          Export my data
+                        </PulseButton>
+                      </div>
+                    </div>
+
+
+                      <h3 className="font-medium">Support</h3>
+                      <p className="text-sm text-muted-foreground">Need help with Pulse?</p>
+                      <PulseButton onClick={() => navigate('/faq')}>
+                        <LifeBuoy className="w-4 h-4 mr-2" />
+                        Help Center
+                      </PulseButton>
+                    </div>
+
+                    <Separator />
+
+main
                     <div className="space-y-3">
                       <h3 className="font-medium text-destructive">Danger Zone</h3>
                       <div className="p-4 border border-destructive/20 rounded-lg">
@@ -464,6 +821,22 @@ const Settings: React.FC = () => {
                         </PulseButton>
                       </div>
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {activeSection === 'help' && (
+                <div className="space-y-4">
+                  <p className="text-muted-foreground">
+                    Find answers or get in touch with us.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <PulseButton asChild variant="ghost" size="sm">
+                      <Link to="/faq">FAQ</Link>
+                    </PulseButton>
+                    <PulseButton asChild variant="ghost" size="sm">
+                      <Link to="/contact">Contact Support</Link>
+                    </PulseButton>
                   </div>
                 </div>
               )}
