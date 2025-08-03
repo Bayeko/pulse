@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { generateConnectCode } from '@/lib/utils';
 
 interface User {
   id: string;
@@ -16,7 +17,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
-  connectPartner: (partnerEmail: string, partnerName: string) => Promise<boolean>;
+  connectPartner: (partnerCode: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -173,7 +174,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const connectPartner = async (partnerEmail: string, partnerName: string): Promise<boolean> => {
+  const connectPartner = async (partnerCode: string): Promise<boolean> => {
     setIsLoading(true);
     try {
       if (!user || !session) {
@@ -185,14 +186,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false;
       }
 
-      // Find partner by email (used as a temporary unique code)
-      const { data: partnerProfile, error: findError } = await supabase
+      const { data: profiles, error: findError } = await supabase
         .from('profiles')
-        .select('id, user_id, name')
-        .eq('email', partnerEmail)
-        .single();
+        .select('id, user_id, name');
 
-      if (findError || !partnerProfile) {
+      if (findError || !profiles) {
+        toast({
+          title: "Connection failed",
+          description: "Partner not found. Please check the code.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      const partnerProfile = profiles.find(
+        (p) => generateConnectCode(p.user_id) === partnerCode.toUpperCase()
+      );
+
+      if (!partnerProfile) {
         toast({
           title: "Connection failed",
           description: "Partner not found. Please check the code.",

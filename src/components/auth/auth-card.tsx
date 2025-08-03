@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Heart, Shield, Users, Copy } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, generateConnectCode } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { QRCodeSVG } from 'qrcode.react';
+import Confetti from 'react-confetti';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 interface AuthCardProps {
   mode: 'login' | 'register' | 'connect';
@@ -17,17 +20,21 @@ interface AuthCardProps {
 
 export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, className }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [connectStatus, setConnectStatus] = useState<'idle' | 'waiting' | 'connected'>('idle');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    partnerEmail: ''
+    partnerCode: ''
   });
   
   const { login, register, connectPartner, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const myCode = useMemo(() => (user ? generateConnectCode(user.id) : ''), [user]);
+  const deepLink = `pulse://connect/${myCode}`;
   
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -52,14 +59,25 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
           success = await register(formData.name, formData.email, formData.password);
           break;
         case 'connect':
-          success = await connectPartner(formData.partnerEmail, '');
+          if (connectStatus === 'connected') {
+            navigate('/dashboard');
+            success = true;
+          } else {
+            setConnectStatus('waiting');
+            success = await connectPartner(formData.partnerCode);
+            if (success) {
+              setConnectStatus('connected');
+            } else {
+              setConnectStatus('idle');
+            }
+          }
           break;
       }
-      
+
       if (success) {
         if (mode === 'register') {
           onModeChange('connect');
-        } else {
+        } else if (mode !== 'connect') {
           navigate('/dashboard');
         }
       }
@@ -184,40 +202,73 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
         
       case 'connect': {
         const copyToClipboard = () => {
-          if (user?.email) {
-            navigator.clipboard.writeText(user.email);
+          if (deepLink) {
+            navigator.clipboard.writeText(deepLink);
             toast({
               title: "Copied!",
-              description: "Your connection code has been copied to clipboard.",
+              description: "Link copied to clipboard.",
             });
           }
         };
 
+        if (connectStatus === 'waiting') {
+          return {
+            title: 'Connect with Partner',
+            description: 'Waiting for connection...',
+            icon: <Users className="w-6 h-6 text-primary" />,
+            fields: (
+              <p className="text-center text-muted-foreground">En attente de connexion…</p>
+            ),
+            button: undefined,
+            footer: null,
+          };
+        }
+
+        if (connectStatus === 'connected') {
+          return {
+            title: 'Partner connected!',
+            description: `Connected with ${user?.partnerName || 'partner'}`,
+            icon: <Users className="w-6 h-6 text-primary" />,
+            fields: (
+              <div className="relative h-40">
+                <Confetti width={400} height={160} recycle={false} />
+                <div className="absolute inset-0 flex items-center justify-center space-x-4">
+                  <Avatar className="w-16 h-16">
+                    <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
+                  </Avatar>
+                  <Avatar className="w-16 h-16">
+                    <AvatarFallback>{user?.partnerName?.[0] ?? '?'}</AvatarFallback>
+                  </Avatar>
+                </div>
+              </div>
+            ),
+            button: 'Go to Dashboard',
+            footer: null,
+          };
+        }
+
         return {
           title: 'Connect with Partner',
-          description: 'Share your email address or enter your partner\'s email',
+          description: 'Share your code or enter your partner\'s code',
           icon: <Users className="w-6 h-6 text-primary" />,
           fields: (
             <>
-              <div className="space-y-2">
+              <div className="space-y-2 text-center">
                 <Label>Your Connection Code</Label>
-                <div className="p-4 bg-muted rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-mono font-semibold text-primary">
-                      {user?.email || 'Loading...'}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={copyToClipboard}
-                      className="ml-2 p-1 text-muted-foreground hover:text-primary transition-colors"
-                      title="Copy to clipboard"
-                    >
-                      <Copy className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Share this email with your partner
-                  </p>
+                <div className="p-4 bg-muted rounded-lg flex flex-col items-center space-y-2">
+                  <span className="text-lg font-mono font-semibold text-primary">
+                    {myCode || '------'}
+                  </span>
+                  <QRCodeSVG value={user?.id || ''} size={128} />
+                  <button
+                    type="button"
+                    onClick={copyToClipboard}
+                    className="flex items-center text-sm text-muted-foreground hover:text-primary mt-2"
+                    title="Copy link"
+                  >
+                    <Copy className="w-4 h-4 mr-1" /> Copy link
+                  </button>
+                  <span className="text-xs text-muted-foreground break-all">{deepLink}</span>
                 </div>
               </div>
               <div className="relative">
@@ -229,13 +280,14 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="partnerEmail">Partner's Email</Label>
+                <Label htmlFor="partnerCode">Partner's Code</Label>
                 <Input
-                  id="partnerEmail"
-                  type="email"
-                  placeholder="partner@email.com"
-                  value={formData.partnerEmail}
-                  onChange={(e) => handleInputChange('partnerEmail', e.target.value)}
+                  id="partnerCode"
+                  type="text"
+                  placeholder="ABCDEF"
+                  maxLength={6}
+                  value={formData.partnerCode}
+                  onChange={(e) => handleInputChange('partnerCode', e.target.value.toUpperCase())}
                   required
                 />
               </div>
@@ -277,15 +329,17 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
           <div className="space-y-4">
             {content.fields}
           </div>
-          <PulseButton 
-            type="submit"
-            variant="pulse" 
-            size="lg" 
-            className="w-full"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Loading...' : content.button}
-          </PulseButton>
+          {content.button && (
+            <PulseButton
+              type="submit"
+              variant="pulse"
+              size="lg"
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Loading...' : content.button}
+            </PulseButton>
+          )}
         </form>
         {content.footer}
       </CardContent>

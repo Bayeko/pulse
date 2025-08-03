@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cn } from "./utils";
+import { cn, generateConnectCode } from "./utils";
 
 describe("cn", () => {
   it("fusionne des classes simples", () => {
@@ -16,5 +16,10 @@ describe("cn", () => {
 
   it("ignore les valeurs falsy", () => {
     expect(cn("foo", null, undefined, false, "bar")).toBe("foo bar");
+  });
+
+  it("génère un code de 6 caractères", () => {
+    expect(generateConnectCode("abc-def123456"))
+      .toBe("ABCDEF");
   });
 });
