@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Heart, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 interface CentralPulseButtonProps {
   className?: string;
@@ -13,6 +14,37 @@ type PulseState = 'idle' | 'sending' | 'sent';
 export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ className }) => {
   const { user } = useAuth();
   const [state, setState] = useState<PulseState>('idle');
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (!user || !user.partnerId) return;
+
+    const channel = supabase
+      .channel('pulse-decline')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `and(sender_id.eq.${user.partnerId},receiver_id.eq.${user.id})`,
+        },
+        (payload) => {
+          const message = payload.new as { content: string; type: string };
+          if (message.type === 'pulse' && message.content === 'unavailable') {
+            toast({
+              title: 'Partner unavailable',
+              description: 'Merci, on se retrouve plus tard !',
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, toast]);
 
   const handleClick = async () => {
     if (!user || !user.partnerId) return;
