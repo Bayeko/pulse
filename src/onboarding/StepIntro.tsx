@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from '@/components/ui/carousel';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
+import { useTranslation } from '@/i18n';
 
 const items = [
   { title: 'Code Pulse', description: 'Exprimez vos envies par pulsations discrètes.' },
@@ -12,6 +13,7 @@ const items = [
 
 export const StepIntro: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="space-y-8">
@@ -33,9 +35,12 @@ export const StepIntro: React.FC = () => {
         <CarouselPrevious />
         <CarouselNext />
       </Carousel>
-      <div className="flex justify-center">
-        <PulseButton onClick={() => navigate('/auth?mode=connect')}>
-          Inviter mon/ma partenaire
+      <div className="flex flex-col sm:flex-row justify-center gap-4">
+        <PulseButton onClick={() => navigate('/auth?mode=register')}>
+          {t('createAccount')}
+        </PulseButton>
+        <PulseButton variant="ghost" onClick={() => navigate('/auth?mode=connect')}>
+          {t('joinPartner')}
         </PulseButton>
       </div>
     </div>
