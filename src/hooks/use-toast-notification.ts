@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ToastNotificationOptions {
