@@ -8,11 +8,18 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  Settings as SettingsIcon, 
-  User, 
-  Bell, 
-  Heart, 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Settings as SettingsIcon,
+  User,
+  Bell,
+  Heart,
   Shield, 
   Smartphone, 
   Moon, 
@@ -26,6 +33,8 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables, TablesUpdate } from '@/integrations/supabase/types';
+import { useTranslation } from '@/i18n';
+import { useToast } from '@/hooks/use-toast';
 
 interface SettingsData {
   name: string;
@@ -49,7 +58,14 @@ interface SettingsData {
 const Settings: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  
+  const { lang, setLang } = useTranslation();
+  const { toast } = useToast();
+
+  const handleLanguageChange = (value: string) => {
+    setLang(value as 'en' | 'fr');
+    toast({ description: `Language set to ${value === 'en' ? 'English' : 'Français'}` });
+  };
+
   const [settings, setSettings] = useState<SettingsData>({
     name: user?.name || '',
     email: user?.email || '',
@@ -421,6 +437,21 @@ const Settings: React.FC = () => {
                           </button>
                         ))}
                       </div>
+                    </div>
+
+                    <Separator />
+
+                    <div>
+                      <h3 className="font-medium mb-3">Language</h3>
+                      <Select value={lang} onValueChange={handleLanguageChange}>
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="en">English</SelectItem>
+                          <SelectItem value="fr">Français</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     <Separator />
