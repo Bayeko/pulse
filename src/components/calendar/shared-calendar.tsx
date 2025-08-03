@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { scheduleReminder } from '@/lib/reminders';
+import { useTranslation } from '@/i18n';
 
 interface TimeSlot {
   id: string;
@@ -33,11 +34,13 @@ interface SharedCalendarProps {
 
 export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [partnerSlots, setPartnerSlots] = useState<TimeSlot[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [selectedDate, setSelectedDate] = useState('2024-01-15');
   const [view, setView] = useState<'week' | 'suggestions'>('week');
+  const [showMutualOnly, setShowMutualOnly] = useState(false);
 
   const parseTime = (time: string) => {
     const [h, m] = time.split(':').map(Number);
@@ -48,6 +51,13 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
     const h = Math.floor(mins / 60).toString().padStart(2, '0');
     const m = (mins % 60).toString().padStart(2, '0');
     return `${h}:${m}`;
+  };
+
+  const snapToHalfHour = (time: string) => {
+    const mins = parseTime(time);
+    const snapped = Math.round(mins / 30) * 30;
+    const clamped = Math.min(Math.max(snapped, 0), 23 * 60 + 30);
+    return minutesToTime(clamped);
   };
 
   const formatDisplay = (date: string, start: string, end: string) => {
@@ -149,9 +159,11 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
 
   const addTimeSlot = async () => {
     if (!user) return;
-    const start = prompt('Start time (HH:MM)');
-    const end = prompt('End time (HH:MM)');
-    if (!start || !end) return;
+    const startInput = prompt('Start time (HH:MM)');
+    const endInput = prompt('End time (HH:MM)');
+    if (!startInput || !endInput) return;
+    const start = snapToHalfHour(startInput);
+    const end = snapToHalfHour(endInput);
     const title = prompt('Title') || null;
     const { data, error } = await supabase
       .from('time_slots')
@@ -165,9 +177,11 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
 
   const updateTimeSlot = async (id: string) => {
     if (!user) return;
-    const start = prompt('Start time (HH:MM)');
-    const end = prompt('End time (HH:MM)');
-    if (!start || !end) return;
+    const startInput = prompt('Start time (HH:MM)');
+    const endInput = prompt('End time (HH:MM)');
+    if (!startInput || !endInput) return;
+    const start = snapToHalfHour(startInput);
+    const end = snapToHalfHour(endInput);
     const title = prompt('Title') || null;
     const { data, error } = await supabase
       .from('time_slots')
@@ -276,8 +290,37 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
   };
 
   const getSlotsForDate = (date: string) => {
-    return timeSlots.filter(slot => slot.date === date);
+    return timeSlots.filter(
+      slot => slot.date === date && (!showMutualOnly || slot.type === 'mutual')
+    );
   };
+
+ codex/modify-calendar-to-support-half-hour-rows
+  const findOverlaps = (slots: TimeSlot[]) => {
+    const overlapping = new Set<string>();
+    for (let i = 0; i < slots.length; i++) {
+      for (let j = i + 1; j < slots.length; j++) {
+        const aStart = parseTime(slots[i].start);
+        const aEnd = parseTime(slots[i].end);
+        const bStart = parseTime(slots[j].start);
+        const bEnd = parseTime(slots[j].end);
+        if (aStart < bEnd && bStart < aEnd) {
+          overlapping.add(slots[i].id);
+          overlapping.add(slots[j].id);
+        }
+      }
+    }
+    return overlapping;
+  };
+  const slotsForSelectedDate = getSlotsForDate(selectedDate);
+  const overlappingSlots = findOverlaps(slotsForSelectedDate);
+  const halfHourMarks = Array.from({ length: 48 }, (_, i) => minutesToTime(i * 30));
+
+  const slotsForSelectedDate = getSlotsForDate(selectedDate);
+  const allSlotsForSelectedDate = timeSlots.filter(
+    slot => slot.date === selectedDate
+  );
+ main
 
   return (
     <Card className={cn("shadow-card animate-scale-in", className)}>
@@ -349,15 +392,83 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
                      day: 'numeric'
                    })}
                 </h3>
-                <PulseButton variant="ghost" size="sm" onClick={addTimeSlot}>
-                  <Plus className="w-4 h-4 mr-1" />
-                  Add Time Slot
-                </PulseButton>
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant={showMutualOnly ? 'default' : 'secondary'}
+                    className="cursor-pointer"
+                    onClick={() => setShowMutualOnly(!showMutualOnly)}
+                  >
+                    Mutual Only
+                  </Badge>
+                  <PulseButton variant="ghost" size="sm" onClick={addTimeSlot}>
+                    <Plus className="w-4 h-4 mr-1" />
+                    Add Time Slot
+                  </PulseButton>
+                </div>
               </div>
 
-              {getSlotsForDate(selectedDate).length > 0 ? (
+ codex/modify-calendar-to-support-half-hour-rows
+              <div className="relative border rounded-md overflow-hidden">
+                <div
+                  className="grid w-full"
+                  style={{ gridTemplateRows: 'repeat(48, 1.5rem)' }}
+                >
+                  {halfHourMarks.map((mark, i) => (
+                    <div
+                      key={mark}
+                      className="border-b border-border text-[10px] text-muted-foreground relative"
+                    >
+                      {i % 2 === 0 && (
+                        <span className="absolute -left-10">{mark}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {slotsForSelectedDate.map((slot) => {
+                  const typeInfo = getSlotTypeInfo(slot.type);
+                  const start = parseTime(slot.start);
+                  const end = parseTime(slot.end);
+                  const top = (start / (24 * 60)) * 100;
+                  const height = ((end - start) / (24 * 60)) * 100;
+                  const isOverlap = overlappingSlots.has(slot.id);
+                  return (
+                    <div
+                      key={slot.id}
+                      className={cn(
+                        'absolute left-0 right-0 m-0.5 p-2 rounded border text-xs flex flex-col justify-between',
+                        typeInfo.color,
+                        isOverlap && 'bg-destructive/20 border-destructive'
+                      )}
+                      style={{ top: `${top}%`, height: `${height}%` }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {typeInfo.icon}
+                          <span className="font-medium">
+                            {slot.start} - {slot.end}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-[10px]">
+                            {typeInfo.label}
+                          </Badge>
+                          <button
+                            onClick={() => updateTimeSlot(slot.id)}
+                            className="p-1 hover:text-foreground text-muted-foreground"
+                          >
+                            <Pencil className="w-3 h-3" />
+                          </button>
+                          <button
+                            onClick={() => deleteTimeSlot(slot.id)}
+                            className="p-1 hover:text-destructive text-destructive/80"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+
+              {slotsForSelectedDate.length > 0 ? (
                 <div className="space-y-2">
-                  {getSlotsForDate(selectedDate).map((slot) => {
+                  {slotsForSelectedDate.map((slot) => {
                     const typeInfo = getSlotTypeInfo(slot.type);
                     return (
                       <div
@@ -391,20 +502,57 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
                               <Trash2 className="w-3 h-3" />
                             </button>
                           </div>
+ main
                         </div>
-                        {slot.title && (
-                          <p className="text-sm mt-1 opacity-90">{slot.title}</p>
-                        )}
                       </div>
+ codex/modify-calendar-to-support-half-hour-rows
+                      {slot.title && (
+                        <p className="text-[10px] mt-1 opacity-90">{slot.title}</p>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {slotsForSelectedDate.length === 0 && (
+                  <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                    <div className="text-center">
+                      <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <p>No time slots for this day</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
                     );
                   })}
                 </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
+ codex/replace-no-time-slots-block-with-illustration
+                  <svg
+                    className="w-16 h-16 mx-auto mb-4 opacity-50"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <path d="M8 12h8M12 8v8" />
+                  </svg>
+                  <p>{t('addFirstAvailability')}</p>
+
                   <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p>No time slots for this day</p>
+                  <p>
+                    {showMutualOnly && allSlotsForSelectedDate.length > 0
+                      ? 'No mutual time slots for this day'
+                      : 'No time slots for this day'}
+                  </p>
+ main
                 </div>
               )}
+ main
             </div>
           </>
         ) : (
