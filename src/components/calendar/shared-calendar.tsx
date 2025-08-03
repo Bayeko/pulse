@@ -354,10 +354,14 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
   };
   const slotsForSelectedDate = getSlotsForDate(selectedDate);
   const overlappingSlots = findOverlaps(slotsForSelectedDate);
+ codex/remove-codex-lines-and-main-tokens
   const halfHourMarks = Array.from({ length: 48 }, (_, i) =>
     minutesToTime(i * 30),
   );
 
+
+  const halfHourMarks = Array.from({ length: 48 }, (_, i) => minutesToTime(i * 30));
+ main
   const allSlotsForSelectedDate = timeSlots.filter(
     (slot) => slot.date === selectedDate,
   );
@@ -564,6 +568,26 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
                           </p>
                         )}
                       </div>
+ codex/remove-codex-lines-and-main-tokens
+
+                      {slot.title && (
+                        <p className="text-[10px] mt-1 opacity-90">{slot.title}</p>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {slotsForSelectedDate.length === 0 && (
+                  <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                    <div className="text-center">
+                      <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <p>No time slots for this day</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+ main
                     );
                   })}
                 </div>
