@@ -15,7 +15,11 @@ import Calendar from "./pages/calendar";
 import Settings from "./pages/settings";
 import NotFound from "./pages/NotFound";
 import PairPage from "./pages/pair";
+codex/add-paywall-page-with-visuals-and-pricing
 import Paywall from "./pages/paywall";
+
+import FAQ from "./pages/faq";
+main
 import { usePushNotifications } from "@/hooks/use-push-notifications";
 
 const queryClient = new QueryClient();
@@ -58,6 +62,11 @@ const App = () => {
                 <Route path="/pair/:code?" element={
                   <ProtectedRoute>
                     <PairPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/faq" element={
+                  <ProtectedRoute>
+                    <FAQ />
                   </ProtectedRoute>
                 } />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
