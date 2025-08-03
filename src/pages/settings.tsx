@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +24,8 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import type { Tables, TablesUpdate } from '@/integrations/supabase/types';
 
 interface SettingsData {
   name: string;
@@ -69,9 +71,55 @@ const Settings: React.FC = () => {
 
   const [activeSection, setActiveSection] = useState<'profile' | 'notifications' | 'privacy' | 'general'>('profile');
 
-  const handleSave = () => {
-    // Here you would typically save to backend/context
-    console.log('Saving settings:', settings);
+  useEffect(() => {
+    const loadSettings = async () => {
+      if (!user) return;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('name, email, bio, avatar')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) {
+        console.error('Error loading settings:', error);
+        return;
+      }
+
+      const profile = data as (Tables<'profiles'> & { bio?: string; avatar?: string }) | null;
+
+      if (profile) {
+        setSettings((prev) => ({
+          ...prev,
+          name: profile.name || '',
+          email: profile.email || '',
+          bio: profile.bio || '',
+          avatar: profile.avatar || '',
+        }));
+      }
+    };
+
+    loadSettings();
+  }, [user]);
+
+  const saveSettings = async () => {
+    if (!user) return;
+    const updates: TablesUpdate<'profiles'> & { bio?: string; avatar?: string } = {
+      name: settings.name,
+      email: settings.email,
+      bio: settings.bio,
+      avatar: settings.avatar,
+    };
+
+    const { error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Error saving settings:', error);
+    } else {
+      console.log('Settings saved');
+    }
   };
 
   const settingSections = [
@@ -79,7 +127,7 @@ const Settings: React.FC = () => {
     { id: 'notifications', name: 'Notifications', icon: Bell },
     { id: 'privacy', name: 'Privacy', icon: Shield },
     { id: 'general', name: 'General', icon: SettingsIcon },
-  ];
+  ] as const;
 
   return (
     <div className="min-h-screen bg-gradient-soft p-4">
@@ -111,7 +159,7 @@ const Settings: React.FC = () => {
                   return (
                     <button
                       key={section.id}
-                      onClick={() => setActiveSection(section.id as any)}
+                      onClick={() => setActiveSection(section.id)}
                       className={cn(
                         "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all duration-200",
                         activeSection === section.id
@@ -353,14 +401,14 @@ const Settings: React.FC = () => {
                     <div>
                       <h3 className="font-medium mb-3">Theme</h3>
                       <div className="grid grid-cols-3 gap-3">
-                        {[
+                        {([
                           { id: 'light', name: 'Light', icon: Sun },
                           { id: 'dark', name: 'Dark', icon: Moon },
                           { id: 'auto', name: 'Auto', icon: Smartphone },
-                        ].map(({ id, name, icon: Icon }) => (
+                        ] as const).map(({ id, name, icon: Icon }) => (
                           <button
                             key={id}
-                            onClick={() => setSettings({ ...settings, theme: id as any })}
+                            onClick={() => setSettings({ ...settings, theme: id })}
                             className={cn(
                               "p-3 rounded-lg border text-center transition-all duration-200",
                               settings.theme === id
@@ -395,7 +443,7 @@ const Settings: React.FC = () => {
 
               {/* Save Button */}
               <div className="flex justify-end pt-6 border-t">
-                <PulseButton onClick={handleSave}>
+                <PulseButton onClick={saveSettings}>
                   <Save className="w-4 h-4 mr-2" />
                   Save Changes
                 </PulseButton>
