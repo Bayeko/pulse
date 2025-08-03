@@ -52,7 +52,10 @@ const Settings: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+codex/add-export-data-feature-in-settings
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+ main
   
   const [settings, setSettings] = useState<SettingsData>({
     name: user?.name || '',
@@ -149,6 +152,83 @@ const Settings: React.FC = () => {
       toast({
         title: 'Upload failed',
         description: 'Could not upload avatar.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const exportUserData = async () => {
+    if (!user) return;
+    try {
+      const [profileRes, messagesRes, timeSlotsRes] = await Promise.all([
+        supabase.from('profiles').select('*').eq('user_id', user.id).single(),
+        supabase
+          .from('messages')
+          .select('*')
+          .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`),
+        supabase.from('time_slots').select('*').eq('user_id', user.id),
+      ]);
+
+      if (profileRes.error || messagesRes.error || timeSlotsRes.error) {
+        throw new Error('Error fetching data');
+      }
+
+      const exportData = {
+        profile: profileRes.data,
+        messages: messagesRes.data,
+        time_slots: timeSlotsRes.data,
+      };
+
+      const jsonBlob = new Blob([JSON.stringify(exportData, null, 2)], {
+        type: 'application/json',
+      });
+      const jsonUrl = URL.createObjectURL(jsonBlob);
+      const jsonLink = document.createElement('a');
+      jsonLink.href = jsonUrl;
+      jsonLink.download = 'pulse-data.json';
+      jsonLink.click();
+
+      const convertToCsv = (items: any[]) => {
+        if (!items || items.length === 0) return '';
+        const headers = Object.keys(items[0]);
+        const rows = items.map((row) =>
+          headers.map((field) => JSON.stringify(row[field] ?? '')).join(',')
+        );
+        return [headers.join(','), ...rows].join('\n');
+      };
+
+      const csvSections: string[] = [];
+      if (exportData.profile) {
+        csvSections.push('Profiles');
+        csvSections.push(convertToCsv([exportData.profile] as any));
+      }
+      if (exportData.messages) {
+        csvSections.push('Messages');
+        csvSections.push(convertToCsv(exportData.messages as any));
+      }
+      if (exportData.time_slots) {
+        csvSections.push('Time Slots');
+        csvSections.push(convertToCsv(exportData.time_slots as any));
+      }
+
+      const csvBlob = new Blob([csvSections.join('\n\n')], {
+        type: 'text/csv;charset=utf-8;',
+      });
+      const csvUrl = URL.createObjectURL(csvBlob);
+      const csvLink = document.createElement('a');
+      csvLink.href = csvUrl;
+      csvLink.download = 'pulse-data.csv';
+      csvLink.click();
+
+      toast({
+        title: 'Export complete',
+        description: 'Your data has been downloaded.',
+      });
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      toast({
+        title: 'Export failed',
+        description: 'Could not export your data.',
         variant: 'destructive',
       });
     }
@@ -487,6 +567,16 @@ const Settings: React.FC = () => {
                     <Separator />
 
                     <div className="space-y-3">
+codex/add-export-data-feature-in-settings
+                      <h3 className="font-medium">Data</h3>
+                      <div className="p-4 border rounded-lg">
+                        <PulseButton variant="ghost" onClick={exportUserData}>
+                          Export my data
+                        </PulseButton>
+                      </div>
+                    </div>
+
+
                       <h3 className="font-medium">Support</h3>
                       <p className="text-sm text-muted-foreground">Need help with Pulse?</p>
                       <PulseButton onClick={() => navigate('/faq')}>
@@ -497,6 +587,7 @@ const Settings: React.FC = () => {
 
                     <Separator />
 
+main
                     <div className="space-y-3">
                       <h3 className="font-medium text-destructive">Danger Zone</h3>
                       <div className="p-4 border border-destructive/20 rounded-lg">
