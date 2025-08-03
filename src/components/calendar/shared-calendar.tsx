@@ -295,7 +295,6 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
     );
   };
 
- codex/modify-calendar-to-support-half-hour-rows
   const findOverlaps = (slots: TimeSlot[]) => {
     const overlapping = new Set<string>();
     for (let i = 0; i < slots.length; i++) {
@@ -315,12 +314,9 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
   const slotsForSelectedDate = getSlotsForDate(selectedDate);
   const overlappingSlots = findOverlaps(slotsForSelectedDate);
   const halfHourMarks = Array.from({ length: 48 }, (_, i) => minutesToTime(i * 30));
-
-  const slotsForSelectedDate = getSlotsForDate(selectedDate);
   const allSlotsForSelectedDate = timeSlots.filter(
     slot => slot.date === selectedDate
   );
- main
 
   return (
     <Card className={cn("shadow-card animate-scale-in", className)}>
@@ -407,7 +403,6 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
                 </div>
               </div>
 
- codex/modify-calendar-to-support-half-hour-rows
               <div className="relative border rounded-md overflow-hidden">
                 <div
                   className="grid w-full"
@@ -502,10 +497,8 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
                               <Trash2 className="w-3 h-3" />
                             </button>
                           </div>
- main
                         </div>
                       </div>
- codex/modify-calendar-to-support-half-hour-rows
                       {slot.title && (
                         <p className="text-[10px] mt-1 opacity-90">{slot.title}</p>
                       )}
@@ -528,7 +521,6 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
                 </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
- codex/replace-no-time-slots-block-with-illustration
                   <svg
                     className="w-16 h-16 mx-auto mb-4 opacity-50"
                     viewBox="0 0 24 24"
@@ -549,10 +541,8 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({ className }) => 
                       ? 'No mutual time slots for this day'
                       : 'No time slots for this day'}
                   </p>
- main
                 </div>
               )}
- main
             </div>
           </>
         ) : (
