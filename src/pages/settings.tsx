@@ -280,6 +280,10 @@ codex/add-export-data-feature-in-settings
         profile: profileRes.data,
         messages: messagesRes.data,
         time_slots: timeSlotsRes.data,
+      } as {
+        profile: Tables<'profiles'> | null;
+        messages: Tables<'messages'>[];
+        time_slots: Tables<'time_slots'>[];
       };
 
       const jsonBlob = new Blob([JSON.stringify(exportData, null, 2)], {
@@ -291,7 +295,7 @@ codex/add-export-data-feature-in-settings
       jsonLink.download = 'pulse-data.json';
       jsonLink.click();
 
-      const convertToCsv = (items: any[]) => {
+      const convertToCsv = <T extends Record<string, unknown>>(items: T[]) => {
         if (!items || items.length === 0) return '';
         const headers = Object.keys(items[0]);
         const rows = items.map((row) =>
@@ -303,15 +307,15 @@ codex/add-export-data-feature-in-settings
       const csvSections: string[] = [];
       if (exportData.profile) {
         csvSections.push('Profiles');
-        csvSections.push(convertToCsv([exportData.profile] as any));
+        csvSections.push(convertToCsv([exportData.profile]));
       }
       if (exportData.messages) {
         csvSections.push('Messages');
-        csvSections.push(convertToCsv(exportData.messages as any));
+        csvSections.push(convertToCsv(exportData.messages));
       }
       if (exportData.time_slots) {
         csvSections.push('Time Slots');
-        csvSections.push(convertToCsv(exportData.time_slots as any));
+        csvSections.push(convertToCsv(exportData.time_slots));
       }
 
       const csvBlob = new Blob([csvSections.join('\n\n')], {

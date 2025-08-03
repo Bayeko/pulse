@@ -1,11 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import QRCode from 'qrcode.react';
 import confetti from 'canvas-confetti';
+
+type ProfileSummary = Pick<
+  Database['public']['Tables']['profiles']['Row'],
+  'id' | 'avatar_url' | 'partner_id'
+>;
+type AvatarOnly = Pick<Database['public']['Tables']['profiles']['Row'], 'avatar_url'>;
 
 const Pairing = () => {
   const { user, connectByCode } = useAuth();
@@ -19,10 +26,11 @@ const Pairing = () => {
   useEffect(() => {
     if (!user) return;
     const setup = async () => {
-      const { data } = await (supabase as any)
+      const { data } = await supabase
         .from('profiles')
         .select('id, avatar_url, partner_id')
         .eq('user_id', user.id)
+        .returns<ProfileSummary>()
         .single();
       if (data) {
         const generated = data.id.replace(/-/g, '').slice(0, 6).toUpperCase();
@@ -35,6 +43,7 @@ const Pairing = () => {
             .from('profiles')
             .select('avatar_url')
             .eq('id', data.partner_id)
+            .returns<AvatarOnly>()
             .single();
           setAvatars({ me: data.avatar_url ?? undefined, partner: partner?.avatar_url ?? undefined });
         } else {
@@ -48,18 +57,20 @@ const Pairing = () => {
   useEffect(() => {
     if (!user || !waiting) return;
     const interval = setInterval(async () => {
-      const { data } = await (supabase as any)
+      const { data } = await supabase
         .from('profiles')
         .select('partner_id, avatar_url')
         .eq('user_id', user.id)
+        .returns<ProfileSummary>()
         .single();
       if (data && data.partner_id) {
         setPaired(true);
         setWaiting(false);
-        const { data: partner } = await (supabase as any)
+        const { data: partner } = await supabase
           .from('profiles')
           .select('avatar_url')
           .eq('id', data.partner_id)
+          .returns<AvatarOnly>()
           .single();
         setAvatars({ me: data.avatar_url ?? undefined, partner: partner?.avatar_url ?? undefined });
       }
