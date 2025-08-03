@@ -13,6 +13,7 @@ import Messages from "./pages/messages";
 import Calendar from "./pages/calendar";
 import Settings from "./pages/settings";
 import NotFound from "./pages/NotFound";
+import PairPage from "./pages/pair";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
 
 const queryClient = new QueryClient();
@@ -45,11 +46,16 @@ const App = () => {
                   <Calendar />
                 </ProtectedRoute>
               } />
-              <Route path="/settings" element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              } />
+                <Route path="/settings" element={
+                  <ProtectedRoute>
+                    <Settings />
+                  </ProtectedRoute>
+                } />
+                <Route path="/pair/:code?" element={
+                  <ProtectedRoute>
+                    <PairPage />
+                  </ProtectedRoute>
+                } />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
