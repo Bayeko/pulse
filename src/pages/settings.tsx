@@ -8,12 +8,26 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+ codex/add-language-selection-in-settings
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
  codex/add-face-id-switch-in-settings
+ main
 import {
   Settings as SettingsIcon,
   User,
   Bell,
+ codex/add-language-selection-in-settings
+  Heart,
+
   Heart, 
+ main
   Shield, 
   Smartphone, 
   Moon, 
@@ -44,10 +58,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables, TablesUpdate } from '@/integrations/supabase/types';
+ codex/add-language-selection-in-settings
+import { useTranslation } from '@/i18n';
+import { useToast } from '@/hooks/use-toast';
+
 import { useToast } from '@/hooks/use-toast';
  codex/add-face-id-switch-in-settings
 import { useTranslation } from '@/i18n';
 
+ main
  main
 
 interface SettingsData {
@@ -77,6 +96,16 @@ interface SettingsData {
 const Settings: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+ codex/add-language-selection-in-settings
+  const { lang, setLang } = useTranslation();
+  const { toast } = useToast();
+
+  const handleLanguageChange = (value: string) => {
+    setLang(value as 'en' | 'fr');
+    toast({ description: `Language set to ${value === 'en' ? 'English' : 'Français'}` });
+  };
+
+
   const { toast } = useToast();
  codex/add-face-id-switch-in-settings
   const { t } = useTranslation();
@@ -91,6 +120,7 @@ codex/add-export-data-feature-in-settings
  main
  main
   
+ main
   const [settings, setSettings] = useState<SettingsData>({
     name: user?.name || '',
     email: user?.email || '',
@@ -711,6 +741,21 @@ codex/add-export-data-feature-in-settings
                           </button>
                         ))}
                       </div>
+                    </div>
+
+                    <Separator />
+
+                    <div>
+                      <h3 className="font-medium mb-3">Language</h3>
+                      <Select value={lang} onValueChange={handleLanguageChange}>
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="en">English</SelectItem>
+                          <SelectItem value="fr">Français</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     <Separator />
