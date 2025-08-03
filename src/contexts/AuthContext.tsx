@@ -172,7 +172,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(false);
     }
   };
-  
   const connectPartner = async (partnerEmail: string): Promise<boolean> => {
     setIsLoading(true);
     try {
