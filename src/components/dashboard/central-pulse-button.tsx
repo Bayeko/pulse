@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Heart, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 interface CentralPulseButtonProps {
@@ -13,9 +14,26 @@ type PulseState = 'idle' | 'sending' | 'sent';
 export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ className }) => {
   const { user } = useAuth();
   const [state, setState] = useState<PulseState>('idle');
+  const { toast } = useToast();
 
   const handleClick = async () => {
     if (!user || !user.partnerId) return;
+
+    const now = new Date();
+    if (user.snoozeUntil && new Date(user.snoozeUntil) > now) {
+      toast({
+        title: 'Snoozed',
+        description: 'You are currently snoozed.',
+      });
+      return;
+    }
+    if (user.partnerSnoozeUntil && new Date(user.partnerSnoozeUntil) > now) {
+      toast({
+        title: 'Partner snoozed',
+        description: 'Your partner is currently snoozed.',
+      });
+      return;
+    }
 
     navigator.vibrate?.(50);
 

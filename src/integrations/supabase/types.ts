@@ -51,6 +51,7 @@ export type Database = {
           id: string
           name: string
           partner_id: string | null
+          snooze_until: string | null
           updated_at: string
           user_id: string
         }
@@ -60,6 +61,7 @@ export type Database = {
           id?: string
           name: string
           partner_id?: string | null
+          snooze_until?: string | null
           updated_at?: string
           user_id: string
         }
@@ -69,6 +71,7 @@ export type Database = {
           id?: string
           name?: string
           partner_id?: string | null
+          snooze_until?: string | null
           updated_at?: string
           user_id?: string
         }

@@ -42,6 +42,10 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
   const [newMessage, setNewMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const now = new Date();
+  const isSnoozed = user?.snoozeUntil && new Date(user.snoozeUntil) > now;
+  const partnerSnoozed = user?.partnerSnoozeUntil && new Date(user.partnerSnoozeUntil) > now;
+  const disabledMessaging = isSnoozed || partnerSnoozed;
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Récupère les messages lorsque l’utilisateur et son partenaire sont disponibles
@@ -187,6 +191,22 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
 
   const sendMessage = async (content: string, type: 'text' | 'emoji' = 'text') => {
     if (!content.trim() || !user || !user.partnerId) return;
+
+    const now = new Date();
+    if (user.snoozeUntil && new Date(user.snoozeUntil) > now) {
+      toast({
+        title: 'Snoozed',
+        description: 'You are currently snoozed.',
+      });
+      return;
+    }
+    if (user.partnerSnoozeUntil && new Date(user.partnerSnoozeUntil) > now) {
+      toast({
+        title: 'Partner snoozed',
+        description: 'Your partner is currently snoozed.',
+      });
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -366,7 +386,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
         <div className="flex items-end gap-2">
           <div className="flex-1 space-y-2">
             <Textarea
-              placeholder="Type your message..."
+              placeholder={disabledMessaging ? 'Messaging unavailable during snooze' : 'Type your message...'}
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={(e) => {
@@ -375,6 +395,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
                   sendMessage(newMessage);
                 }
               }}
+              disabled={disabledMessaging}
               className="min-h-[40px] max-h-[120px] resize-none"
             />
           </div>
@@ -384,6 +405,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
               variant="ghost"
               size="sm"
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              disabled={disabledMessaging}
             >
               <Smile className="w-4 h-4" />
             </PulseButton>
@@ -391,6 +413,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
             <PulseButton
               variant="ghost"
               size="sm"
+              disabled={disabledMessaging}
             >
               <Image className="w-4 h-4" />
             </PulseButton>
@@ -399,7 +422,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
               variant="pulse"
               size="sm"
               onClick={() => sendMessage(newMessage)}
-              disabled={!newMessage.trim()}
+              disabled={!newMessage.trim() || disabledMessaging}
             >
               <Send className="w-4 h-4" />
             </PulseButton>
