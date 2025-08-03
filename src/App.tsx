@@ -21,6 +21,8 @@ import Paywall from "./pages/paywall";
 import FAQ from "./pages/faq";
 main
 import { usePushNotifications } from "@/hooks/use-push-notifications";
+import FAQ from "./pages/faq";
+import Contact from "./pages/contact";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +59,16 @@ const App = () => {
                 <Route path="/settings" element={
                   <ProtectedRoute>
                     <Settings />
+                  </ProtectedRoute>
+                } />
+                <Route path="/faq" element={
+                  <ProtectedRoute>
+                    <FAQ />
+                  </ProtectedRoute>
+                } />
+                <Route path="/contact" element={
+                  <ProtectedRoute>
+                    <Contact />
                   </ProtectedRoute>
                 } />
                 <Route path="/pair/:code?" element={

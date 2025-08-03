@@ -14,7 +14,11 @@ import {
   Bell,
   Heart,
   Shield,
+ codex/add-help-center-section-in-settings
+  HelpCircle,
+
   LifeBuoy,
+ main
   Smartphone,
   Moon,
   Sun,
@@ -23,7 +27,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables, TablesUpdate } from '@/integrations/supabase/types';
@@ -76,7 +80,7 @@ codex/add-export-data-feature-in-settings
     theme: 'light',
   });
 
-  const [activeSection, setActiveSection] = useState<'profile' | 'notifications' | 'privacy' | 'general'>('profile');
+  const [activeSection, setActiveSection] = useState<'profile' | 'notifications' | 'privacy' | 'general' | 'help'>('profile');
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -239,6 +243,7 @@ codex/add-export-data-feature-in-settings
     { id: 'notifications', name: 'Notifications', icon: Bell },
     { id: 'privacy', name: 'Privacy', icon: Shield },
     { id: 'general', name: 'General', icon: SettingsIcon },
+    { id: 'help', name: 'Help Center', icon: HelpCircle },
   ] as const;
 
   return (
@@ -600,6 +605,22 @@ main
                         </PulseButton>
                       </div>
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {activeSection === 'help' && (
+                <div className="space-y-4">
+                  <p className="text-muted-foreground">
+                    Find answers or get in touch with us.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <PulseButton asChild variant="ghost" size="sm">
+                      <Link to="/faq">FAQ</Link>
+                    </PulseButton>
+                    <PulseButton asChild variant="ghost" size="sm">
+                      <Link to="/contact">Contact Support</Link>
+                    </PulseButton>
                   </div>
                 </div>
               )}
