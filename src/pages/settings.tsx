@@ -8,6 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/i18n';
 import { 
   Settings as SettingsIcon,
   User,
@@ -48,6 +50,7 @@ interface SettingsData {
     shareLocation: boolean;
     showOnlineStatus: boolean;
     readReceipts: boolean;
+    autoDelete30d: boolean;
   };
   theme: 'light' | 'dark' | 'auto';
 }
@@ -56,9 +59,13 @@ const Settings: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+ codex/add-auto-delete-setting-for-messages
+  const { t } = useTranslation();
+
 codex/add-export-data-feature-in-settings
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+ main
  main
   
   const [settings, setSettings] = useState<SettingsData>({
@@ -72,13 +79,14 @@ codex/add-export-data-feature-in-settings
       calendar: true,
       reminders: false,
     },
-    privacy: {
-      shareLocation: false,
-      showOnlineStatus: true,
-      readReceipts: true,
-    },
-    theme: 'light',
-  });
+      privacy: {
+        shareLocation: false,
+        showOnlineStatus: true,
+        readReceipts: true,
+        autoDelete30d: false,
+      },
+      theme: 'light',
+    });
 
   const [activeSection, setActiveSection] = useState<'profile' | 'notifications' | 'privacy' | 'general' | 'help'>('profile');
 
@@ -125,6 +133,20 @@ codex/add-export-data-feature-in-settings
       .from('profiles')
       .update(updates)
       .eq('user_id', user.id);
+
+ codex/add-auto-delete-setting-for-messages
+    const { error: scheduleError } = await supabase.functions.invoke(
+      'schedule-auto-delete',
+      {
+        body: { enabled: settings.privacy.autoDelete30d },
+      }
+    );
+
+    if (error || scheduleError) {
+      console.error('Error saving settings:', error || scheduleError);
+      toast({ description: 'Failed to save settings' });
+    } else {
+      toast({ description: 'Settings saved' });
 
     if (error) {
       console.error('Error saving settings:', error);
@@ -235,6 +257,7 @@ codex/add-export-data-feature-in-settings
         description: 'Could not export your data.',
         variant: 'destructive',
       });
+ main
     }
   };
 
@@ -532,6 +555,24 @@ codex/add-export-data-feature-in-settings
                             title: `Read receipts ${checked ? 'enabled' : 'disabled'}`,
                           });
                         }}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-medium">{t('autoDelete30d')}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Automatically remove messages older than 30 days
+                        </p>
+                      </div>
+                      <Switch
+                        checked={settings.privacy.autoDelete30d}
+                        onCheckedChange={(checked) =>
+                          setSettings({
+                            ...settings,
+                            privacy: { ...settings.privacy, autoDelete30d: checked }
+                          })
+                        }
                       />
                     </div>
                   </div>
