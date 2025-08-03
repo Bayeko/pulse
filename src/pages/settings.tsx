@@ -8,7 +8,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
- codex/add-language-selection-in-settings
 import {
   Select,
   SelectContent,
@@ -17,57 +16,29 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
- codex/add-face-id-switch-in-settings
- main
-import {
-  Settings as SettingsIcon,
-  User,
-  Bell,
- codex/add-language-selection-in-settings
-  Heart,
-
-  Heart, 
- main
-  Shield, 
-  Smartphone, 
-  Moon, 
-
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/i18n';
-import { 
+import {
   Settings as SettingsIcon,
   User,
   Bell,
   Heart,
   Shield,
- codex/add-help-center-section-in-settings
   HelpCircle,
-
   LifeBuoy,
- main
   Smartphone,
   Moon,
- main
   Sun,
   Camera,
   Save,
-  ArrowLeft
+  ArrowLeft,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables, TablesUpdate } from '@/integrations/supabase/types';
- codex/add-language-selection-in-settings
-import { useTranslation } from '@/i18n';
-import { useToast } from '@/hooks/use-toast';
 
-import { useToast } from '@/hooks/use-toast';
- codex/add-face-id-switch-in-settings
-import { useTranslation } from '@/i18n';
-
- main
- main
 
 interface SettingsData {
   name: string;
@@ -85,11 +56,9 @@ interface SettingsData {
     shareLocation: boolean;
     showOnlineStatus: boolean;
     readReceipts: boolean;
- codex/add-face-id-switch-in-settings
     useFaceID: boolean;
 
     autoDelete30d: boolean;
- main
   };
   theme: 'light' | 'dark' | 'auto';
 }
@@ -97,8 +66,7 @@ interface SettingsData {
 const Settings: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
- codex/add-language-selection-in-settings
-  const { lang, setLang } = useTranslation();
+  const { t, lang, setLang } = useTranslation();
   const { toast } = useToast();
 
   const handleLanguageChange = (value: string) => {
@@ -107,21 +75,9 @@ const Settings: React.FC = () => {
   };
 
 
-  const { toast } = useToast();
- codex/add-face-id-switch-in-settings
-  const { t } = useTranslation();
-
- codex/add-auto-delete-setting-for-messages
-  const { t } = useTranslation();
-
-codex/add-export-data-feature-in-settings
 
   const fileInputRef = useRef<HTMLInputElement>(null);
- main
- main
- main
   
- main
   const [settings, setSettings] = useState<SettingsData>({
     name: user?.name || '',
     email: user?.email || '',
@@ -134,25 +90,15 @@ codex/add-export-data-feature-in-settings
       calendar: true,
       reminders: false,
     },
- codex/add-face-id-switch-in-settings
     privacy: {
       shareLocation: false,
       showOnlineStatus: true,
       readReceipts: true,
       useFaceID: false,
+      autoDelete30d: false,
     },
     theme: 'light',
   });
-
-      privacy: {
-        shareLocation: false,
-        showOnlineStatus: true,
-        readReceipts: true,
-        autoDelete30d: false,
-      },
-      theme: 'light',
-    });
- main
 
   const [activeSection, setActiveSection] = useState<'profile' | 'notifications' | 'privacy' | 'general' | 'help'>('profile');
 
@@ -211,7 +157,6 @@ codex/add-export-data-feature-in-settings
       .update(updates)
       .eq('user_id', user.id);
 
- codex/add-auto-delete-setting-for-messages
     const { error: scheduleError } = await supabase.functions.invoke(
       'schedule-auto-delete',
       {
@@ -334,7 +279,6 @@ codex/add-export-data-feature-in-settings
         description: 'Could not export your data.',
         variant: 'destructive',
       });
- main
     }
   };
 
@@ -788,7 +732,6 @@ codex/add-export-data-feature-in-settings
                     <Separator />
 
                     <div className="space-y-3">
-codex/add-export-data-feature-in-settings
                       <h3 className="font-medium">Data</h3>
                       <div className="p-4 border rounded-lg">
                         <PulseButton variant="ghost" onClick={exportUserData}>
@@ -808,7 +751,6 @@ codex/add-export-data-feature-in-settings
 
                     <Separator />
 
-main
                     <div className="space-y-3">
                       <h3 className="font-medium text-destructive">Danger Zone</h3>
                       <div className="p-4 border border-destructive/20 rounded-lg">
