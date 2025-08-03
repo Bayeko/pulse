@@ -5,11 +5,13 @@ const translations = {
     createAccount: 'Create account',
     joinPartner: 'Join partner',
     invitePartner: 'Invite partner',
+    useFaceID: 'Use Face ID',
   },
   fr: {
     createAccount: 'Créer un compte',
     joinPartner: 'Rejoindre mon/ma partenaire',
     invitePartner: 'Inviter mon/ma partenaire',
+    useFaceID: 'Utiliser Face ID',
   },
 } as const;
 

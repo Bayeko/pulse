@@ -8,10 +8,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  Settings as SettingsIcon, 
-  User, 
-  Bell, 
+import {
+  Settings as SettingsIcon,
+  User,
+  Bell,
   Heart, 
   Shield, 
   Smartphone, 
@@ -26,6 +26,8 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables, TablesUpdate } from '@/integrations/supabase/types';
+import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/i18n';
 
 interface SettingsData {
   name: string;
@@ -42,6 +44,7 @@ interface SettingsData {
     shareLocation: boolean;
     showOnlineStatus: boolean;
     readReceipts: boolean;
+    useFaceID: boolean;
   };
   theme: 'light' | 'dark' | 'auto';
 }
@@ -49,6 +52,8 @@ interface SettingsData {
 const Settings: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const { t } = useTranslation();
   
   const [settings, setSettings] = useState<SettingsData>({
     name: user?.name || '',
@@ -65,6 +70,7 @@ const Settings: React.FC = () => {
       shareLocation: false,
       showOnlineStatus: true,
       readReceipts: true,
+      useFaceID: false,
     },
     theme: 'light',
   });
@@ -76,7 +82,7 @@ const Settings: React.FC = () => {
       if (!user) return;
       const { data, error } = await supabase
         .from('profiles')
-        .select('name, email, bio, avatar')
+        .select('name, email, bio, avatar, use_face_id')
         .eq('user_id', user.id)
         .single();
 
@@ -94,6 +100,10 @@ const Settings: React.FC = () => {
           email: profile.email || '',
           bio: profile.bio || '',
           avatar: profile.avatar || '',
+          privacy: {
+            ...prev.privacy,
+            useFaceID: profile.use_face_id ?? false,
+          },
         }));
       }
     };
@@ -119,6 +129,59 @@ const Settings: React.FC = () => {
       console.error('Error saving settings:', error);
     } else {
       console.log('Settings saved');
+    }
+  };
+
+  const registerBiometrics = async () => {
+    if (!window.PublicKeyCredential) {
+      toast({ description: 'Biometrics not supported', variant: 'destructive' });
+      return false;
+    }
+    try {
+      const publicKey: PublicKeyCredentialCreationOptions = {
+        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        rp: { name: 'Pulse' },
+        user: {
+          id: crypto.getRandomValues(new Uint8Array(16)),
+          name: user?.email || 'user@example.com',
+          displayName: user?.name || 'User',
+        },
+        pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+        authenticatorSelection: { userVerification: 'preferred' },
+        timeout: 60000,
+        attestation: 'none',
+      };
+      await navigator.credentials.create({ publicKey });
+      const authOptions: PublicKeyCredentialRequestOptions = {
+        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        userVerification: 'preferred',
+      };
+      await navigator.credentials.get({ publicKey: authOptions });
+      return true;
+    } catch (error) {
+      console.error('Biometric registration failed', error);
+      return false;
+    }
+  };
+
+  const handleFaceIDToggle = async (checked: boolean) => {
+    if (!user) return;
+    if (checked) {
+      const ok = await registerBiometrics();
+      if (!ok) return;
+    }
+    setSettings({
+      ...settings,
+      privacy: { ...settings.privacy, useFaceID: checked },
+    });
+    const { error } = await supabase
+      .from('profiles')
+      .update({ use_face_id: checked })
+      .eq('user_id', user.id);
+    if (error) {
+      toast({ description: 'Unable to update Face ID preference', variant: 'destructive' });
+    } else {
+      toast({ description: checked ? 'Face ID enabled' : 'Face ID disabled' });
     }
   };
 
@@ -338,11 +401,11 @@ const Settings: React.FC = () => {
               {activeSection === 'privacy' && (
                 <div className="space-y-6">
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-medium">Share Location</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Let your partner see your location
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-medium">Share Location</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Let your partner see your location
                         </p>
                       </div>
                       <Switch
@@ -389,6 +452,18 @@ const Settings: React.FC = () => {
                             privacy: { ...settings.privacy, readReceipts: checked }
                           })
                         }
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-medium">{t('useFaceID')}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Secure your account with biometrics
+                        </p>
+                      </div>
+                      <Switch
+                        checked={settings.privacy.useFaceID}
+                        onCheckedChange={handleFaceIDToggle}
                       />
                     </div>
                   </div>
