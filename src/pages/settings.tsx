@@ -479,7 +479,7 @@ const Settings: React.FC = () => {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <input
+                      <Input
                         ref={fileInputRef}
                         type="file"
                         accept="image/*"
@@ -504,6 +504,7 @@ const Settings: React.FC = () => {
                         id="name"
                         value={settings.name}
                         onChange={(e) => setSettings({ ...settings, name: e.target.value })}
+                        maxLength={lang === 'fr' ? 40 : 50}
                       />
                     </div>
                     <div className="space-y-2">
@@ -513,6 +514,7 @@ const Settings: React.FC = () => {
                         type="email"
                         value={settings.email}
                         onChange={(e) => setSettings({ ...settings, email: e.target.value })}
+                        maxLength={254}
                       />
                     </div>
                   </div>
@@ -524,6 +526,7 @@ const Settings: React.FC = () => {
                       value={settings.bio}
                       onChange={(e) => setSettings({ ...settings, bio: e.target.value })}
                       placeholder="Tell your partner something sweet..."
+                      maxLength={lang === 'fr' ? 120 : 160}
                     />
                   </div>
 
