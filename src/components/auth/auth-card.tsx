@@ -26,7 +26,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
     partnerEmail: ''
   });
   
-  const { login, register, connectPartner, user } = useAuth();
+  const { signIn, signUp, connectPartner, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -65,14 +65,14 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
       
       switch (mode) {
         case 'login':
-          success = await login(formData.email, formData.password);
+          success = await signIn(formData.email, formData.password);
           break;
         case 'register':
           if (formData.password !== formData.confirmPassword) {
             alert('Passwords do not match');
             return;
           }
-          success = await register(formData.name, formData.email, formData.password);
+          success = await signUp(formData.name, formData.email, formData.password);
           break;
         case 'connect':
           success = await connectPartner(formData.partnerEmail);
