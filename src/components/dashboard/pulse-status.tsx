@@ -5,6 +5,7 @@ import { StatusIndicator } from '@/components/ui/status-indicator';
 import { Heart, Moon, Coffee, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SnoozeToggle } from './snooze-toggle';
+import { useTranslation } from '@/i18n';
 
 type PulseStatus = 'active' | 'away' | 'offline';
 
@@ -15,25 +16,26 @@ interface PulseStatusProps {
 export const PulseStatusCard: React.FC<PulseStatusProps> = ({ className }) => {
   const [myStatus, setMyStatus] = useState<PulseStatus>('offline');
   const [partnerStatus] = useState<PulseStatus>('active');
+  const { t } = useTranslation();
 
   const statusOptions = [
-    { 
-      status: 'active' as PulseStatus, 
-      icon: Heart, 
-      label: 'Ready', 
-      description: 'Available for connection'
+    {
+      status: 'active' as PulseStatus,
+      icon: Heart,
+      label: t('statusReadyLabel'),
+      description: t('statusReadyDescription')
     },
-    { 
-      status: 'away' as PulseStatus, 
-      icon: Coffee, 
-      label: 'Busy', 
-      description: 'Maybe later'
+    {
+      status: 'away' as PulseStatus,
+      icon: Coffee,
+      label: t('statusBusyLabel'),
+      description: t('statusBusyDescription')
     },
-    { 
-      status: 'offline' as PulseStatus, 
-      icon: Moon, 
-      label: 'Not Available', 
-      description: 'Do not disturb'
+    {
+      status: 'offline' as PulseStatus,
+      icon: Moon,
+      label: t('statusNotAvailableLabel'),
+      description: t('statusNotAvailableDescription')
     }
   ];
 

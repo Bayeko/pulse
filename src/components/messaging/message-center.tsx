@@ -197,15 +197,15 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
     const now = new Date();
     if (user.snoozeUntil && new Date(user.snoozeUntil) > now) {
       toast({
-        title: 'Snoozed',
-        description: 'You are currently snoozed.',
+        title: t('snoozedTitle'),
+        description: t('snoozedDescription'),
       });
       return;
     }
     if (user.partnerSnoozeUntil && new Date(user.partnerSnoozeUntil) > now) {
       toast({
-        title: 'Partner snoozed',
-        description: 'Your partner is currently snoozed.',
+        title: t('partnerSnoozedTitle'),
+        description: t('partnerSnoozedDescription'),
       });
       return;
     }
@@ -213,9 +213,14 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
     // Check partner availability through status or explicit message
     const partnerStatus = (user as unknown as { partnerStatus?: string })?.partnerStatus;
     if (partnerStatus === 'away' || partnerStatus === 'offline') {
+      const message = t('catchUpLater');
       const feedback: Message = {
         id: `local-${Date.now()}`,
+ codex/add-translation-key-for-refusal-text
         content: t('laterThanks'),
+
+        content: message,
+ main
         type: 'text',
         sender_id: user.id,
         receiver_id: user.partnerId,
@@ -224,7 +229,11 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
         sender_name: user.name,
       };
       setMessages(prev => [...prev, feedback]);
+ codex/add-translation-key-for-refusal-text
       toast({ description: t('laterThanks') });
+
+      toast({ description: message });
+ main
       return;
     }
 
@@ -236,9 +245,14 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
         .maybeSingle();
 
       if (!statusError && (profile?.status === 'away' || profile?.status === 'offline')) {
+        const message = t('catchUpLater');
         const feedback: Message = {
           id: `local-${Date.now()}`,
+ codex/add-translation-key-for-refusal-text
           content: t('laterThanks'),
+
+          content: message,
+ main
           type: 'text',
           sender_id: user.id,
           receiver_id: user.partnerId,
@@ -247,7 +261,11 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
           sender_name: user.name,
         };
         setMessages(prev => [...prev, feedback]);
+ codex/add-translation-key-for-refusal-text
         toast({ description: t('laterThanks') });
+
+        toast({ description: message });
+ main
         return;
       }
 
@@ -260,10 +278,15 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
         .limit(1)
         .maybeSingle();
 
-      if (!messageError && lastMessage?.content === '⏰ Pas dispo') {
+      if (!messageError && lastMessage?.content === t('notAvailable')) {
+        const message = t('catchUpLater');
         const feedback: Message = {
           id: `local-${Date.now()}`,
+ codex/add-translation-key-for-refusal-text
           content: t('laterThanks'),
+
+          content: message,
+ main
           type: 'text',
           sender_id: user.id,
           receiver_id: user.partnerId,
@@ -272,7 +295,11 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
           sender_name: user.name,
         };
         setMessages(prev => [...prev, feedback]);
+ codex/add-translation-key-for-refusal-text
         toast({ description: t('laterThanks') });
+
+        toast({ description: message });
+ main
         return;
       }
     } catch (err) {
@@ -457,7 +484,11 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
         <div className="flex items-end gap-2">
           <div className="flex-1 space-y-2">
             <Textarea
-              placeholder={disabledMessaging ? 'Messaging unavailable during snooze' : 'Type your message...'}
+              placeholder={
+                disabledMessaging
+                  ? t('messagingUnavailableSnooze')
+                  : t('typeMessagePlaceholder')
+              }
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={(e) => {

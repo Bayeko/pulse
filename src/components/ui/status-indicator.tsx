@@ -1,6 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { useTranslation } from '@/i18n';
 
 const statusIndicatorVariants = cva(
   "inline-flex items-center gap-2 font-medium transition-all duration-300",
@@ -55,13 +56,28 @@ export interface StatusIndicatorProps
 
 const StatusIndicator = React.forwardRef<HTMLDivElement, StatusIndicatorProps>(
   ({ className, status, size, label, showPulse = true, ...props }, ref) => {
+    const { t } = useTranslation();
     const getStatusLabel = () => {
       if (label) return label;
       switch (status) {
-        case 'active': return 'Ready';
-        case 'away': return 'Away';
-        case 'offline': return 'Offline';
-        default: return 'Unknown';
+        case 'active':
+ codex/remove-merge-markers-and-update-translations
+          return t('statusReady');
+        case 'away':
+          return t('statusAway');
+        case 'offline':
+          return t('statusOffline');
+        default:
+          return t('statusUnknown');
+
+          return t('statusReadyLabel');
+        case 'away':
+          return t('statusBusyLabel');
+        case 'offline':
+          return t('statusNotAvailableLabel');
+        default:
+          return '';
+ main
       }
     };
 
