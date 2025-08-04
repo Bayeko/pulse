@@ -22,7 +22,7 @@ export function usePushNotifications() {
 
         let subscription = await registration.pushManager.getSubscription();
         if (!subscription) {
-          const publicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+          const publicKey = process.env.EXPO_PUBLIC_VAPID_PUBLIC_KEY;
           if (!publicKey) {
             console.warn('VAPID public key is not set');
             return;
