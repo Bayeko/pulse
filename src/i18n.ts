@@ -45,7 +45,11 @@ const translations = {
     statusBusyDescription: 'Catch you later',
     statusNotAvailableLabel: 'Not Available',
     statusNotAvailableDescription: 'Need a moment',
+ codex/add-premium-access-disclaimer
+    premiumNoPulseFrequency: 'Premium access does not affect the frequency of pulses.',
+
     proResources: 'Certified sexologists',
+ main
   },
   fr: {
     addFirstAvailability: 'Ajoutez votre première disponibilité',
@@ -91,7 +95,11 @@ const translations = {
     statusBusyDescription: 'À plus tard',
     statusNotAvailableLabel: 'Indisponible',
     statusNotAvailableDescription: "Besoin d'un moment",
+ codex/add-premium-access-disclaimer
+    premiumNoPulseFrequency: 'L’accès Premium n’influe pas sur la fréquence des Pulses.',
+
     proResources: 'Sexologues certifiés',
+ main
   },
 } as const;
 

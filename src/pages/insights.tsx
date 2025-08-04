@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { fetchEnergyCycleMetrics } from '@/integrations/wearable';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/i18n';
 
 interface PulseRecord {
   created_at: string;
@@ -23,6 +24,7 @@ const Insights: React.FC = () => {
   const [chartData, setChartData] = useState<{ day: string; pulses: number }[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const isPremium = Boolean((user as { is_premium?: boolean } | null)?.is_premium);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!user) return;
@@ -123,6 +125,9 @@ const Insights: React.FC = () => {
                   Upgrade to premium to unlock insights
                 </p>
                 <PulseButton onClick={() => navigate('/paywall')}>Go Premium</PulseButton>
+                <p className="text-xs text-muted-foreground text-center">
+                  {t('premiumNoPulseFrequency')}
+                </p>
               </div>
             )}
           </CardContent>
