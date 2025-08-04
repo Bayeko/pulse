@@ -42,6 +42,7 @@ const translations = {
     statusBusyDescription: 'Catch you later',
     statusNotAvailableLabel: 'Not Available',
     statusNotAvailableDescription: 'Need a moment',
+    premiumNoPulseFrequency: 'Premium access does not affect the frequency of pulses.',
   },
   fr: {
     addFirstAvailability: 'Ajoutez votre première disponibilité',
@@ -84,6 +85,7 @@ const translations = {
     statusBusyDescription: 'À plus tard',
     statusNotAvailableLabel: 'Indisponible',
     statusNotAvailableDescription: "Besoin d'un moment",
+    premiumNoPulseFrequency: 'L’accès Premium n’influe pas sur la fréquence des Pulses.',
   },
 } as const;
 
