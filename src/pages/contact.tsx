@@ -31,8 +31,6 @@ const Contact: React.FC = () => {
       const stored = JSON.parse(localStorage.getItem('contactRequests') || '[]');
       stored.push(request);
       localStorage.setItem('contactRequests', JSON.stringify(stored));
-    } else {
-      console.log('Submitting contact request', request);
     }
     toast({ description: 'Request submitted' });
     setMessage('');

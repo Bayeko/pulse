@@ -9,6 +9,7 @@ import { Heart, Bell, Settings, Shield, Calendar, MessageCircle, LogOut, User } 
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
+import logger from '@/lib/logger';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -16,7 +17,7 @@ const Dashboard = () => {
   const { t } = useTranslation();
   
   const handleEmojiSend = (emoji: string, category: string) => {
-    console.log(`Sending ${emoji} from ${category} category`);
+    logger.info(`Sending ${emoji} from ${category} category`);
     // Here you would implement the actual sending logic
   };
   

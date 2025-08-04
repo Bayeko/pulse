@@ -7,6 +7,7 @@ import {
 } from '@/components/ui/accordion';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { Textarea } from '@/components/ui/textarea';
+import logger from '@/lib/logger';
 
 interface FAQItem {
   question: string;
@@ -25,7 +26,7 @@ const FAQ: React.FC = () => {
         const data = await res.json();
         setItems(data);
       } catch (err) {
-        console.error('Failed to load FAQ', err);
+        logger.error('Failed to load FAQ', err);
       }
     };
     loadFAQ();

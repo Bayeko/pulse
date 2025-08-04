@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { PulseButton } from '@/components/ui/pulse-button';
+import logger from '@/lib/logger';
 
 interface Pulse {
   id: string;
@@ -43,7 +44,7 @@ const History: React.FC = () => {
       if (!error && data) {
         setPulses(data as Pulse[]);
       } else {
-        console.error('Error fetching pulses:', error);
+        logger.error('Error fetching pulses:', error);
       }
       setLoading(false);
     };

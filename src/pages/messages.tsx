@@ -4,12 +4,13 @@ import { EmojiPicker } from '@/components/communication/emoji-picker';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import logger from '@/lib/logger';
 
 const Messages: React.FC = () => {
   const navigate = useNavigate();
 
   const handleEmojiSend = (emoji: string, category: string) => {
-    console.log('Sending emoji:', emoji, 'from category:', category);
+    logger.info('Sending emoji:', emoji, 'from category:', category);
     // This would integrate with the MessageCenter to send emojis
   };
 
