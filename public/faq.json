@@ -8,5 +8,6 @@
   {"question": "Is my data secure?", "answer": "Pulse uses Supabase authentication and secure storage for your data."},
   {"question": "How do I delete my account?", "answer": "You can delete your account from the Danger Zone in Settings."},
   {"question": "What browsers are supported?", "answer": "Pulse works best on modern browsers like Chrome, Firefox, and Edge."},
-  {"question": "How do I pair with my partner?", "answer": "Use the Pair page and share the pairing code with your partner."}
+  {"question": "How do I pair with my partner?", "answer": "Use the Pair page and share the pairing code with your partner."},
+  {"question": "Comment gérer un désaccord de désir ?", "answer": "Parlez ouvertement avec votre partenaire, écoutez ses besoins et explorez des solutions ensemble. Pour en savoir plus, consultez l'article détaillé à l'adresse /articles/desaccord-de-desir."}
 ]
