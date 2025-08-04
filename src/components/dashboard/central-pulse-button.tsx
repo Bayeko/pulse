@@ -3,6 +3,7 @@ import { Heart, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 interface CentralPulseButtonProps {
@@ -15,6 +16,7 @@ export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ classNam
   const { user } = useAuth();
   const [state, setState] = useState<PulseState>('idle');
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleClick = async () => {
     if (!user || !user.partnerId) return;
@@ -84,6 +86,7 @@ export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ classNam
         content: 'pulse',
         type: 'pulse'
       });
+      toast({ description: t('sent') });
       setState('sent');
     } catch (error) {
       console.error('Error sending pulse:', error);
