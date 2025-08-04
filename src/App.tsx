@@ -2,7 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import NetworkStatusBanner from "./components/ui/network-status-banner";
@@ -18,18 +19,12 @@ import Insights from "./pages/insights";
 import Settings from "./pages/settings";
 import FAQ from "./pages/faq";
 import Contact from "./pages/contact";
- codex/refactor-routes-and-clean-up-imports
 import PairPage from "./pages/pair";
 import Paywall from "./pages/paywall";
 import NotFound from "./pages/NotFound";
-import { usePushNotifications } from "@/hooks/use-push-notifications";
-
-import NotFound from "./pages/NotFound";
-import PairPage from "./pages/pair";
-import Paywall from "./pages/paywall";
- main
 
 const queryClient = new QueryClient();
+const Stack = createNativeStackNavigator();
 
 const App = () => {
   usePushNotifications();
@@ -42,170 +37,77 @@ const App = () => {
             <NetworkStatusBanner />
             <Toaster />
             <Sonner />
- codex/refactor-routes-and-clean-up-imports
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/paywall" element={<Paywall />} />
-                  <Route
-                    path="/dashboard"
-                    element={
-                      <ProtectedRoute requiresPremium>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/messages"
-                    element={
-                      <ProtectedRoute>
-                        <Messages />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/calendar"
-                    element={
-                      <ProtectedRoute>
-                        <Calendar />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/history"
-                    element={
-                      <ProtectedRoute>
-                        <History />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/insights"
-                    element={
-                      <ProtectedRoute>
-                        <Insights />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/settings"
-                    element={
-                      <ProtectedRoute>
-                        <Settings />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/faq"
-                    element={
-                      <ProtectedRoute>
-                        <FAQ />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/contact"
-                    element={
-                      <ProtectedRoute>
-                        <Contact />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/pair/:code?"
-                    element={
-                      <ProtectedRoute>
-                        <PairPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/paywall" element={<Paywall />} />
-                <Route
-                  path="/dashboard"
-                  element={
+            <NavigationContainer>
+              <Stack.Navigator initialRouteName="Index">
+                <Stack.Screen name="Index" component={Index} />
+                <Stack.Screen name="Auth" component={Auth} />
+                <Stack.Screen name="Paywall" component={Paywall} />
+                <Stack.Screen name="Dashboard">
+                  {() => (
                     <ProtectedRoute requiresPremium>
                       <Dashboard />
                     </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/messages"
-                  element={
+                  )}
+                </Stack.Screen>
+                <Stack.Screen name="Messages">
+                  {() => (
                     <ProtectedRoute>
                       <Messages />
                     </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/calendar"
-                  element={
+                  )}
+                </Stack.Screen>
+                <Stack.Screen name="Calendar">
+                  {() => (
                     <ProtectedRoute>
                       <Calendar />
                     </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/history"
-                  element={
+                  )}
+                </Stack.Screen>
+                <Stack.Screen name="History">
+                  {() => (
                     <ProtectedRoute>
                       <History />
                     </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/insights"
-                  element={
+                  )}
+                </Stack.Screen>
+                <Stack.Screen name="Insights">
+                  {() => (
                     <ProtectedRoute>
                       <Insights />
                     </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/settings"
-                  element={
+                  )}
+                </Stack.Screen>
+                <Stack.Screen name="Settings">
+                  {() => (
                     <ProtectedRoute>
                       <Settings />
                     </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/faq"
-                  element={
+                  )}
+                </Stack.Screen>
+                <Stack.Screen name="FAQ">
+                  {() => (
                     <ProtectedRoute>
                       <FAQ />
                     </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/contact"
-                  element={
+                  )}
+                </Stack.Screen>
+                <Stack.Screen name="Contact">
+                  {() => (
                     <ProtectedRoute>
                       <Contact />
                     </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/pair/:code?"
-                  element={
+                  )}
+                </Stack.Screen>
+                <Stack.Screen name="Pair">
+                  {() => (
                     <ProtectedRoute>
                       <PairPage />
                     </ProtectedRoute>
-                  }
-                />
-                {/* Catch-all route */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
- main
+                  )}
+                </Stack.Screen>
+                <Stack.Screen name="NotFound" component={NotFound} />
+              </Stack.Navigator>
+            </NavigationContainer>
           </TooltipProvider>
         </AuthProvider>
       </QueryClientProvider>
