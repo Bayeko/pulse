@@ -181,16 +181,6 @@ const Settings: React.FC = () => {
       toast({ description: 'Failed to save settings' });
     } else {
       toast({ description: 'Settings saved' });
-
-    if (error) {
-      console.error('Error saving settings:', error);
-      toast({
-        title: 'Save failed',
-        description: 'Could not update settings.',
-        variant: 'destructive',
-      });
-    } else {
-      toast({ title: 'Settings saved', description: 'Your changes have been saved.' });
     }
   };
 
