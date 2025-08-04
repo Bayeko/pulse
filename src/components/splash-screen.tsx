@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 
 interface SplashScreenProps {
   onFinish: () => void;
@@ -24,15 +25,27 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   }, [finish]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
-      <img
-        src="/placeholder.svg"
-        alt="Logo"
-        className="h-32 w-32 animate-pulse"
-        style={{ animationDuration: '1s' }}
-      />
-    </div>
+    <View style={styles.container}>
+      <Text style={styles.logo}>💝</Text>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  logo: {
+    fontSize: 64,
+  },
+});
 
 export default SplashScreen;

@@ -1,62 +1,89 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { TouchableOpacity, Text, StyleSheet, TouchableOpacityProps, ViewStyle, TextStyle } from 'react-native';
 
-const pulseButtonVariants = cva(
-  "relative overflow-hidden transition-all duration-300 font-medium",
-  {
-    variants: {
-      variant: {
-        pulse: "bg-gradient-primary text-primary-foreground shadow-glow hover:shadow-[0_0_40px_hsl(var(--primary-glow)/_0.8)] animate-pulse-glow",
-        ghost: "bg-transparent text-primary hover:bg-primary/10 border border-primary/20",
-        soft: "bg-primary-soft text-foreground hover:bg-primary/20",
-        intimate: "bg-gradient-card text-foreground shadow-card hover:shadow-glow border border-primary/20"
-      },
-      size: {
-        default: "h-12 px-6 py-3",
-        sm: "h-10 px-4 py-2 text-sm",
-        lg: "h-14 px-8 py-4 text-lg",
-        xl: "h-16 px-10 py-5 text-xl"
-      }
-    },
-    defaultVariants: {
-      variant: "pulse",
-      size: "default"
-    }
-  }
-);
+export type PulseButtonVariant = 'pulse' | 'ghost' | 'soft' | 'intimate';
+export type PulseButtonSize = 'default' | 'sm' | 'lg' | 'xl';
 
-export interface PulseButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof pulseButtonVariants> {
+export interface PulseButtonProps extends TouchableOpacityProps {
+  variant?: PulseButtonVariant;
+  size?: PulseButtonSize;
+  className?: string; // For nativewind compatibility
+  children: React.ReactNode;
   asChild?: boolean;
 }
 
-const PulseButton = React.forwardRef<HTMLButtonElement, PulseButtonProps>(
-  ({ className, variant, size, asChild = false, children, ...props }, ref) => {
-    const content = (
-      <>
-        {children}
-        {variant === "pulse" && (
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite] pointer-events-none" />
-        )}
-      </>
-    );
+const PulseButton = React.forwardRef<TouchableOpacity, PulseButtonProps>(
+  ({ variant = 'pulse', size = 'default', style, children, asChild, ...props }, ref) => {
+    const buttonStyle: ViewStyle[] = [
+      styles.base,
+      styles[variant],
+      styles[size],
+    ];
+
+    const textStyle: TextStyle[] = [styles.text];
+
+    if (variant === 'ghost') {
+      textStyle.push(styles.textGhost);
+    }
 
     return (
-      <Button
-        className={cn(pulseButtonVariants({ variant, size, className }))}
-        ref={ref}
-        asChild={asChild}
-        {...props}
-      >
-        {asChild ? <span>{content}</span> : content}
-      </Button>
+      <TouchableOpacity ref={ref} style={[...buttonStyle, style]} {...props}>
+        {typeof children === 'string' ? (
+          <Text style={textStyle}>{children}</Text>
+        ) : (
+          children
+        )}
+      </TouchableOpacity>
     );
   }
 );
 
-PulseButton.displayName = "PulseButton";
+PulseButton.displayName = 'PulseButton';
 
-export { PulseButton, pulseButtonVariants };
+const styles = StyleSheet.create({
+  base: {
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pulse: {
+    backgroundColor: '#ff0066',
+  },
+  ghost: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#ff0066',
+  },
+  soft: {
+    backgroundColor: '#fde6ef',
+  },
+  intimate: {
+    backgroundColor: '#e5e7eb',
+  },
+  default: {
+    height: 48,
+    paddingHorizontal: 24,
+  },
+  sm: {
+    height: 40,
+    paddingHorizontal: 16,
+  },
+  lg: {
+    height: 56,
+    paddingHorizontal: 32,
+  },
+  xl: {
+    height: 64,
+    paddingHorizontal: 40,
+  },
+  text: {
+    color: '#ffffff',
+    fontWeight: '500',
+  },
+  textGhost: {
+    color: '#ff0066',
+  },
+});
+
+export { PulseButton };
