@@ -20,6 +20,33 @@ export function usePushNotifications() {
   const responseListener = useRef<Notifications.Subscription>();
 
   useEffect(() => {
+    const pruneSubscription = async (endpoint?: string) => {
+      try {
+        if (endpoint) {
+          await supabase.from('push_subscriptions').delete().eq('endpoint', endpoint);
+          return;
+        }
+        if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+          const registration = await navigator.serviceWorker.ready;
+          const subscription = await registration.pushManager.getSubscription();
+          if (subscription) {
+            const { endpoint: currentEndpoint } = subscription.toJSON();
+            await supabase
+              .from('push_subscriptions')
+              .delete()
+              .eq('endpoint', currentEndpoint);
+            await subscription.unsubscribe();
+          }
+        } else {
+          const tokenData = await Notifications.getExpoPushTokenAsync();
+          const token = typeof tokenData === 'string' ? tokenData : tokenData.data;
+          await supabase.from('push_subscriptions').delete().eq('endpoint', token);
+        }
+      } catch (err) {
+        console.error('Error pruning push subscription', err);
+      }
+    };
+
     const register = async () => {
       if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
         try {
@@ -43,14 +70,25 @@ export function usePushNotifications() {
           } = await supabase.auth.getUser();
           if (user) {
             const { endpoint, keys } = subscription.toJSON();
-            await supabase.from('push_subscriptions').insert({
-              endpoint,
-              auth: keys?.auth ?? '',
-              p256dh: keys?.p256dh ?? '',
-              user_id: user.id,
-            });
+            try {
+              await supabase
+                .from('push_subscriptions')
+                .upsert(
+                  {
+                    endpoint,
+                    auth: keys?.auth ?? '',
+                    p256dh: keys?.p256dh ?? '',
+                    user_id: user.id,
+                  },
+                  { onConflict: 'user_id,endpoint' },
+                );
+            } catch (error) {
+              await pruneSubscription(endpoint);
+              throw error;
+            }
           }
         } catch (error) {
+          await pruneSubscription();
           console.error('Error registering service worker push notifications', error);
         }
       } else {
@@ -73,14 +111,25 @@ export function usePushNotifications() {
             data: { user },
           } = await supabase.auth.getUser();
           if (user) {
-            await supabase.from('push_subscriptions').insert({
-              endpoint: token,
-              auth: '',
-              p256dh: '',
-              user_id: user.id,
-            });
+            try {
+              await supabase
+                .from('push_subscriptions')
+                .upsert(
+                  {
+                    endpoint: token,
+                    auth: '',
+                    p256dh: '',
+                    user_id: user.id,
+                  },
+                  { onConflict: 'user_id,endpoint' },
+                );
+            } catch (error) {
+              await pruneSubscription(token);
+              throw error;
+            }
           }
         } catch (error) {
+          await pruneSubscription();
           console.error('Error registering Expo push notifications', error);
         }
       }
@@ -100,6 +149,14 @@ export function usePushNotifications() {
       },
     );
 
+    const {
+      data: { subscription: authSubscription },
+    } = supabase.auth.onAuthStateChange(async event => {
+      if (event === 'SIGNED_OUT') {
+        await pruneSubscription();
+      }
+    });
+
     return () => {
       if (notificationListener.current) {
         Notifications.removeNotificationSubscription(notificationListener.current);
@@ -107,6 +164,7 @@ export function usePushNotifications() {
       if (responseListener.current) {
         Notifications.removeNotificationSubscription(responseListener.current);
       }
+      authSubscription.unsubscribe();
     };
   }, []);
 }
