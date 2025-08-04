@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/i18n';
 import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from '@/i18n';
 
 const EU_COUNTRIES = [
   'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU',
@@ -309,9 +310,9 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
           button: 'Connect',
           footer: (
             <p className="text-sm text-muted-foreground text-center">
-              Need help?{' '}
+              {t('needHelp')}{' '}
               <button className="text-primary hover:underline font-medium">
-                Contact support
+                {t('contactSupport')}
               </button>
             </p>
           )
