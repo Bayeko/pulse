@@ -8,6 +8,7 @@ const Auth = () => {
   const [searchParams] = useSearchParams();
   const initialMode = (searchParams.get('mode') as 'login' | 'register' | 'connect') || 'login';
   const [authMode, setAuthMode] = useState<'login' | 'register' | 'connect'>(initialMode);
+  const [country, setCountry] = useState<string>('US');
 
   useEffect(() => {
     const mode = searchParams.get('mode') as 'login' | 'register' | 'connect' | null;
@@ -15,6 +16,26 @@ const Auth = () => {
       setAuthMode(mode);
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    const locale = navigator.language;
+    const match = locale.match(/-([A-Z]{2})$/);
+    if (match) {
+      setCountry(match[1]);
+      return;
+    }
+
+    fetch('https://ipapi.co/json/')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.country_code) {
+          setCountry(data.country_code);
+        }
+      })
+      .catch(() => {
+        // Ignore errors and keep default country
+      });
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-soft">
@@ -47,9 +68,10 @@ const Auth = () => {
 
           {/* Auth Card */}
           <div className="flex justify-center">
-            <AuthCard 
-              mode={authMode} 
+            <AuthCard
+              mode={authMode}
               onModeChange={setAuthMode}
+              country={country}
               className="animate-scale-in"
             />
           </div>

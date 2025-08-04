@@ -34,6 +34,7 @@ import {
   Camera,
   Save,
   ArrowLeft,
+  Sparkles,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
@@ -423,10 +424,17 @@ const Settings: React.FC = () => {
             >
               <ArrowLeft className="w-4 h-4" />
             </PulseButton>
-            <div>
+            <div className="flex-1">
               <h1 className="text-3xl font-serif font-bold text-foreground">Settings</h1>
               <p className="text-muted-foreground">Customize your Pulse experience</p>
             </div>
+            <PulseButton
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/surprise-mode')}
+            >
+              <Sparkles className="w-4 h-4" />
+            </PulseButton>
           </div>
         </div>
 
@@ -479,7 +487,7 @@ const Settings: React.FC = () => {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <input
+                      <Input
                         ref={fileInputRef}
                         type="file"
                         accept="image/*"
@@ -504,6 +512,7 @@ const Settings: React.FC = () => {
                         id="name"
                         value={settings.name}
                         onChange={(e) => setSettings({ ...settings, name: e.target.value })}
+                        maxLength={lang === 'fr' ? 40 : 50}
                       />
                     </div>
                     <div className="space-y-2">
@@ -513,6 +522,7 @@ const Settings: React.FC = () => {
                         type="email"
                         value={settings.email}
                         onChange={(e) => setSettings({ ...settings, email: e.target.value })}
+                        maxLength={254}
                       />
                     </div>
                   </div>
@@ -524,6 +534,7 @@ const Settings: React.FC = () => {
                       value={settings.bio}
                       onChange={(e) => setSettings({ ...settings, bio: e.target.value })}
                       placeholder="Tell your partner something sweet..."
+                      maxLength={lang === 'fr' ? 120 : 160}
                     />
                   </div>
 
@@ -850,9 +861,24 @@ const Settings: React.FC = () => {
                   <div className="flex flex-col sm:flex-row gap-2">
                     <PulseButton asChild variant="ghost" size="sm">
                       <Link to="/faq">{t('helpCenter')}</Link>
+ codex/add-translation-keys-and-localize-strings
                     </PulseButton>
                     <PulseButton asChild variant="ghost" size="sm">
                       <Link to="/contact">{t('contactSupport')}</Link>
+
+                    </PulseButton>
+                    <PulseButton asChild variant="ghost" size="sm">
+                      <Link to="/contact">{t('contactSupport')}</Link>
+                    </PulseButton>
+                    <PulseButton asChild variant="ghost" size="sm">
+                      <a
+                        href="https://www.aasect.org/referral-directory"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {t('proResources')}
+                      </a>
+ main
                     </PulseButton>
                   </div>
                 </div>
