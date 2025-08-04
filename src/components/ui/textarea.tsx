@@ -2,6 +2,7 @@ import * as React from "react"
 
 import { useTranslation } from "@/i18n"
 import { cn } from "@/lib/utils"
+import { useScaledFont } from "@/hooks/use-scaled-font"
 
 export type TextareaProps =
   React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
@@ -14,13 +15,19 @@ const defaultMaxLength = {
 } as const
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+ codex/create-utility-for-scaled-font-sizes
+  ({ className, style, ...props }, ref) => {
+    const scaleFont = useScaledFont()
+
   ({ className, maxLength, ...props }, ref) => {
     const { lang } = useTranslation()
     const computedMax = maxLength ?? defaultMaxLength[lang]
+ main
     return (
       <textarea
+        style={{ fontSize: scaleFont(14), ...style }}
         className={cn(
-          "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+          "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
         ref={ref}
