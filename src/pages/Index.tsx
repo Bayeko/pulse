@@ -3,11 +3,13 @@ import { PulseButton } from '@/components/ui/pulse-button';
 import { Heart, Shield, Calendar, Sparkles, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/i18n';
 import heroImage from '@/assets/pulse-hero.jpg';
 
 const Index = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -42,7 +44,7 @@ const Index = () => {
               Heartfelt communication beyond words
             </h2>
             <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed">
-              Connect with your partner through discreet notifications, shared calendars, and encrypted communication designed for close relationships.
+              Connect with your partner through {t('discreet')} notifications, shared calendars, and encrypted communication designed for close relationships.
             </p>
 
             {/* CTA Buttons */}
@@ -94,7 +96,7 @@ const Index = () => {
               Built for heartfelt connection
             </h3>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Every feature designed with privacy, consent, and authentic connection in mind.
+              Every feature designed with privacy, {t('consent')}, and authentic connection in mind.
             </p>
           </div>
 
@@ -102,7 +104,7 @@ const Index = () => {
             {[
               {
                 icon: <Heart className="w-8 h-8 text-primary" />,
-                title: 'Discreet Pulses',
+                title: `${t('discreet')[0].toUpperCase()}${t('discreet').slice(1)} Pulses`,
                 description: 'Express feelings through elegant emojis and symbols. No explicit text, just beautiful communication.',
                 gradient: 'bg-gradient-to-br from-primary/10 to-primary-soft/20'
               },
@@ -120,7 +122,7 @@ const Index = () => {
               },
               {
                 icon: <Sparkles className="w-8 h-8 text-primary" />,
-                title: 'Mutual Consent',
+                title: `Mutual ${t('consent')[0].toUpperCase()}${t('consent').slice(1)}`,
                 description: 'Every interaction respects boundaries. Accept or decline freely, no pressure ever.',
                 gradient: 'bg-gradient-to-br from-primary/10 to-accent/20'
               },

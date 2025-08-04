@@ -3,7 +3,18 @@ import 'react-native-url-polyfill/auto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
+ codex/refactor-code-to-use-imported-constants
 import { SUPABASE_URL, SUPABASE_KEY } from '@/config';
+
+ codex/resolve-merge-conflicts-in-feature-branch
+import { SUPABASE_URL, SUPABASE_KEY } from '@/config';
+
+import { getEnvVar } from '@/config';
+
+const SUPABASE_URL = getEnvVar('EXPO_PUBLIC_SUPABASE_URL');
+const SUPABASE_KEY = getEnvVar('EXPO_PUBLIC_SUPABASE_KEY');
+ main
+ main
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
