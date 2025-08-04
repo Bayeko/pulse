@@ -92,6 +92,12 @@ export const connectPartner = async (
   );
 
   if (partnerUpdateError) {
+    await withRetry(() =>
+      supabase
+        .from('profiles')
+        .update({ partner_id: null })
+        .eq('user_id', currentUserId)
+    );
     return { error: 'Unable to connect with partner. Please try again.' };
   }
 
@@ -153,6 +159,12 @@ export const connectByCode = async (code: string, currentUserId: string) => {
   );
 
   if (partnerUpdateError) {
+    await withRetry(() =>
+      supabase
+        .from('profiles')
+        .update({ partner_id: null })
+        .eq('user_id', currentUserId)
+    );
     return { error: 'Unable to connect with partner. Please try again.' };
   }
 
