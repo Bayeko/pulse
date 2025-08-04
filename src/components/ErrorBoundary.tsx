@@ -1,7 +1,8 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { useErrorReporter } from '@/hooks/use-error-reporter';
 
 interface Props {
   children: ReactNode;
@@ -12,20 +13,24 @@ interface State {
   error?: Error;
 }
 
-class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false
+interface BoundaryProps extends Props {
+  onError: (error: Error, info: ErrorInfo) => void;
+}
+
+class ErrorBoundaryInner extends Component<BoundaryProps, State> {
+  state: State = {
+    hasError: false,
   };
 
-  public static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    this.props.onError(error, errorInfo);
   }
 
-  public render() {
+  render() {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-gradient-soft flex items-center justify-center p-4">
@@ -40,7 +45,7 @@ class ErrorBoundary extends Component<Props, State> {
               <p className="text-muted-foreground">
                 We're sorry, but something unexpected happened. Don't worry, your connection with your partner is safe.
               </p>
-              
+
               {process.env.NODE_ENV === 'development' && this.state.error && (
                 <div className="p-3 bg-muted rounded-lg">
                   <p className="text-sm font-mono text-destructive">
@@ -50,16 +55,13 @@ class ErrorBoundary extends Component<Props, State> {
               )}
 
               <div className="flex gap-2">
-                <PulseButton
-                  onClick={() => window.location.reload()}
-                  className="flex-1"
-                >
+                <PulseButton onClick={() => window.location.reload()} className="flex-1">
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Refresh Page
                 </PulseButton>
                 <PulseButton
                   variant="ghost"
-                  onClick={() => window.location.href = '/dashboard'}
+                  onClick={() => (window.location.href = '/dashboard')}
                   className="flex-1"
                 >
                   Go Home
@@ -75,4 +77,7 @@ class ErrorBoundary extends Component<Props, State> {
   }
 }
 
-export default ErrorBoundary;
+export default function ErrorBoundary({ children }: Props) {
+  const reportError = useErrorReporter();
+  return <ErrorBoundaryInner onError={reportError}>{children}</ErrorBoundaryInner>;
+}

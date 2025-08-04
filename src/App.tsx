@@ -7,7 +7,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import NetworkStatusBanner from "./components/ui/network-status-banner";
-import ErrorBoundary from "./components/ui/error-boundary";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
 import Index from "./pages/Index";
 import Auth from "./pages/auth";
