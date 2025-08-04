@@ -74,28 +74,28 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
     return null
   }
 
-  return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
-          .map(
-            ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
-${colorConfig
-  .map(([key, itemConfig]) => {
-    const color =
-      itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
-      itemConfig.color
-    return color ? `  --color-${key}: ${color};` : null
-  })
-  .join("\n")}
-}
-`
-          )
-          .join("\n"),
-      }}
-    />
-  )
+  const sanitizeColor = (color: string): string | null => {
+    if (typeof color !== "string") return null
+    return /[<>{};]/.test(color) ? null : color
+  }
+
+  const css = Object.entries(THEMES)
+    .map(([theme, prefix]) => {
+      const declarations = colorConfig
+        .map(([key, itemConfig]) => {
+          const color =
+            itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
+            itemConfig.color
+          const sanitized = color ? sanitizeColor(color) : null
+          return sanitized ? `  --color-${key}: ${sanitized};` : null
+        })
+        .filter(Boolean)
+        .join("\n")
+      return `${prefix} [data-chart=${id}] {\n${declarations}\n}`
+    })
+    .join("\n")
+
+  return <style>{css}</style>
 }
 
 const ChartTooltip = RechartsPrimitive.Tooltip
