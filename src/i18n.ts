@@ -10,10 +10,7 @@ const translations = {
     useFaceID: 'Use Face ID',
     autoDelete30d: 'Auto delete messages after 30 days',
     sent: 'Pulse sent!',
- codex/add-translation-key-for-refusal-text
-    laterThanks: 'Thanks for letting us know. We\'ll check back later!',
-
- codex/remove-merge-markers-and-update-translations
+    laterThanks: "Thanks for letting us know. We'll check back later!",
     statusReady: 'Ready',
     statusAway: 'Away',
     statusOffline: 'Offline',
@@ -33,24 +30,18 @@ const translations = {
     onboardingAgendaTitle: 'Agenda',
     onboardingAgendaDesc: 'Plan moments together effortlessly.',
     connectionRequired: 'Connection required',
-
- codex/extract-and-reference-carousel-texts
     introCodePulseTitle: 'Code Pulse',
     introCodePulseDescription: 'Express your desires through subtle pulses.',
     introStatusTitle: 'Status',
     introStatusDescription: 'Share your availability in real time.',
     introAgendaTitle: 'Agenda',
     introAgendaDescription: 'Plan moments together effortlessly.',
-
     statusReadyLabel: 'Ready',
     statusReadyDescription: 'Available for connection',
     statusBusyLabel: 'Busy',
     statusBusyDescription: 'Catch you later',
     statusNotAvailableLabel: 'Not Available',
     statusNotAvailableDescription: 'Need a moment',
- main
- main
- main
   },
   fr: {
     addFirstAvailability: 'Ajoutez votre première disponibilité',
@@ -60,8 +51,7 @@ const translations = {
     notLinked: 'Pas de partenaire lié',
     useFaceID: 'Utiliser Face ID',
     autoDelete30d: 'Supprimer automatiquement les messages après 30 jours',
- codex/remove-merge-markers-and-update-translations
-    sent: 'Pulse envoyé !',
+    sent: 'Pulse envoyé !',
     statusReady: 'Prêt',
     statusAway: 'Absent',
     statusOffline: 'Hors ligne',
@@ -70,7 +60,7 @@ const translations = {
     snoozedDescription: 'Vous êtes actuellement en pause.',
     partnerSnoozedTitle: 'Partenaire en pause',
     partnerSnoozedDescription: 'Votre partenaire est actuellement en pause.',
-    catchUpLater: 'Merci, on se retrouve plus tard !',
+    catchUpLater: 'Merci, on se retrouve plus tard !',
     notAvailable: '⏰ Pas dispo',
     messagingUnavailableSnooze: 'Messagerie indisponible pendant la pause',
     typeMessagePlaceholder: 'Écrivez votre message…',
@@ -81,28 +71,19 @@ const translations = {
     onboardingAgendaTitle: 'Agenda',
     onboardingAgendaDesc: 'Planifiez des moments à deux facilement.',
     connectionRequired: 'Connexion requise',
-
-    sent: 'Pulse envoyé !',
- codex/add-translation-key-for-refusal-text
-    laterThanks: 'Merci de nous l\'avoir signalé ! On se retrouve plus tard !',
-
- codex/extract-and-reference-carousel-texts
+    laterThanks: "Merci de nous l'avoir signalé ! On se retrouve plus tard !",
     introCodePulseTitle: 'Code Pulse',
     introCodePulseDescription: 'Exprime tes envies par de discrètes pulsations.',
     introStatusTitle: 'Statut',
     introStatusDescription: 'Partage ta disponibilité en temps réel.',
     introAgendaTitle: 'Agenda',
     introAgendaDescription: 'Planifie des moments à deux en toute simplicité.',
-
     statusReadyLabel: 'Prêt',
     statusReadyDescription: 'Disponible pour se connecter',
     statusBusyLabel: 'Occupé',
     statusBusyDescription: 'À plus tard',
     statusNotAvailableLabel: 'Indisponible',
     statusNotAvailableDescription: "Besoin d'un moment",
- main
- main
- main
   },
 } as const;
 
@@ -111,8 +92,9 @@ type Lang = keyof typeof translations;
 
 const STORAGE_KEY = 'lang';
 
-let currentLang: Lang = (typeof localStorage !== 'undefined' &&
-  (localStorage.getItem(STORAGE_KEY) as Lang | null)) ||
+let currentLang: Lang =
+  (typeof localStorage !== 'undefined' &&
+    (localStorage.getItem(STORAGE_KEY) as Lang | null)) ||
   (navigator.language?.toLowerCase().startsWith('fr') ? 'fr' : 'en');
 
 const listeners = new Set<() => void>();
@@ -122,7 +104,7 @@ export const setLang = (lang: Lang) => {
   if (typeof localStorage !== 'undefined') {
     localStorage.setItem(STORAGE_KEY, lang);
   }
-  listeners.forEach((l) => l());
+  listeners.forEach(l => l());
 };
 
 export const useTranslation = () => {
@@ -139,5 +121,3 @@ export const useTranslation = () => {
   const t = (key: TranslationKey) => translations[lang][key];
   return { t, lang, setLang };
 };
-
-

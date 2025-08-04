@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+import type { InfiniteData } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { Badge } from '@/components/ui/badge';
@@ -66,25 +67,30 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
   const disabledMessaging = isSnoozed || partnerSnoozed;
   const listRef = useRef<List>(null);
 
+  type MessagesData = InfiniteData<DatabaseMessage[]>;
+
   const appendMessage = (msg: Message) => {
-    queryClient.setQueryData(['messages', user?.id, user?.partnerId], (old: any) => {
-      const dbMsg: DatabaseMessage = {
-        id: msg.id,
-        content: msg.content,
-        type: msg.type,
-        sender_id: msg.sender_id,
-        receiver_id: msg.receiver_id,
-        created_at: msg.created_at,
-        read_at: msg.read_at,
-      };
-      if (!old) {
-        return { pages: [[dbMsg]], pageParams: [0] };
+    queryClient.setQueryData<MessagesData | undefined>(
+      ['messages', user?.id, user?.partnerId],
+      old => {
+        const dbMsg: DatabaseMessage = {
+          id: msg.id,
+          content: msg.content,
+          type: msg.type,
+          sender_id: msg.sender_id,
+          receiver_id: msg.receiver_id,
+          created_at: msg.created_at,
+          read_at: msg.read_at,
+        };
+        if (!old) {
+          return { pages: [[dbMsg]], pageParams: [0] };
+        }
+        return {
+          ...old,
+          pages: [[dbMsg, ...(old.pages[0] || [])], ...old.pages.slice(1)],
+        };
       }
-      return {
-        ...old,
-        pages: [[dbMsg, ...(old.pages[0] || [])], ...old.pages.slice(1)],
-      };
-    });
+    );
   };
 
   // Set up real-time subscription
@@ -103,15 +109,18 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
         },
         (payload) => {
           const newMessage = payload.new as DatabaseMessage;
-          queryClient.setQueryData(['messages', user.id, user.partnerId], (old: any) => {
-            if (!old) {
-              return { pages: [[newMessage]], pageParams: [0] };
+          queryClient.setQueryData<MessagesData | undefined>(
+            ['messages', user.id, user.partnerId],
+            old => {
+              if (!old) {
+                return { pages: [[newMessage]], pageParams: [0] };
+              }
+              return {
+                ...old,
+                pages: [[newMessage, ...(old.pages[0] || [])], ...old.pages.slice(1)],
+              };
             }
-            return {
-              ...old,
-              pages: [[newMessage, ...(old.pages[0] || [])], ...old.pages.slice(1)],
-            };
-          });
+          );
         }
       )
       .on(
@@ -124,17 +133,22 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
         },
         (payload) => {
           const updatedMessage = payload.new as DatabaseMessage;
-          queryClient.setQueryData(['messages', user.id, user.partnerId], (old: any) => {
-            if (!old) return old;
-            return {
-              ...old,
-              pages: old.pages.map((page: DatabaseMessage[]) =>
-                page.map(msg =>
-                  msg.id === updatedMessage.id ? { ...msg, read_at: updatedMessage.read_at } : msg
-                )
-              ),
-            };
-          });
+          queryClient.setQueryData<MessagesData | undefined>(
+            ['messages', user.id, user.partnerId],
+            old => {
+              if (!old) return old;
+              return {
+                ...old,
+                pages: old.pages.map((page: DatabaseMessage[]) =>
+                  page.map(msg =>
+                    msg.id === updatedMessage.id
+                      ? { ...msg, read_at: updatedMessage.read_at }
+                      : msg
+                  )
+                ),
+              };
+            }
+          );
         }
       )
       .subscribe();

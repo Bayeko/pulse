@@ -1,21 +1,25 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-serve(async (req) => {
- codex/add-jwt-validation-with-401-response
-  const token = Deno.env.get("CRON_AUTH_TOKEN");
-  const authHeader = req.headers.get("authorization");
+serve(async req => {
+  const token = Deno.env.get('CRON_AUTH_TOKEN');
+  const authHeader = req.headers.get('authorization');
   if (!token || authHeader !== `Bearer ${token}`) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
-
-  const projectRef = Deno.env.get("PROJECT_REF");
-  if (!projectRef) {
-    console.error("Missing PROJECT_REF environment variable");
-    return new Response(JSON.stringify({ error: "Missing project reference" }), {
-      status: 500,
- main
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
+  }
+
+  const projectRef = Deno.env.get('PROJECT_REF');
+  if (!projectRef) {
+    console.error('Missing PROJECT_REF environment variable');
+    return new Response(
+      JSON.stringify({ error: 'Missing project reference' }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
 
   const { enabled } = await req.json();

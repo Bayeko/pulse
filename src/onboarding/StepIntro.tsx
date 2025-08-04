@@ -4,27 +4,9 @@ import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTranslation, TranslationKey } from '@/i18n';
+import { useTranslation } from '@/i18n';
 import { LanguageSwitcher } from '@/components/ui/language-switcher';
 
- codex/remove-merge-markers-and-update-translations
-const items: { title: TranslationKey; description: TranslationKey }[] = [
-  {
-    title: 'onboardingCodePulseTitle',
-    description: 'onboardingCodePulseDesc',
-  },
-  {
-    title: 'onboardingStatusTitle',
-    description: 'onboardingStatusDesc',
-  },
-  {
-    title: 'onboardingAgendaTitle',
-    description: 'onboardingAgendaDesc',
-  },
-];
-
-
- main
 export const StepIntro: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
