@@ -37,6 +37,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { serializeToCsv } from '@/lib/csv';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables, TablesUpdate } from '@/integrations/supabase/types';
 
@@ -233,27 +234,18 @@ const Settings: React.FC = () => {
       jsonLink.download = 'pulse-data.json';
       jsonLink.click();
 
-      const convertToCsv = <T extends Record<string, unknown>>(items: T[]) => {
-        if (!items || items.length === 0) return '';
-        const headers = Object.keys(items[0]);
-        const rows = items.map((row) =>
-          headers.map((field) => JSON.stringify(row[field] ?? '')).join(',')
-        );
-        return [headers.join(','), ...rows].join('\n');
-      };
-
       const csvSections: string[] = [];
       if (exportData.profile) {
         csvSections.push('Profiles');
-        csvSections.push(convertToCsv([exportData.profile]));
+        csvSections.push(serializeToCsv([exportData.profile]));
       }
       if (exportData.messages) {
         csvSections.push('Messages');
-        csvSections.push(convertToCsv(exportData.messages));
+        csvSections.push(serializeToCsv(exportData.messages));
       }
       if (exportData.time_slots) {
         csvSections.push('Time Slots');
-        csvSections.push(convertToCsv(exportData.time_slots));
+        csvSections.push(serializeToCsv(exportData.time_slots));
       }
 
       const csvBlob = new Blob([csvSections.join('\n\n')], {
