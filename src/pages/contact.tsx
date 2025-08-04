@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/i18n';
 
 const Contact: React.FC = () => {
   const { user } = useAuth();
@@ -13,6 +14,7 @@ const Contact: React.FC = () => {
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
   const [email, setEmail] = useState<string>(user?.email || '');
   const [message, setMessage] = useState<string>('');
+  const { lang } = useTranslation();
 
   useEffect(() => {
     const updateStatus = () => setIsOnline(navigator.onLine);
@@ -57,6 +59,7 @@ const Contact: React.FC = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  maxLength={254}
                 />
               </div>
               <div className="space-y-2">
@@ -65,6 +68,7 @@ const Contact: React.FC = () => {
                   id="message"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
+                  maxLength={lang === 'fr' ? 400 : 500}
                 />
               </div>
               <PulseButton type="submit">Submit</PulseButton>

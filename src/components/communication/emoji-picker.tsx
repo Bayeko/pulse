@@ -4,25 +4,7 @@ import { PulseButton } from '@/components/ui/pulse-button';
 import { Badge } from '@/components/ui/badge';
 import { Heart, Send, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const emojiCategories = {
-  romantic: {
-    name: 'Romantic',
-    emojis: ['❤️', '💕', '💖', '💗', '💘', '💝', '💞', '💌', '💐', '🌹', '🥰', '😍']
-  },
-  playful: {
-    name: 'Playful', 
-    emojis: ['😉', '😘', '🤗', '😜', '🙃', '😏', '🤭', '😇', '🥳', '✨', '🎉', '🔥']
-  },
-  intimate: {
-    name: 'Intimate',
-    emojis: ['🫦', '👀', '🤫', '💋', '🌙', '🌟', '🍾', '🥂', '🛁', '🕯️', '🎭', '💎']
-  },
-  moods: {
-    name: 'Moods',
-    emojis: ['☺️', '😌', '🤤', '😴', '🥱', '🤒', '🤧', '😋', '🍯', '🧘‍♀️', '💭', '💤']
-  }
-};
+import { useTranslation } from '@/i18n';
 
 interface EmojiPickerProps {
   onSend: (emoji: string, category: string) => void;
@@ -30,6 +12,26 @@ interface EmojiPickerProps {
 }
 
 export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onSend, className }) => {
+  const { t } = useTranslation();
+  const emojiCategories = {
+    romantic: {
+      name: 'Romantic',
+      emojis: ['❤️', '💕', '💖', '💗', '💘', '💝', '💞', '💌', '💐', '🌹', '🥰', '😍']
+    },
+    playful: {
+      name: 'Playful',
+      emojis: ['😉', '😘', '🤗', '😜', '🙃', '😏', '🤭', '😇', '🥳', '✨', '🎉', '🔥']
+    },
+    intimate: {
+      name: `${t('intimacy')[0].toUpperCase()}${t('intimacy').slice(1)}`,
+      emojis: ['🫦', '👀', '🤫', '💋', '🌙', '🌟', '🍾', '🥂', '🛁', '🕯️', '🎭', '💎']
+    },
+    moods: {
+      name: 'Moods',
+      emojis: ['☺️', '😌', '🤤', '😴', '🥱', '🤒', '🤧', '😋', '🍯', '🧘‍♀️', '💭', '💤']
+    }
+  };
+
   const [selectedCategory, setSelectedCategory] = useState<keyof typeof emojiCategories>('romantic');
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
 
