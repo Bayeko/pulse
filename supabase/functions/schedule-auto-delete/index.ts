@@ -1,11 +1,15 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const projectRef =
-  Deno.env.get("PROJECT_REF") ||
-  Deno.env.get("PROJECT_ID") ||
-  "qwfqrehcliowhkssmkhx";
-
 serve(async (req) => {
+  const projectRef = Deno.env.get("PROJECT_REF");
+  if (!projectRef) {
+    console.error("Missing PROJECT_REF environment variable");
+    return new Response(JSON.stringify({ error: "Missing project reference" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   const { enabled } = await req.json();
   const accessToken = Deno.env.get("SUPABASE_ACCESS_TOKEN");
   if (!accessToken) {
@@ -22,7 +26,7 @@ serve(async (req) => {
   };
 
   if (enabled) {
-    await fetch(baseUrl, {
+    const res = await fetch(baseUrl, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -31,6 +35,19 @@ serve(async (req) => {
         function: "auto-delete-messages",
       }),
     });
+    if (!res.ok) {
+      const errorBody = await res.text();
+      console.error(
+        `Failed to create cron job: ${res.status} ${errorBody}`,
+      );
+      return new Response(
+        JSON.stringify({ error: "Failed to create cron job" }),
+        {
+          status: res.status,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
   } else {
     const res = await fetch(baseUrl, { headers });
     const { jobs } = await res.json();
@@ -38,7 +55,23 @@ serve(async (req) => {
       (j) => j.name === "auto-delete-messages",
     );
     if (job) {
-      await fetch(`${baseUrl}/${job.id}`, { method: "DELETE", headers });
+      const deleteRes = await fetch(`${baseUrl}/${job.id}`, {
+        method: "DELETE",
+        headers,
+      });
+      if (!deleteRes.ok) {
+        const errorBody = await deleteRes.text();
+        console.error(
+          `Failed to delete cron job ${job.id}: ${deleteRes.status} ${errorBody}`,
+        );
+        return new Response(
+          JSON.stringify({ error: "Failed to delete cron job" }),
+          {
+            status: deleteRes.status,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
     }
   }
 
