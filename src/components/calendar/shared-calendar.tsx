@@ -16,12 +16,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { scheduleReminder } from "@/lib/reminders";
 import { useTranslation } from "@/i18n";
- codex/create-progressring-component-and-integrate
 import { ProgressRing } from "@/components/ui/progress-ring";
-
 import { getConfetti } from "@/lib/confetti";
 import type { Options as ConfettiOptions } from "canvas-confetti";
- main
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface TimeSlot {
   id: string;
@@ -46,6 +53,12 @@ interface SharedCalendarProps {
   className?: string;
 }
 
+const TimePicker = React.forwardRef<
+  HTMLInputElement,
+  React.ComponentProps<typeof Input>
+>(({ ...props }, ref) => <Input type="time" ref={ref} {...props} />);
+TimePicker.displayName = "TimePicker";
+
 export const SharedCalendar: React.FC<SharedCalendarProps> = ({
   className,
 }) => {
@@ -57,8 +70,14 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
   const [selectedDate, setSelectedDate] = useState("2024-01-15");
   const [view, setView] = useState<"week" | "suggestions">("week");
   const [showMutualOnly, setShowMutualOnly] = useState(false);
- codex/create-progressring-component-and-integrate
   const [now, setNow] = useState(new Date());
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState<{
+    id: string | null;
+    start: string;
+    end: string;
+    title: string;
+  }>({ id: null, start: "", end: "", title: "" });
 
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 60000);
@@ -66,7 +85,6 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
   }, []);
 
   const celebratedSlots = useRef<Set<string>>(new Set());
- main
 
   const parseTime = (time: string) => {
     const [h, m] = time.split(":").map(Number);
@@ -231,51 +249,62 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
       });
   }, [timeSlots, partnerSlots]);
 
-  const addTimeSlot = async () => {
-    if (!user) return;
-    const startInput = prompt("Start time (HH:MM)");
-    const endInput = prompt("End time (HH:MM)");
-    if (!startInput || !endInput) return;
-    const start = snapToHalfHour(startInput);
-    const end = snapToHalfHour(endInput);
-    const title = prompt("Title") || null;
-    const { data, error } = await supabase
-      .from("time_slots")
-      .insert({
-        user_id: user.id,
-        start,
-        end,
-        date: selectedDate,
-        type: "mutual",
-        title,
-      })
-      .select()
-      .single();
-    if (!error && data) {
-      setTimeSlots((prev) => [...prev, data as TimeSlot]);
-    }
+  const addTimeSlot = () => {
+    setFormData({ id: null, start: "", end: "", title: "" });
+    setIsModalOpen(true);
   };
 
-  const updateTimeSlot = async (id: string) => {
+  const updateTimeSlot = (id: string) => {
+    const slot = timeSlots.find((s) => s.id === id);
+    if (!slot) return;
+    setFormData({
+      id: slot.id,
+      start: slot.start,
+      end: slot.end,
+      title: slot.title || "",
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleModalSubmit = async () => {
     if (!user) return;
-    const startInput = prompt("Start time (HH:MM)");
-    const endInput = prompt("End time (HH:MM)");
-    if (!startInput || !endInput) return;
-    const start = snapToHalfHour(startInput);
-    const end = snapToHalfHour(endInput);
-    const title = prompt("Title") || null;
-    const { data, error } = await supabase
-      .from("time_slots")
-      .update({ start, end, title })
-      .eq("id", id)
-      .eq("user_id", user.id)
-      .select()
-      .single();
-    if (!error && data) {
-      setTimeSlots((prev) =>
-        prev.map((slot) => (slot.id === id ? (data as TimeSlot) : slot)),
-      );
+    const start = snapToHalfHour(formData.start);
+    const end = snapToHalfHour(formData.end);
+    const title = formData.title || null;
+
+    if (formData.id) {
+      const { data, error } = await supabase
+        .from("time_slots")
+        .update({ start, end, title })
+        .eq("id", formData.id)
+        .eq("user_id", user.id)
+        .select()
+        .single();
+      if (!error && data) {
+        setTimeSlots((prev) =>
+          prev.map((slot) =>
+            slot.id === formData.id ? (data as TimeSlot) : slot,
+          ),
+        );
+      }
+    } else {
+      const { data, error } = await supabase
+        .from("time_slots")
+        .insert({
+          user_id: user.id,
+          start,
+          end,
+          date: selectedDate,
+          type: "mutual",
+          title,
+        })
+        .select()
+        .single();
+      if (!error && data) {
+        setTimeSlots((prev) => [...prev, data as TimeSlot]);
+      }
     }
+    setIsModalOpen(false);
   };
 
   const deleteTimeSlot = async (id: string) => {
@@ -406,7 +435,56 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
   );
 
   return (
-    <Card className={cn("shadow-card animate-scale-in", className)}>
+    <>
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {formData.id ? "Edit Time Slot" : "Add Time Slot"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="grid gap-2">
+              <Label htmlFor="start">Start</Label>
+              <TimePicker
+                id="start"
+                value={formData.start}
+                onChange={(e) =>
+                  setFormData({ ...formData, start: e.target.value })
+                }
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="end">End</Label>
+              <TimePicker
+                id="end"
+                value={formData.end}
+                onChange={(e) =>
+                  setFormData({ ...formData, end: e.target.value })
+                }
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <PulseButton variant="outline">Cancel</PulseButton>
+            </DialogClose>
+            <PulseButton onClick={handleModalSubmit}>Save</PulseButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Card className={cn("shadow-card animate-scale-in", className)}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 font-serif">
@@ -723,5 +801,6 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
         )}
       </CardContent>
     </Card>
+    </>
   );
 };
