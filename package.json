@@ -40,7 +40,12 @@
     "@radix-ui/react-toggle": "^1.1.0",
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.4",
+ codex/add-custom-storage-for-supabase-client
     "@react-native-async-storage/async-storage": "^2.2.0",
+
+    "@react-navigation/native": "^7.1.17",
+    "@react-navigation/native-stack": "^7.3.24",
+ main
     "@supabase/supabase-js": "^2.52.0",
     "@tanstack/react-query": "^5.56.2",
     "canvas-confetti": "^1.9.3",
