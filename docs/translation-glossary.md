@@ -9,6 +9,9 @@ This glossary aligns the project's French translations and tone.
 | Pulse | Pulse |
 | Ready | Disponible |
 | Busy | Occupé·e |
+| Intimacy | Intimité |
+| Consent | Consentement |
+| Discreet | Discret·e |
 
 ## Tone Guidelines
 

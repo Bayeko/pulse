@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/i18n';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AuthCardProps {
@@ -29,6 +30,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
   const { signIn, signUp, connectPartner, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
   
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -141,7 +143,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
       case 'register':
         return {
           title: 'Create Your Account',
-          description: 'Start your intimate communication journey',
+          description: `Start your ${t('intimacy')} communication journey`,
           icon: <Shield className="w-6 h-6 text-primary" />,
           fields: (
             <>
