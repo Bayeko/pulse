@@ -68,11 +68,11 @@ export default {
 					offline: 'hsl(var(--pulse-offline))'
 				}
 			},
-			backgroundImage: {
-				'gradient-primary': 'var(--gradient-primary)',
-				'gradient-soft': 'var(--gradient-soft)',
-				'gradient-card': 'var(--gradient-card)'
-			},
+                        backgroundImage: {
+                                'gradient-primary': 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))',
+                                'gradient-soft': 'var(--gradient-soft)',
+                                'gradient-card': 'var(--gradient-card)'
+                        },
 			boxShadow: {
 				'soft': 'var(--shadow-soft)',
 				'glow': 'var(--shadow-glow)',
