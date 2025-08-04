@@ -7,16 +7,16 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/i18n';
 import { LanguageSwitcher } from '@/components/ui/language-switcher';
 
-const items = [
-  { title: 'Code Pulse', description: 'Exprimez vos envies par pulsations discrètes.' },
-  { title: 'Statut', description: 'Partagez votre disponibilité en temps réel.' },
-  { title: 'Agenda', description: 'Planifiez des moments à deux facilement.' },
-];
-
 export const StepIntro: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { user } = useAuth();
+
+  const items = [
+    { title: t('introCodePulseTitle'), description: t('introCodePulseDescription') },
+    { title: t('introStatusTitle'), description: t('introStatusDescription') },
+    { title: t('introAgendaTitle'), description: t('introAgendaDescription') },
+  ];
 
   const handleInvite = () => {
     if (user) {
