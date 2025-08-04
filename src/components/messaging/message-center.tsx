@@ -1,15 +1,16 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { MessageCircle, Send, Heart, Image, Mic, Smile } from 'lucide-react';
+import { MessageCircle, Send, Heart, Image, Smile } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/i18n';
+import { FixedSizeList as List } from 'react-window';
+import { useMessages } from '@/hooks/use-messages';
 
 interface Message {
   id: string;
@@ -40,22 +41,51 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { t } = useTranslation();
-  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isLoading,
+    isFetchingNextPage,
+    queryClient,
+  } = useMessages(user?.id, user?.partnerId);
+  const messages = useMemo(() => {
+    const all = data?.pages.flat() ?? [];
+    return all
+      .map(msg => ({
+        ...msg,
+        sender_name: msg.sender_id === user?.id ? user?.name : user?.partnerName,
+      }))
+      .reverse();
+  }, [data, user]);
   const now = new Date();
   const isSnoozed = user?.snoozeUntil && new Date(user.snoozeUntil) > now;
   const partnerSnoozed = user?.partnerSnoozeUntil && new Date(user.partnerSnoozeUntil) > now;
   const disabledMessaging = isSnoozed || partnerSnoozed;
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<List>(null);
 
-  // Récupère les messages lorsque l’utilisateur et son partenaire sont disponibles
-  useEffect(() => {
-    if (user && user.partnerId) {
-      fetchMessages();
-    }
-  }, [user]);
+  const appendMessage = (msg: Message) => {
+    queryClient.setQueryData(['messages', user?.id, user?.partnerId], (old: any) => {
+      const dbMsg: DatabaseMessage = {
+        id: msg.id,
+        content: msg.content,
+        type: msg.type,
+        sender_id: msg.sender_id,
+        receiver_id: msg.receiver_id,
+        created_at: msg.created_at,
+        read_at: msg.read_at,
+      };
+      if (!old) {
+        return { pages: [[dbMsg]], pageParams: [0] };
+      }
+      return {
+        ...old,
+        pages: [[dbMsg, ...(old.pages[0] || [])], ...old.pages.slice(1)],
+      };
+    });
+  };
 
   // Set up real-time subscription
   useEffect(() => {
@@ -72,13 +102,16 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
           filter: `or(and(sender_id.eq.${user.id},receiver_id.eq.${user.partnerId}),and(sender_id.eq.${user.partnerId},receiver_id.eq.${user.id}))`
         },
         (payload) => {
-          console.log('New message received:', payload);
           const newMessage = payload.new as DatabaseMessage;
-          const formattedMessage: Message = {
-            ...newMessage,
-            sender_name: newMessage.sender_id === user.id ? user.name : user.partnerName
-          };
-          setMessages(prev => [...prev, formattedMessage]);
+          queryClient.setQueryData(['messages', user.id, user.partnerId], (old: any) => {
+            if (!old) {
+              return { pages: [[newMessage]], pageParams: [0] };
+            }
+            return {
+              ...old,
+              pages: [[newMessage, ...(old.pages[0] || [])], ...old.pages.slice(1)],
+            };
+          });
         }
       )
       .on(
@@ -90,13 +123,18 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
           filter: `or(and(sender_id.eq.${user.id},receiver_id.eq.${user.partnerId}),and(sender_id.eq.${user.partnerId},receiver_id.eq.${user.id}))`
         },
         (payload) => {
-          console.log('Message updated:', payload);
           const updatedMessage = payload.new as DatabaseMessage;
-          setMessages(prev => prev.map(msg =>
-            msg.id === updatedMessage.id
-              ? { ...msg, read_at: updatedMessage.read_at }
-              : msg
-          ));
+          queryClient.setQueryData(['messages', user.id, user.partnerId], (old: any) => {
+            if (!old) return old;
+            return {
+              ...old,
+              pages: old.pages.map((page: DatabaseMessage[]) =>
+                page.map(msg =>
+                  msg.id === updatedMessage.id ? { ...msg, read_at: updatedMessage.read_at } : msg
+                )
+              ),
+            };
+          });
         }
       )
       .subscribe();
@@ -104,12 +142,12 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, queryClient]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    listRef.current?.scrollToItem(messages.length - 1);
+  }, [messages.length]);
 
   // Mark messages as read when they come into view
   useEffect(() => {
@@ -123,55 +161,6 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
       markMessagesAsRead(unreadMessages.map(msg => msg.id));
     }
   }, [messages, user]);
-
-  const fetchMessages = async () => {
-    if (!user || !user.partnerId) return;
-
-    try {
-      setIsLoading(true);
-      
-      const { data, error } = await supabase
-        .from('messages')
-        .select(`
-          id,
-          content,
-          type,
-          sender_id,
-          receiver_id,
-          created_at,
-          read_at
-        `)
-        .or(`and(sender_id.eq.${user.id},receiver_id.eq.${user.partnerId}),and(sender_id.eq.${user.partnerId},receiver_id.eq.${user.id})`)
-        .order('created_at', { ascending: true });
-
-      if (error) {
-        console.error('Error fetching messages:', error);
-        toast({
-          title: "Error loading messages",
-          description: "Failed to load your conversation.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const formattedMessages: Message[] = (data || []).map(msg => ({
-        id: msg.id,
-        content: msg.content,
-        type: msg.type as 'text' | 'emoji',
-        sender_id: msg.sender_id,
-        receiver_id: msg.receiver_id,
-        created_at: msg.created_at,
-        read_at: msg.read_at,
-        sender_name: msg.sender_id === user.id ? user.name : user.partnerName
-      }));
-
-      setMessages(formattedMessages);
-    } catch (error) {
-      console.error('Error in fetchMessages:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const markMessagesAsRead = async (messageIds: string[]) => {
     if (!user || messageIds.length === 0) return;
@@ -224,7 +213,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
         read_at: null,
         sender_name: user.name,
       };
-      setMessages(prev => [...prev, feedback]);
+      appendMessage(feedback);
       toast({ description: message });
       return;
     }
@@ -248,7 +237,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
           read_at: null,
           sender_name: user.name,
         };
-        setMessages(prev => [...prev, feedback]);
+        appendMessage(feedback);
         toast({ description: message });
         return;
       }
@@ -274,7 +263,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
           read_at: null,
           sender_name: user.name,
         };
-        setMessages(prev => [...prev, feedback]);
+        appendMessage(feedback);
         toast({ description: message });
         return;
       }
@@ -385,14 +374,30 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
       
       <CardContent className="flex-1 flex flex-col p-4">
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto space-y-4 mb-4 scroll-smooth">
-          {messages.map((message, index) => {
-            const showDate = index === 0 || 
-              formatDate(message.created_at) !== formatDate(messages[index - 1].created_at);
-            const isFromUser = message.sender_id === user.id;
-            
-            return (
-              <div key={message.id}>
+
+        <div className="flex-1 mb-4">
+          <List
+            height={400}
+            itemCount={messages.length}
+            itemSize={80}
+            width={'100%'}
+            ref={listRef}
+            onItemsRendered={({ visibleStartIndex }) => {
+              if (visibleStartIndex === 0 && hasNextPage && !isFetchingNextPage) {
+                fetchNextPage();
+              }
+            }}
+          >
+            {({ index, style }) => {
+              const message = messages[index];
+              const prev = messages[index - 1];
+              const showDate =
+                index === 0 ||
+                formatDate(message.created_at) !==
+                  (prev ? formatDate(prev.created_at) : undefined);
+              const isFromUser = message.sender_id === user?.id;
+              return (
+                <div style={style} key={message.id}>
                   {showDate && (
                     <div className="flex justify-center mb-4">
                       <Badge variant="secondary" className="text-xs">
@@ -400,45 +405,50 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
                       </Badge>
                     </div>
                   )}
-                
-                <div className={cn(
-                  "flex",
-                  isFromUser ? "justify-end" : "justify-start"
-                )}>
-                  <div className={cn(
-                    "max-w-[70%] rounded-2xl px-4 py-2 relative animate-fade-in-up",
-                    isFromUser
-                      ? "bg-primary text-primary-foreground rounded-br-md"
-                      : "bg-muted text-foreground rounded-bl-md"
-                  )}>
-                    {message.type === 'emoji' ? (
-                      <div className="text-2xl">{message.content}</div>
-                    ) : (
-                      <p className="text-sm">{message.content}</p>
-                    )}
-                    
-                    <div className={cn(
-                      "text-xs mt-1 flex items-center gap-1",
-                      isFromUser
-                        ? "text-primary-foreground/70 justify-end" 
-                        : "text-muted-foreground"
-                    )}>
-                      <span>{formatTime(message.created_at)}</span>
-                      {isFromUser && (
-                        <div className={cn(
-                          "w-2 h-2 rounded-full",
-                          message.read_at ? "bg-green-400" : "bg-muted-foreground/50"
-                        )} />
+                  <div className={cn('flex', isFromUser ? 'justify-end' : 'justify-start')}>
+                    <div
+                      className={cn(
+                        'max-w-[70%] rounded-2xl px-4 py-2 relative animate-fade-in-up',
+                        isFromUser
+                          ? 'bg-primary text-primary-foreground rounded-br-md'
+                          : 'bg-muted text-foreground rounded-bl-md'
                       )}
+                    >
+                      {message.type === 'emoji' ? (
+                        <div className="text-2xl">{message.content}</div>
+                      ) : (
+                        <p className="text-sm">{message.content}</p>
+                      )}
+                      <div
+                        className={cn(
+                          'text-xs mt-1 flex items-center gap-1',
+                          isFromUser
+                            ? 'text-primary-foreground/70 justify-end'
+                            : 'text-muted-foreground'
+                        )}
+                      >
+                        <span>{formatTime(message.created_at)}</span>
+                        {isFromUser && (
+                          <div
+                            className={cn(
+                              'w-2 h-2 rounded-full',
+                              message.read_at
+                                ? 'bg-green-400'
+                                : 'bg-muted-foreground/50'
+                            )}
+                          />
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-          <div ref={messagesEndRef} />
+              );
+            }}
+          </List>
+          {isFetchingNextPage && (
+            <p className="text-center text-xs text-muted-foreground">Loading...</p>
+          )}
         </div>
-
         {/* Emoji Quick Actions */}
         {showEmojiPicker && (
           <div className="mb-4 p-3 bg-muted rounded-lg animate-fade-in-up">
