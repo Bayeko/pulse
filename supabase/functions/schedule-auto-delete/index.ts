@@ -1,5 +1,18 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+const CRON_AUTH_TOKEN = Deno.env.get('CRON_AUTH_TOKEN');
+if (!CRON_AUTH_TOKEN) {
+  throw new Error('Missing CRON_AUTH_TOKEN environment variable');
+}
+const PROJECT_REF = Deno.env.get('PROJECT_REF');
+if (!PROJECT_REF) {
+  throw new Error('Missing PROJECT_REF environment variable');
+}
+const SUPABASE_ACCESS_TOKEN = Deno.env.get('SUPABASE_ACCESS_TOKEN');
+if (!SUPABASE_ACCESS_TOKEN) {
+  throw new Error('Missing SUPABASE_ACCESS_TOKEN environment variable');
+}
+
 async function fetchWithRetry(
   url: string,
   init: RequestInit,
@@ -23,39 +36,19 @@ async function fetchWithRetry(
 }
 
 serve(async req => {
-  const token = Deno.env.get('CRON_AUTH_TOKEN');
   const authHeader = req.headers.get('authorization');
-  if (!token || authHeader !== `Bearer ${token}`) {
+  if (authHeader !== `Bearer ${CRON_AUTH_TOKEN}`) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  const projectRef = Deno.env.get('PROJECT_REF');
-  if (!projectRef) {
-    console.error('Missing PROJECT_REF environment variable');
-    return new Response(
-      JSON.stringify({ error: 'Missing project reference' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
-  }
-
   const { enabled } = await req.json();
-  const accessToken = Deno.env.get("SUPABASE_ACCESS_TOKEN");
-  if (!accessToken) {
-    return new Response(JSON.stringify({ error: "Missing access token" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
 
-  const baseUrl = `https://api.supabase.com/v1/projects/${projectRef}/cron/jobs`;
+  const baseUrl = `https://api.supabase.com/v1/projects/${PROJECT_REF}/cron/jobs`;
   const headers = {
-    Authorization: `Bearer ${accessToken}`,
+    Authorization: `Bearer ${SUPABASE_ACCESS_TOKEN}`,
     "Content-Type": "application/json",
   };
 

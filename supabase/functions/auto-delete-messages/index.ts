@@ -1,20 +1,29 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+const CRON_AUTH_TOKEN = Deno.env.get("CRON_AUTH_TOKEN");
+if (!CRON_AUTH_TOKEN) {
+  throw new Error("Missing CRON_AUTH_TOKEN environment variable");
+}
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+if (!SUPABASE_URL) {
+  throw new Error("Missing SUPABASE_URL environment variable");
+}
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+if (!SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY environment variable");
+}
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
 serve(async (req) => {
-  const token = Deno.env.get("CRON_AUTH_TOKEN");
   const authHeader = req.headers.get("authorization");
-  if (!token || authHeader !== `Bearer ${token}`) {
+  if (authHeader !== `Bearer ${CRON_AUTH_TOKEN}`) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
     });
   }
-
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-  );
 
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 30);
