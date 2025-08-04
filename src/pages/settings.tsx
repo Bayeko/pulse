@@ -865,6 +865,15 @@ const Settings: React.FC = () => {
                     <PulseButton asChild variant="ghost" size="sm">
                       <Link to="/contact">Contact Support</Link>
                     </PulseButton>
+                    <PulseButton asChild variant="ghost" size="sm">
+                      <a
+                        href="https://www.aasect.org/referral-directory"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {t('proResources')}
+                      </a>
+                    </PulseButton>
                   </div>
                 </div>
               )}

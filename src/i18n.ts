@@ -45,6 +45,7 @@ const translations = {
     statusBusyDescription: 'Catch you later',
     statusNotAvailableLabel: 'Not Available',
     statusNotAvailableDescription: 'Need a moment',
+    proResources: 'Certified sexologists',
   },
   fr: {
     addFirstAvailability: 'Ajoutez votre première disponibilité',
@@ -90,6 +91,7 @@ const translations = {
     statusBusyDescription: 'À plus tard',
     statusNotAvailableLabel: 'Indisponible',
     statusNotAvailableDescription: "Besoin d'un moment",
+    proResources: 'Sexologues certifiés',
   },
 } as const;
 

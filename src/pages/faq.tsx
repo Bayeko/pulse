@@ -19,7 +19,11 @@ const FAQ: React.FC = () => {
   const [items, setItems] = useState<FAQItem[]>([]);
   const [showOfflineForm, setShowOfflineForm] = useState(false);
   const [message, setMessage] = useState('');
+ codex/add-certified-sexologists-link
+  const { t } = useTranslation();
+
   const { lang } = useTranslation();
+ main
 
   useEffect(() => {
     const loadFAQ = async () => {
@@ -63,6 +67,16 @@ const FAQ: React.FC = () => {
           </AccordionItem>
         ))}
       </Accordion>
+      <div className="mb-8">
+        <a
+          href="https://www.aasect.org/referral-directory"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary underline"
+        >
+          {t('proResources')}
+        </a>
+      </div>
       {showOfflineForm ? (
         <form onSubmit={handleOfflineSubmit} className="space-y-4">
           <Textarea
