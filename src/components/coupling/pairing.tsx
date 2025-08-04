@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import QRCode from 'qrcode.react';
-import confetti from 'canvas-confetti';
+import { getConfetti } from '@/lib/confetti';
 
 type ProfileSummary = Pick<
   Database['public']['Tables']['profiles']['Row'],
@@ -80,7 +80,9 @@ const Pairing = () => {
 
   useEffect(() => {
     if (paired) {
-      confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+      getConfetti().then((confetti) =>
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } }),
+      );
     }
   }, [paired]);
 
