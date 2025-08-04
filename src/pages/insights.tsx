@@ -6,6 +6,7 @@ import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { Sparkles, BarChart3, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { fetchEnergyCycleMetrics } from '@/integrations/wearable';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/i18n';
@@ -47,19 +48,27 @@ const Insights: React.FC = () => {
 
       setChartData(dayLabels.map((d, i) => ({ day: d, pulses: dayCounts[i] })));
 
+      const suggestionList: string[] = [];
       if (pulses.length > 0) {
         const topDayIndex = dayCounts.indexOf(Math.max(...dayCounts));
         const topHourIndex = hourCounts.indexOf(Math.max(...hourCounts));
         const hourDate = new Date();
         hourDate.setHours(topHourIndex, 0, 0, 0);
         const formattedHour = hourDate.toLocaleTimeString([], { hour: 'numeric' });
-        setSuggestions([
+        suggestionList.push(
           `Most pulses land on ${fullDayLabels[topDayIndex]}s`,
           `Peak hour is around ${formattedHour}`
-        ]);
+        );
       } else {
-        setSuggestions(['No pulse history yet. Send some pulses to see insights!']);
+        suggestionList.push('No pulse history yet. Send some pulses to see insights!');
       }
+
+      const energyCycle = await fetchEnergyCycleMetrics();
+      if (energyCycle?.phase) {
+        suggestionList.push(`Current energy cycle: ${energyCycle.phase}`);
+      }
+
+      setSuggestions(suggestionList);
     };
 
     fetchHistory();

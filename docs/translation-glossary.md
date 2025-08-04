@@ -9,6 +9,9 @@ This glossary aligns the project's French translations and tone.
 | Pulse | Pulse |
 | Ready | Disponible |
 | Busy | Occupé·e |
+| Intimacy | Intimité |
+| Consent | Consentement |
+| Discreet | Discret·e |
 
 ## Tone Guidelines
 
@@ -24,4 +27,17 @@ Avoid explicit terms. Use the suggested neutral alternatives instead.
 | --- | --- |
 | sexe | sexualité |
 | rapports | relations intimes |
+
+## Character Limits
+
+Default input elements are constrained to preserve layout across languages.
+
+| Field | English | French |
+| --- | --- | --- |
+| Default Input | 100 | 80 |
+| Default Textarea | 500 | 400 |
+| Name | 50 | 40 |
+| Bio | 160 | 120 |
+| Email | 254 | 254 |
+| Message | 500 | 400 |
 

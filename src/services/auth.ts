@@ -5,7 +5,7 @@ export const signIn = (email: string, password: string) => {
   return withRetry(() => supabase.auth.signInWithPassword({ email, password }));
 };
 
-export const signUp = (name: string, email: string, password: string) => {
+export const signUp = (name: string, email: string, password: string, birthdate?: string) => {
   const redirectUrl = `${window.location.origin}/`;
   return withRetry(() =>
     supabase.auth.signUp({
@@ -13,7 +13,7 @@ export const signUp = (name: string, email: string, password: string) => {
       password,
       options: {
         emailRedirectTo: redirectUrl,
-        data: { name }
+        data: { name, birthdate }
       }
     })
   );

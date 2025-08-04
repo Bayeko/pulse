@@ -5,7 +5,7 @@ import { SharedCalendar } from '@/components/calendar/shared-calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Bell, Settings, Shield, Calendar, MessageCircle, LogOut, User } from 'lucide-react';
+import { Heart, Bell, Settings, Shield, Calendar, MessageCircle, LogOut, User, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
@@ -60,6 +60,14 @@ const Dashboard = () => {
               )}
               <PulseButton variant="ghost" size="sm" title="Notifications">
                 <Bell className="w-4 h-4" />
+              </PulseButton>
+              <PulseButton
+                variant="ghost"
+                size="sm"
+                title="Surprise Mode"
+                onClick={() => navigate('/surprise-mode')}
+              >
+                <Sparkles className="w-4 h-4" />
               </PulseButton>
               <PulseButton
                 variant="ghost"
@@ -179,7 +187,7 @@ const Dashboard = () => {
                   <span>Local storage only</span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-3">
-                  Your intimate moments stay between you two, always.
+                  Your {t('intimacy')} stays between you two, always.
                 </p>
               </CardContent>
             </Card>
