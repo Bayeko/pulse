@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { scheduleReminder } from "@/lib/reminders";
 import { useTranslation } from "@/i18n";
+import { ProgressRing } from "@/components/ui/progress-ring";
 
 interface TimeSlot {
   id: string;
@@ -51,6 +52,12 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
   const [selectedDate, setSelectedDate] = useState("2024-01-15");
   const [view, setView] = useState<"week" | "suggestions">("week");
   const [showMutualOnly, setShowMutualOnly] = useState(false);
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const parseTime = (time: string) => {
     const [h, m] = time.split(":").map(Number);
@@ -354,17 +361,10 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
   };
   const slotsForSelectedDate = getSlotsForDate(selectedDate);
   const overlappingSlots = findOverlaps(slotsForSelectedDate);
- codex/remove-codex-lines-and-main-tokens
-  const halfHourMarks = Array.from({ length: 48 }, (_, i) =>
-    minutesToTime(i * 30),
-  );
 
- codex/refactor-routes-and-clean-up-imports
 
 
   const halfHourMarks = Array.from({ length: 48 }, (_, i) => minutesToTime(i * 30));
- main
- main
   const allSlotsForSelectedDate = timeSlots.filter(
     (slot) => slot.date === selectedDate,
   );
@@ -479,6 +479,12 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
                   const top = (start / (24 * 60)) * 100;
                   const height = ((end - start) / (24 * 60)) * 100;
                   const isOverlap = overlappingSlots.has(slot.id);
+                  const slotStartDate = new Date(`${slot.date}T${slot.start}`);
+                  const diff =
+                    (slotStartDate.getTime() - now.getTime()) / 60000;
+                  const isUpcoming = diff <= 120 && diff >= 0;
+                  const progress =
+                    ((120 - Math.min(120, Math.max(0, diff))) / 120) * 100;
                   return (
                     <div
                       key={slot.id}
@@ -491,6 +497,9 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
+                          {isUpcoming && (
+                            <ProgressRing progress={progress} size={16} />
+                          )}
                           {typeInfo.icon}
                           <span className="font-medium">
                             {slot.start} - {slot.end}
@@ -512,7 +521,6 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
                           >
                             <Trash2 className="w-3 h-3" />
                           </button>
- codex/refactor-routes-and-clean-up-imports
 
                         </div>
                       </div>
@@ -534,6 +542,12 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
                 <div className="space-y-2">
                   {slotsForSelectedDate.map((slot) => {
                     const typeInfo = getSlotTypeInfo(slot.type);
+                    const slotStartDate = new Date(`${slot.date}T${slot.start}`);
+                    const diff =
+                      (slotStartDate.getTime() - now.getTime()) / 60000;
+                    const isUpcoming = diff <= 120 && diff >= 0;
+                    const progress =
+                      ((120 - Math.min(120, Math.max(0, diff))) / 120) * 100;
                     return (
                       <div
                         key={slot.id}
@@ -544,6 +558,9 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
+                            {isUpcoming && (
+                              <ProgressRing progress={progress} size={16} />
+                            )}
                             {typeInfo.icon}
                             <span className="font-medium">
                               {slot.start} - {slot.end}
@@ -566,7 +583,6 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
                               <Trash2 className="w-3 h-3" />
                             </button>
                           </div>
- main
                         </div>
                         {slot.title && (
                           <p className="text-[10px] mt-1 opacity-90">
@@ -574,17 +590,8 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
                           </p>
                         )}
                       </div>
- codex/refactor-routes-and-clean-up-imports
-
- codex/remove-codex-lines-and-main-tokens
-
-                      {slot.title && (
-                        <p className="text-[10px] mt-1 opacity-90">{slot.title}</p>
-                      )}
- main
-                    </div>
-                  );
-                })}
+                    );
+                  })}
 
                 {slotsForSelectedDate.length === 0 && (
                   <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
@@ -595,13 +602,6 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
                   </div>
                 )}
               </div>
- codex/refactor-routes-and-clean-up-imports
-
-
- main
-                    );
-                  })}
-                </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <svg
@@ -626,7 +626,6 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
                   </p>
                 </div>
               )}
- main
             </div>
           </>
         ) : (
