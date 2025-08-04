@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { useScaledFont } from '@/hooks/use-scaled-font';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { PulseButton } from '@/components/ui/pulse-button';
@@ -18,6 +19,7 @@ const History: React.FC = () => {
   const { user } = useAuth();
   const [pulses, setPulses] = useState<Pulse[]>([]);
   const [loading, setLoading] = useState(true);
+  const scaleFont = useScaledFont();
   const [historyEnabled, setHistoryEnabled] = useState(true);
 
   useEffect(() => {
@@ -71,7 +73,12 @@ const History: React.FC = () => {
               <ArrowLeft className="w-4 h-4" />
             </PulseButton>
             <div>
-              <h1 className="text-3xl font-serif font-bold text-foreground">History</h1>
+              <h1
+                className="font-serif font-bold text-foreground"
+                style={{ fontSize: scaleFont(30) }}
+              >
+                History
+              </h1>
               <p className="text-muted-foreground">Your pulse history</p>
             </div>
           </div>
@@ -82,7 +89,12 @@ const History: React.FC = () => {
         ) : (
           <div>
             <div className="mb-4">
-              <h2 className="text-lg font-medium">Pulses this month: {monthlyCount}</h2>
+              <h2
+                className="font-medium"
+                style={{ fontSize: scaleFont(18) }}
+              >
+                Pulses this month: {monthlyCount}
+              </h2>
             </div>
             {loading ? (
               <p className="text-center text-muted-foreground">Loading...</p>

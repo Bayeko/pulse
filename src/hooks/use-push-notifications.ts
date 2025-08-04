@@ -3,6 +3,42 @@ import { supabase } from '@/integrations/supabase/client';
 import * as Notifications from 'expo-notifications';
 import { VAPID_PUBLIC_KEY } from '@/config';
 
+ codex/refactor-functions-to-extract-variables
+import { getEnvVar } from '@/config';
+
+const VAPID_PUBLIC_KEY = getEnvVar('EXPO_PUBLIC_VAPID_PUBLIC_KEY');
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '@/contexts/AuthContext';
+
+const TRIAL_START_KEY = 'trialStartDate';
+const TRIAL_NOTIFICATION_ID_KEY = 'trialNotificationId';
+
+const getItem = async (key: string): Promise<string | null> => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    return window.localStorage.getItem(key);
+  }
+  return AsyncStorage.getItem(key);
+};
+
+const setItem = async (key: string, value: string) => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    window.localStorage.setItem(key, value);
+  } else {
+    await AsyncStorage.setItem(key, value);
+  }
+};
+
+const removeItem = async (key: string) => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    window.localStorage.removeItem(key);
+  } else {
+    await AsyncStorage.removeItem(key);
+  }
+};
+ main
+ main
+
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -17,6 +53,7 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 }
 
 export function usePushNotifications() {
+  const { user } = useAuth();
   const notificationListener = useRef<Notifications.Subscription>();
   const responseListener = useRef<Notifications.Subscription>();
 
@@ -55,14 +92,17 @@ export function usePushNotifications() {
 
           let subscription = await registration.pushManager.getSubscription();
           if (!subscription) {
+ codex/resolve-merge-conflicts-in-feature-branch
             const publicKey = VAPID_PUBLIC_KEY;
             if (!publicKey) {
               console.warn('VAPID public key is not set');
               return;
             }
+
+ main
             subscription = await registration.pushManager.subscribe({
               userVisibleOnly: true,
-              applicationServerKey: urlBase64ToUint8Array(publicKey),
+              applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
             });
           }
 
@@ -155,6 +195,12 @@ export function usePushNotifications() {
     } = supabase.auth.onAuthStateChange(async event => {
       if (event === 'SIGNED_OUT') {
         await pruneSubscription();
+        const id = await getItem(TRIAL_NOTIFICATION_ID_KEY);
+        if (id) {
+          await Notifications.cancelScheduledNotificationAsync(id);
+          await removeItem(TRIAL_NOTIFICATION_ID_KEY);
+        }
+        await removeItem(TRIAL_START_KEY);
       }
     });
 
@@ -168,5 +214,35 @@ export function usePushNotifications() {
       authSubscription.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    const handleTrial = async () => {
+      const storedId = await getItem(TRIAL_NOTIFICATION_ID_KEY);
+      if (user && !user.isPremium) {
+        const storedStart = await getItem(TRIAL_START_KEY);
+        let startDate = storedStart ? new Date(storedStart) : null;
+        if (!startDate) {
+          startDate = new Date();
+          await setItem(TRIAL_START_KEY, startDate.toISOString());
+        }
+        if (!storedId) {
+          const triggerDate = new Date(startDate.getTime() + 5 * 24 * 60 * 60 * 1000);
+          const id = await Notifications.scheduleNotificationAsync({
+            content: { body: 'Profitez de vos Insights avancés' },
+            trigger: triggerDate,
+          });
+          await setItem(TRIAL_NOTIFICATION_ID_KEY, id);
+        }
+      } else {
+        if (storedId) {
+          await Notifications.cancelScheduledNotificationAsync(storedId);
+          await removeItem(TRIAL_NOTIFICATION_ID_KEY);
+        }
+        await removeItem(TRIAL_START_KEY);
+      }
+    };
+
+    handleTrial();
+  }, [user]);
 }
 
