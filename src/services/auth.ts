@@ -41,7 +41,7 @@ export const connectPartner = async (
   const { data: partnerProfile, error: findError } = await withRetry(() =>
     supabase
       .from('profiles')
-      .select('id, user_id, name')
+      .select('id, user_id, name, partner_id')
       .eq('email', partnerEmail)
       .single()
   );
@@ -53,13 +53,24 @@ export const connectPartner = async (
   const { data: currentProfile, error: currentProfileError } = await withRetry(() =>
     supabase
       .from('profiles')
-      .select('id')
+      .select('id, partner_id')
       .eq('user_id', currentUserId)
       .single()
   );
 
   if (currentProfileError || !currentProfile) {
     return { error: 'Unable to retrieve your profile.' };
+  }
+
+  if (currentProfile.id === partnerProfile.id) {
+    return { error: 'Cannot connect with yourself.' };
+  }
+
+  if (
+    (currentProfile.partner_id && currentProfile.partner_id !== partnerProfile.id) ||
+    (partnerProfile.partner_id && partnerProfile.partner_id !== currentProfile.id)
+  ) {
+    return { error: 'User already paired' };
   }
 
   const { error: updateError } = await withRetry(() =>
@@ -91,7 +102,7 @@ export const connectByCode = async (code: string, currentUserId: string) => {
   const { data: partnerProfile, error: findError } = await withRetry(() =>
     supabase
       .from('profiles')
-      .select('id, user_id, name')
+      .select('id, user_id, name, partner_id')
       .eq('short_code', code)
       .single()
   );
@@ -103,13 +114,24 @@ export const connectByCode = async (code: string, currentUserId: string) => {
   const { data: currentProfile, error: currentProfileError } = await withRetry(() =>
     supabase
       .from('profiles')
-      .select('id')
+      .select('id, partner_id')
       .eq('user_id', currentUserId)
       .single()
   );
 
   if (currentProfileError || !currentProfile) {
     return { error: 'Unable to retrieve your profile.' };
+  }
+
+  if (currentProfile.id === partnerProfile.id) {
+    return { error: 'Cannot connect with yourself.' };
+  }
+
+  if (
+    (currentProfile.partner_id && currentProfile.partner_id !== partnerProfile.id) ||
+    (partnerProfile.partner_id && partnerProfile.partner_id !== currentProfile.id)
+  ) {
+    return { error: 'User already paired' };
   }
 
   const { error: updateError } = await withRetry(() =>
