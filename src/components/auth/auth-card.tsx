@@ -11,6 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/i18n';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/i18n';
+ codex/add-translation-keys-and-localize-strings
+
 
 const EU_COUNTRIES = [
   'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU',
@@ -29,6 +31,7 @@ const calculateAge = (birthdate: string) => {
   }
   return age;
 };
+ main
 
 interface AuthCardProps {
   mode: 'login' | 'register' | 'connect';

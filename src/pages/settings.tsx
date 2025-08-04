@@ -861,6 +861,11 @@ const Settings: React.FC = () => {
                   <div className="flex flex-col sm:flex-row gap-2">
                     <PulseButton asChild variant="ghost" size="sm">
                       <Link to="/faq">{t('helpCenter')}</Link>
+ codex/add-translation-keys-and-localize-strings
+                    </PulseButton>
+                    <PulseButton asChild variant="ghost" size="sm">
+                      <Link to="/contact">{t('contactSupport')}</Link>
+
                     </PulseButton>
                     <PulseButton asChild variant="ghost" size="sm">
                       <Link to="/contact">{t('contactSupport')}</Link>
@@ -873,6 +878,7 @@ const Settings: React.FC = () => {
                       >
                         {t('proResources')}
                       </a>
+ main
                     </PulseButton>
                   </div>
                 </div>
