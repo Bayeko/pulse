@@ -22,6 +22,7 @@ import Contact from "./pages/contact";
 import PairPage from "./pages/pair";
 import Paywall from "./pages/paywall";
 import NotFound from "./pages/NotFound";
+import SurpriseMode from "./pages/surprise-mode";
 
 const queryClient = new QueryClient();
 const Stack = createNativeStackNavigator();
@@ -81,6 +82,13 @@ const App = () => {
                   {() => (
                     <ProtectedRoute>
                       <Settings />
+                    </ProtectedRoute>
+                  )}
+                </Stack.Screen>
+                <Stack.Screen name="SurpriseMode">
+                  {() => (
+                    <ProtectedRoute>
+                      <SurpriseMode />
                     </ProtectedRoute>
                   )}
                 </Stack.Screen>

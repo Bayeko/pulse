@@ -34,6 +34,7 @@ import {
   Camera,
   Save,
   ArrowLeft,
+  Sparkles,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
@@ -423,10 +424,17 @@ const Settings: React.FC = () => {
             >
               <ArrowLeft className="w-4 h-4" />
             </PulseButton>
-            <div>
+            <div className="flex-1">
               <h1 className="text-3xl font-serif font-bold text-foreground">Settings</h1>
               <p className="text-muted-foreground">Customize your Pulse experience</p>
             </div>
+            <PulseButton
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/surprise-mode')}
+            >
+              <Sparkles className="w-4 h-4" />
+            </PulseButton>
           </div>
         </div>
 
