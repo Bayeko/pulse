@@ -11,7 +11,7 @@ const Paywall = () => {
         <div className="space-y-4 mb-10">
           <div className="flex items-center gap-3">
             <Heart className="w-5 h-5 text-primary" />
-            <span>Moments intimes renforcés</span>
+            <span>Moments partagés renforcés</span>
           </div>
           <div className="flex items-center gap-3">
             <Shield className="w-5 h-5 text-primary" />

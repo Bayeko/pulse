@@ -41,7 +41,7 @@ const Auth = () => {
               </h1>
             </div>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Intimate communication designed for partners who understand that connection goes beyond words
+              Heartfelt communication designed for partners who understand that connection goes beyond words
             </p>
           </div>
 
@@ -60,20 +60,20 @@ const Auth = () => {
               {
                 icon: '🔒',
                 title: 'Private & Secure',
-                description: 'End-to-end encryption ensures your intimate moments stay between you two'
+                description: 'End-to-end encryption ensures your private moments stay between you two'
               },
               {
                 icon: '💕',
                 title: 'Discreet Communication',
-                description: 'Express desires through elegant emojis and symbols, no explicit text'
+                description: 'Express feelings through elegant emojis and symbols, no explicit text'
               },
               {
                 icon: '📅',
                 title: 'Smart Scheduling',
-                description: 'AI-powered calendar finds perfect moments when you\'re both available'
+                description: 'AI-powered calendar finds perfect moments when you\'re both available and in sync'
               }
             ].map((feature, index) => (
-              <div 
+              <div
                 key={index}
                 className="text-center p-6 bg-card/50 backdrop-blur-sm rounded-xl border border-border/50 shadow-soft animate-fade-in-up"
                 style={{ animationDelay: `${index * 0.2}s` }}
