@@ -16,12 +16,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { scheduleReminder } from "@/lib/reminders";
 import { useTranslation } from "@/i18n";
- codex/create-progressring-component-and-integrate
 import { ProgressRing } from "@/components/ui/progress-ring";
 
 import { getConfetti } from "@/lib/confetti";
 import type { Options as ConfettiOptions } from "canvas-confetti";
- main
 
 interface TimeSlot {
   id: string;
@@ -57,7 +55,6 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
   const [selectedDate, setSelectedDate] = useState("2024-01-15");
   const [view, setView] = useState<"week" | "suggestions">("week");
   const [showMutualOnly, setShowMutualOnly] = useState(false);
- codex/create-progressring-component-and-integrate
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -66,7 +63,6 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
   }, []);
 
   const celebratedSlots = useRef<Set<string>>(new Set());
- main
 
   const parseTime = (time: string) => {
     const [h, m] = time.split(":").map(Number);
