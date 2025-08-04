@@ -24,15 +24,15 @@ export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ classNam
     const now = new Date();
     if (user.snoozeUntil && new Date(user.snoozeUntil) > now) {
       toast({
-        title: 'Snoozed',
-        description: 'You are currently snoozed.',
+        title: t('snoozedTitle'),
+        description: t('snoozedDescription'),
       });
       return;
     }
     if (user.partnerSnoozeUntil && new Date(user.partnerSnoozeUntil) > now) {
       toast({
-        title: 'Partner snoozed',
-        description: 'Your partner is currently snoozed.',
+        title: t('partnerSnoozedTitle'),
+        description: t('partnerSnoozedDescription'),
       });
       return;
     }
@@ -41,7 +41,7 @@ export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ classNam
     const partnerStatus = (user as unknown as { partnerStatus?: string })?.partnerStatus;
     if (partnerStatus === 'away' || partnerStatus === 'offline') {
       toast({
-        description: 'Merci, on se retrouve plus tard !',
+        description: t('catchUpLater'),
       });
       return;
     }
@@ -54,7 +54,7 @@ export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ classNam
         .maybeSingle();
 
       if (!statusError && (profile?.status === 'away' || profile?.status === 'offline')) {
-        toast({ description: 'Merci, on se retrouve plus tard !' });
+        toast({ description: t('catchUpLater') });
         return;
       }
 
@@ -67,8 +67,8 @@ export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ classNam
         .limit(1)
         .maybeSingle();
 
-      if (!messageError && lastMessage?.content === '⏰ Pas dispo') {
-        toast({ description: 'Merci, on se retrouve plus tard !' });
+      if (!messageError && lastMessage?.content === t('notAvailable')) {
+        toast({ description: t('catchUpLater') });
         return;
       }
     } catch (err) {

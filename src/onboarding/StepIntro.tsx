@@ -4,13 +4,22 @@ import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTranslation } from '@/i18n';
+import { useTranslation, TranslationKey } from '@/i18n';
 import { LanguageSwitcher } from '@/components/ui/language-switcher';
 
-const items = [
-  { title: 'Code Pulse', description: 'Exprimez vos envies par pulsations discrètes.' },
-  { title: 'Statut', description: 'Partagez votre disponibilité en temps réel.' },
-  { title: 'Agenda', description: 'Planifiez des moments à deux facilement.' },
+const items: { title: TranslationKey; description: TranslationKey }[] = [
+  {
+    title: 'onboardingCodePulseTitle',
+    description: 'onboardingCodePulseDesc',
+  },
+  {
+    title: 'onboardingStatusTitle',
+    description: 'onboardingStatusDesc',
+  },
+  {
+    title: 'onboardingAgendaTitle',
+    description: 'onboardingAgendaDesc',
+  },
 ];
 
 export const StepIntro: React.FC = () => {
@@ -37,10 +46,12 @@ export const StepIntro: React.FC = () => {
             <CarouselItem key={index}>
               <Card className="p-6">
                 <CardHeader>
-                  <CardTitle>{item.title}</CardTitle>
+                  <CardTitle>{t(item.title)}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">{item.description}</p>
+                  <p className="text-muted-foreground">
+                    {t(item.description)}
+                  </p>
                 </CardContent>
               </Card>
             </CarouselItem>
