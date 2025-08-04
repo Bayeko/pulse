@@ -39,10 +39,10 @@ const Index = () => {
 
             {/* Tagline */}
             <h2 className="text-2xl md:text-3xl font-serif text-foreground mb-6 leading-tight">
-              Intimate communication beyond words
+              Heartfelt communication beyond words
             </h2>
             <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed">
-              Connect with your partner through discreet notifications, shared calendars, and encrypted communication designed for intimate relationships.
+              Connect with your partner through discreet notifications, shared calendars, and encrypted communication designed for close relationships.
             </p>
 
             {/* CTA Buttons */}
@@ -91,7 +91,7 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16 animate-fade-in-up">
             <h3 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
-              Built for intimate connection
+              Built for heartfelt connection
             </h3>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Every feature designed with privacy, consent, and authentic connection in mind.
@@ -103,19 +103,19 @@ const Index = () => {
               {
                 icon: <Heart className="w-8 h-8 text-primary" />,
                 title: 'Discreet Pulses',
-                description: 'Express desires through elegant emojis and symbols. No explicit text, just beautiful communication.',
+                description: 'Express feelings through elegant emojis and symbols. No explicit text, just beautiful communication.',
                 gradient: 'bg-gradient-to-br from-primary/10 to-primary-soft/20'
               },
               {
                 icon: <Calendar className="w-8 h-8 text-primary" />,
                 title: 'Smart Scheduling',
-                description: 'AI-powered calendar finds perfect moments when you\'re both available and in the mood.',
+                description: 'AI-powered calendar finds perfect moments when you\'re both available and in sync.',
                 gradient: 'bg-gradient-to-br from-accent/10 to-secondary/20'
               },
               {
                 icon: <Shield className="w-8 h-8 text-primary" />,
                 title: 'Privacy Protected',
-                description: 'Local encryption, no data sharing, and complete control over your intimate moments.',
+                description: 'Local encryption, no data sharing, and complete control over your shared moments.',
                 gradient: 'bg-gradient-to-br from-success/10 to-primary/20'
               },
               {
@@ -163,7 +163,7 @@ const Index = () => {
               Ready to deepen your connection?
             </h3>
             <p className="text-xl text-muted-foreground mb-8">
-              Join couples who've discovered a more intimate way to communicate.
+              Join couples who've discovered a more heartfelt way to communicate.
             </p>
             <PulseButton 
               variant="pulse" 
@@ -188,7 +188,7 @@ const Index = () => {
             <span className="text-xl font-serif font-bold text-foreground">Pulse</span>
           </div>
           <p className="text-muted-foreground text-sm">
-            Intimate communication, beautifully designed.
+            Heartfelt communication, beautifully designed.
           </p>
         </div>
       </footer>
