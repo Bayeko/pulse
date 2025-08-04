@@ -1,5 +1,27 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+async function fetchWithRetry(
+  url: string,
+  init: RequestInit,
+  retries = 3,
+  backoff = 500,
+): Promise<Response> {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      const res = await fetch(url, init);
+      if (res.ok || res.status < 500 || attempt === retries - 1) {
+        return res;
+      }
+    } catch (err) {
+      if (attempt === retries - 1) throw err;
+    }
+
+    await new Promise((r) => setTimeout(r, backoff * (attempt + 1)));
+  }
+
+  throw new Error("Failed to fetch after retries");
+}
+
 serve(async req => {
   const token = Deno.env.get('CRON_AUTH_TOKEN');
   const authHeader = req.headers.get('authorization');
@@ -38,7 +60,7 @@ serve(async req => {
   };
 
   if (enabled) {
-    const res = await fetch(baseUrl, {
+    const res = await fetchWithRetry(baseUrl, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -61,13 +83,40 @@ serve(async req => {
       );
     }
   } else {
-    const res = await fetch(baseUrl, { headers });
+    let res: Response;
+    try {
+      res = await fetchWithRetry(baseUrl, { headers });
+    } catch (err) {
+      console.error(`Failed to fetch cron jobs: ${err}`);
+      return new Response(
+        JSON.stringify({ error: "Failed to fetch cron jobs" }),
+        {
+          status: 502,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    if (!res.ok) {
+      const errorBody = await res.text();
+      console.error(
+        `Failed to fetch cron jobs: ${res.status} ${errorBody}`,
+      );
+      return new Response(
+        JSON.stringify({ error: "Failed to fetch cron jobs" }),
+        {
+          status: 502,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+
     const { jobs } = await res.json();
     const job = (jobs as Array<{ id: string; name: string }> | undefined)?.find(
       (j) => j.name === "auto-delete-messages",
     );
     if (job) {
-      const deleteRes = await fetch(`${baseUrl}/${job.id}`, {
+      const deleteRes = await fetchWithRetry(`${baseUrl}/${job.id}`, {
         method: "DELETE",
         headers,
       });
