@@ -6,6 +6,15 @@ const projectRef =
   "qwfqrehcliowhkssmkhx";
 
 serve(async (req) => {
+  const token = Deno.env.get("CRON_AUTH_TOKEN");
+  const authHeader = req.headers.get("authorization");
+  if (!token || authHeader !== `Bearer ${token}`) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   const { enabled } = await req.json();
   const accessToken = Deno.env.get("SUPABASE_ACCESS_TOKEN");
   if (!accessToken) {
@@ -46,4 +55,3 @@ serve(async (req) => {
     headers: { "Content-Type": "application/json" },
   });
 });
-
