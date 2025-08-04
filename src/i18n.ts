@@ -10,6 +10,9 @@ const translations = {
     useFaceID: 'Use Face ID',
     autoDelete30d: 'Auto delete messages after 30 days',
     sent: 'Pulse sent!',
+ codex/add-translation-key-for-refusal-text
+    laterThanks: 'Thanks for letting us know. We\'ll check back later!',
+
  codex/remove-merge-markers-and-update-translations
     statusReady: 'Ready',
     statusAway: 'Away',
@@ -47,6 +50,7 @@ const translations = {
     statusNotAvailableDescription: 'Need a moment',
  main
  main
+ main
   },
   fr: {
     addFirstAvailability: 'Ajoutez votre première disponibilité',
@@ -79,6 +83,9 @@ const translations = {
     connectionRequired: 'Connexion requise',
 
     sent: 'Pulse envoyé !',
+ codex/add-translation-key-for-refusal-text
+    laterThanks: 'Merci de nous l\'avoir signalé ! On se retrouve plus tard !',
+
  codex/extract-and-reference-carousel-texts
     introCodePulseTitle: 'Code Pulse',
     introCodePulseDescription: 'Exprime tes envies par de discrètes pulsations.',
@@ -93,6 +100,7 @@ const translations = {
     statusBusyDescription: 'À plus tard',
     statusNotAvailableLabel: 'Indisponible',
     statusNotAvailableDescription: "Besoin d'un moment",
+ main
  main
  main
   },
