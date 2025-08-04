@@ -1,10 +1,19 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-serve(async (_req) => {
+serve(async (req) => {
+  const token = Deno.env.get("CRON_AUTH_TOKEN");
+  const authHeader = req.headers.get("authorization");
+  if (!token || authHeader !== `Bearer ${token}`) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
   const cutoff = new Date();
@@ -26,4 +35,3 @@ serve(async (_req) => {
     headers: { "Content-Type": "application/json" },
   });
 });
-
