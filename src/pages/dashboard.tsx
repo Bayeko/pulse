@@ -179,7 +179,7 @@ const Dashboard = () => {
                   <span>Local storage only</span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-3">
-                  Your intimate moments stay between you two, always.
+                  Your {t('intimacy')} stays between you two, always.
                 </p>
               </CardContent>
             </Card>
