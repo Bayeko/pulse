@@ -20,7 +20,10 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
   connectPartner: (partnerEmail: string) => Promise<boolean>;
+ codex/identify-and-propose-fixes-for-code-issues
+
   connectByCode: (code: string) => Promise<boolean>;
+ main
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -199,7 +202,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false;
       }
 
+ codex/identify-and-propose-fixes-for-code-issues
+      // Find partner by email (used as unique identifier)
       // Find partner by email (used as a temporary unique code)
+ main
       const { data: partnerProfile, error: findError } = await supabase
         .from('profiles')
         .select('id, user_id, name')
@@ -209,7 +215,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (findError || !partnerProfile) {
         toast({
           title: "Connection failed",
-          description: "Partner not found. Please check the code.",
+          description: "Partner not found. Please check the email address.",
           variant: "destructive",
         });
         return false;

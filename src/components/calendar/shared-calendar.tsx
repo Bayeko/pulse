@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PulseButton } from "@/components/ui/pulse-button";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +16,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { scheduleReminder } from "@/lib/reminders";
 import { useTranslation } from "@/i18n";
+ codex/create-progressring-component-and-integrate
 import { ProgressRing } from "@/components/ui/progress-ring";
+
+import { getConfetti } from "@/lib/confetti";
+import type { Options as ConfettiOptions } from "canvas-confetti";
+ main
 
 interface TimeSlot {
   id: string;
@@ -52,12 +57,16 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
   const [selectedDate, setSelectedDate] = useState("2024-01-15");
   const [view, setView] = useState<"week" | "suggestions">("week");
   const [showMutualOnly, setShowMutualOnly] = useState(false);
+ codex/create-progressring-component-and-integrate
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 60000);
     return () => clearInterval(interval);
   }, []);
+
+  const celebratedSlots = useRef<Set<string>>(new Set());
+ main
 
   const parseTime = (time: string) => {
     const [h, m] = time.split(":").map(Number);
@@ -194,6 +203,33 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
     if (!user) return;
     setSuggestions(generateSuggestions(timeSlots, partnerSlots));
   }, [timeSlots, partnerSlots, user, generateSuggestions]);
+
+  useEffect(() => {
+    timeSlots
+      .filter((slot) => slot.type === "booked")
+      .forEach((slot) => {
+        const hasPartner = partnerSlots.some(
+          (p) =>
+            p.type === "booked" &&
+            p.date === slot.date &&
+            p.start === slot.start &&
+            p.end === slot.end,
+        );
+        const key = `${slot.date}-${slot.start}-${slot.end}`;
+        if (hasPartner && !celebratedSlots.current.has(key)) {
+          celebratedSlots.current.add(key);
+          getConfetti().then((confetti) =>
+            confetti(
+              {
+                particleCount: 80,
+                spread: 60,
+                origin: { y: 0.6 },
+              } as ConfettiOptions,
+            ),
+          );
+        }
+      });
+  }, [timeSlots, partnerSlots]);
 
   const addTimeSlot = async () => {
     if (!user) return;

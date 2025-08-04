@@ -211,7 +211,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
             navigator.clipboard.writeText(user.email);
             toast({
               title: "Copied!",
-              description: "Your connection code has been copied to clipboard.",
+              description: "Your email address has been copied to clipboard.",
             });
           }
         };
@@ -223,7 +223,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
           fields: (
             <>
               <div className="space-y-2">
-                <Label>Your Connection Code</Label>
+                <Label>Your Email Address</Label>
                 <div className="p-4 bg-muted rounded-lg">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-mono font-semibold text-primary">
