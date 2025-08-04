@@ -1,4 +1,7 @@
+/* global Deno */
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { getEnvVar } from "../_shared/env.ts";
 
 async function fetchWithRetry(
   url: string,
@@ -22,40 +25,23 @@ async function fetchWithRetry(
   throw new Error("Failed to fetch after retries");
 }
 
+const CRON_AUTH_TOKEN = getEnvVar('CRON_AUTH_TOKEN');
+const PROJECT_REF = getEnvVar('PROJECT_REF');
+const SUPABASE_ACCESS_TOKEN = getEnvVar('SUPABASE_ACCESS_TOKEN');
+
 serve(async req => {
-  const token = Deno.env.get('CRON_AUTH_TOKEN');
   const authHeader = req.headers.get('authorization');
-  if (!token || authHeader !== `Bearer ${token}`) {
+  if (authHeader !== `Bearer ${CRON_AUTH_TOKEN}`) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  const projectRef = Deno.env.get('PROJECT_REF');
-  if (!projectRef) {
-    console.error('Missing PROJECT_REF environment variable');
-    return new Response(
-      JSON.stringify({ error: 'Missing project reference' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
-  }
-
   const { enabled } = await req.json();
-  const accessToken = Deno.env.get("SUPABASE_ACCESS_TOKEN");
-  if (!accessToken) {
-    return new Response(JSON.stringify({ error: "Missing access token" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
-  const baseUrl = `https://api.supabase.com/v1/projects/${projectRef}/cron/jobs`;
+  const baseUrl = `https://api.supabase.com/v1/projects/${PROJECT_REF}/cron/jobs`;
   const headers = {
-    Authorization: `Bearer ${accessToken}`,
+    Authorization: `Bearer ${SUPABASE_ACCESS_TOKEN}`,
     "Content-Type": "application/json",
   };
 

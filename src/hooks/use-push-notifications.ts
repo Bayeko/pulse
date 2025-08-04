@@ -1,6 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import * as Notifications from 'expo-notifications';
+import { getEnvVar } from '@/config';
+
+const VAPID_PUBLIC_KEY = getEnvVar('EXPO_PUBLIC_VAPID_PUBLIC_KEY');
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -54,14 +57,9 @@ export function usePushNotifications() {
 
           let subscription = await registration.pushManager.getSubscription();
           if (!subscription) {
-            const publicKey = process.env.EXPO_PUBLIC_VAPID_PUBLIC_KEY;
-            if (!publicKey) {
-              console.warn('VAPID public key is not set');
-              return;
-            }
             subscription = await registration.pushManager.subscribe({
               userVisibleOnly: true,
-              applicationServerKey: urlBase64ToUint8Array(publicKey),
+              applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
             });
           }
 
