@@ -1,12 +1,22 @@
 import * as React from "react"
 
+import { useTranslation } from "@/i18n"
 import { cn } from "@/lib/utils"
 
 export type TextareaProps =
-  React.TextareaHTMLAttributes<HTMLTextAreaElement>
+  React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
+    maxLength?: number
+  }
+
+const defaultMaxLength = {
+  en: 500,
+  fr: 400,
+} as const
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, maxLength, ...props }, ref) => {
+    const { lang } = useTranslation()
+    const computedMax = maxLength ?? defaultMaxLength[lang]
     return (
       <textarea
         className={cn(
@@ -14,6 +24,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           className
         )}
         ref={ref}
+        maxLength={computedMax}
         {...props}
       />
     )

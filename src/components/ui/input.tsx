@@ -1,9 +1,21 @@
 import * as React from "react"
 
+import { useTranslation } from "@/i18n"
 import { cn } from "@/lib/utils"
 
-const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
-  ({ className, type, ...props }, ref) => {
+type InputProps = React.ComponentProps<"input"> & {
+  maxLength?: number
+}
+
+const defaultMaxLength = {
+  en: 100,
+  fr: 80,
+} as const
+
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, type, maxLength, ...props }, ref) => {
+    const { lang } = useTranslation()
+    const computedMax = maxLength ?? defaultMaxLength[lang]
     return (
       <input
         type={type}
@@ -13,6 +25,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
         )}
         ref={ref}
         {...props}
+        {...(type !== "file" ? { maxLength: computedMax } : {})}
       />
     )
   }
