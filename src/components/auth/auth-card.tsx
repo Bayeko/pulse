@@ -10,20 +10,40 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
+const EU_COUNTRIES = [
+  'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU',
+  'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'
+];
+
+const getAgeLimit = (code: string) => (EU_COUNTRIES.includes(code) ? 16 : 13);
+
+const calculateAge = (birthdate: string) => {
+  const today = new Date();
+  const birth = new Date(birthdate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
+};
+
 interface AuthCardProps {
   mode: 'login' | 'register' | 'connect';
   onModeChange: (mode: 'login' | 'register' | 'connect') => void;
   className?: string;
+  country: string;
 }
 
-export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, className }) => {
+export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, className, country }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    partnerEmail: ''
+    partnerEmail: '',
+    birthdate: ''
   });
   
   const { signIn, signUp, connectPartner, user } = useAuth();
@@ -72,7 +92,17 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
             alert('Passwords do not match');
             return;
           }
-          success = await signUp(formData.name, formData.email, formData.password);
+          const age = calculateAge(formData.birthdate);
+          const ageLimit = getAgeLimit(country);
+          if (age < ageLimit) {
+            toast({
+              title: 'Underage',
+              description: `You must be at least ${ageLimit} years old to use Pulse.`,
+              variant: 'destructive',
+            });
+            return;
+          }
+          success = await signUp(formData.name, formData.email, formData.password, formData.birthdate);
           break;
         case 'connect':
           success = await connectPartner(formData.partnerEmail);
@@ -180,12 +210,22 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input 
-                  id="confirmPassword" 
-                  type="password" 
+                <Input
+                  id="confirmPassword"
+                  type="password"
                   placeholder="••••••••"
                   value={formData.confirmPassword}
                   onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="birthdate">Birthdate</Label>
+                <Input
+                  id="birthdate"
+                  type="date"
+                  value={formData.birthdate}
+                  onChange={(e) => handleInputChange('birthdate', e.target.value)}
                   required
                 />
               </div>
