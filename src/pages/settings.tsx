@@ -38,6 +38,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import logger from '@/lib/logger';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables, TablesUpdate } from '@/integrations/supabase/types';
 
@@ -126,7 +127,7 @@ const Settings: React.FC = () => {
         .single();
 
       if (error) {
-        console.error('Error loading settings:', error);
+        logger.error('Error loading settings:', error);
         return;
       }
 
@@ -172,7 +173,7 @@ const Settings: React.FC = () => {
     );
 
     if (error || scheduleError) {
-      console.error('Error saving settings:', error || scheduleError);
+      logger.error('Error saving settings:', error || scheduleError);
       toast({ description: 'Failed to save settings' });
     } else {
       toast({ description: 'Settings saved' });
@@ -193,7 +194,7 @@ const Settings: React.FC = () => {
       setSettings({ ...settings, avatar: data.publicUrl });
       toast({ title: 'Avatar updated' });
     } catch (error) {
-      console.error('Error uploading avatar:', error);
+      logger.error('Error uploading avatar:', error);
       toast({
         title: 'Upload failed',
         description: 'Could not upload avatar.',
@@ -337,7 +338,7 @@ const Settings: React.FC = () => {
         description: 'Your data has been downloaded.',
       });
     } catch (error) {
-      console.error('Error exporting data:', error);
+      logger.error('Error exporting data:', error);
       toast({
         title: 'Export failed',
         description: 'Could not export your data.',
@@ -375,7 +376,7 @@ const Settings: React.FC = () => {
       await navigator.credentials.get({ publicKey: authOptions });
       return true;
     } catch (error) {
-      console.error('Biometric registration failed', error);
+      logger.error('Biometric registration failed', error);
       return false;
     }
   };
