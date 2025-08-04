@@ -10,6 +10,12 @@ const translations = {
     useFaceID: 'Use Face ID',
     autoDelete30d: 'Auto delete messages after 30 days',
     sent: 'Pulse sent!',
+    introCodePulseTitle: 'Code Pulse',
+    introCodePulseDescription: 'Express your desires through subtle pulses.',
+    introStatusTitle: 'Status',
+    introStatusDescription: 'Share your availability in real time.',
+    introAgendaTitle: 'Agenda',
+    introAgendaDescription: 'Plan moments together effortlessly.',
   },
   fr: {
     addFirstAvailability: 'Ajoutez votre première disponibilité',
@@ -20,6 +26,12 @@ const translations = {
     useFaceID: 'Utiliser Face ID',
     autoDelete30d: 'Supprimer automatiquement les messages après 30 jours',
     sent: 'Pulse envoyé !',
+    introCodePulseTitle: 'Code Pulse',
+    introCodePulseDescription: 'Exprime tes envies par de discrètes pulsations.',
+    introStatusTitle: 'Statut',
+    introStatusDescription: 'Partage ta disponibilité en temps réel.',
+    introAgendaTitle: 'Agenda',
+    introAgendaDescription: 'Planifie des moments à deux en toute simplicité.',
   },
 } as const;
 
