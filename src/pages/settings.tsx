@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Progress } from '@/components/ui/progress';
 import {
   Select,
   SelectContent,
@@ -105,6 +106,9 @@ const Settings: React.FC = () => {
 
   const [activeSection, setActiveSection] = useState<'profile' | 'notifications' | 'privacy' | 'general' | 'help'>('profile');
 
+  const [exporting, setExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState(0);
+
   useEffect(() => {
     const stored = localStorage.getItem('historyEnabled');
     if (stored !== null) {
@@ -198,33 +202,118 @@ const Settings: React.FC = () => {
     }
   };
 
-  const exportUserData = async () => {
-    if (!user) return;
-    try {
-      const [profileRes, messagesRes, timeSlotsRes] = await Promise.all([
-        supabase.from('profiles').select('*').eq('user_id', user.id).single(),
-        supabase
-          .from('messages')
-          .select('*')
-          .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`),
-        supabase.from('time_slots').select('*').eq('user_id', user.id),
-      ]);
+  const convertToCsv = <T extends Record<string, unknown>>(items: T[], includeHeader: boolean) => {
+    if (!items || items.length === 0) return '';
+    const headers = Object.keys(items[0]);
+    const rows = items.map((row) =>
+      headers.map((field) => JSON.stringify(row[field] ?? '')).join(',')
+    );
+    return includeHeader ? [headers.join(','), ...rows].join('\n') : rows.join('\n');
+  };
 
-      if (profileRes.error || messagesRes.error || timeSlotsRes.error) {
+  const exportUserData = async () => {
+    if (!user || exporting) return;
+    setExporting(true);
+    setExportProgress(0);
+    try {
+      const profileRes = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      const messagesCountRes = await supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`);
+
+      const timeSlotsCountRes = await supabase
+        .from('time_slots')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+
+      if (profileRes.error || messagesCountRes.error || timeSlotsCountRes.error) {
         throw new Error('Error fetching data');
       }
 
-      const exportData = {
-        profile: profileRes.data,
-        messages: messagesRes.data,
-        time_slots: timeSlotsRes.data,
-      } as {
-        profile: Tables<'profiles'> | null;
-        messages: Tables<'messages'>[];
-        time_slots: Tables<'time_slots'>[];
-      };
+      const messagesTotal = messagesCountRes.count ?? 0;
+      const timeSlotsTotal = timeSlotsCountRes.count ?? 0;
+      const totalItems = messagesTotal + timeSlotsTotal;
+      let processed = 0;
 
-      const jsonBlob = new Blob([JSON.stringify(exportData, null, 2)], {
+      const jsonChunks: BlobPart[] = ['{'];
+      const csvChunks: string[] = [];
+
+      if (profileRes.data) {
+        jsonChunks.push('"profile":');
+        jsonChunks.push(JSON.stringify(profileRes.data));
+        if (totalItems > 0) jsonChunks.push(',');
+        csvChunks.push('Profiles\n');
+        csvChunks.push(convertToCsv([profileRes.data], true));
+      }
+
+      jsonChunks.push('"messages":[');
+      csvChunks.push('\n\nMessages\n');
+      const pageSize = 1000;
+      let from = 0;
+      let firstCsvChunk = true;
+      let firstJsonItem = true;
+      while (from < messagesTotal) {
+        const { data, error } = await supabase
+          .from('messages')
+          .select('*')
+          .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+          .range(from, from + pageSize - 1);
+        if (error) throw error;
+        const chunk = data ?? [];
+        chunk.forEach((msg) => {
+          if (!firstJsonItem) jsonChunks.push(',');
+          jsonChunks.push(JSON.stringify(msg));
+          firstJsonItem = false;
+        });
+        if (chunk.length > 0) {
+          csvChunks.push(convertToCsv<Tables<'messages'>>(chunk, firstCsvChunk));
+          firstCsvChunk = false;
+        }
+        from += chunk.length;
+        processed += chunk.length;
+        if (totalItems > 0) {
+          setExportProgress(Math.round((processed / totalItems) * 100));
+        }
+      }
+      jsonChunks.push(']');
+
+      jsonChunks.push(',"time_slots":[');
+      csvChunks.push('\n\nTime Slots\n');
+      from = 0;
+      firstCsvChunk = true;
+      firstJsonItem = true;
+      while (from < timeSlotsTotal) {
+        const { data, error } = await supabase
+          .from('time_slots')
+          .select('*')
+          .eq('user_id', user.id)
+          .range(from, from + pageSize - 1);
+        if (error) throw error;
+        const chunk = data ?? [];
+        chunk.forEach((slot) => {
+          if (!firstJsonItem) jsonChunks.push(',');
+          jsonChunks.push(JSON.stringify(slot));
+          firstJsonItem = false;
+        });
+        if (chunk.length > 0) {
+          csvChunks.push(convertToCsv<Tables<'time_slots'>>(chunk, firstCsvChunk));
+          firstCsvChunk = false;
+        }
+        from += chunk.length;
+        processed += chunk.length;
+        if (totalItems > 0) {
+          setExportProgress(Math.round((processed / totalItems) * 100));
+        }
+      }
+      jsonChunks.push(']}');
+
+      const jsonBlob = new Blob(jsonChunks, {
         type: 'application/json',
       });
       const jsonUrl = URL.createObjectURL(jsonBlob);
@@ -233,30 +322,7 @@ const Settings: React.FC = () => {
       jsonLink.download = 'pulse-data.json';
       jsonLink.click();
 
-      const convertToCsv = <T extends Record<string, unknown>>(items: T[]) => {
-        if (!items || items.length === 0) return '';
-        const headers = Object.keys(items[0]);
-        const rows = items.map((row) =>
-          headers.map((field) => JSON.stringify(row[field] ?? '')).join(',')
-        );
-        return [headers.join(','), ...rows].join('\n');
-      };
-
-      const csvSections: string[] = [];
-      if (exportData.profile) {
-        csvSections.push('Profiles');
-        csvSections.push(convertToCsv([exportData.profile]));
-      }
-      if (exportData.messages) {
-        csvSections.push('Messages');
-        csvSections.push(convertToCsv(exportData.messages));
-      }
-      if (exportData.time_slots) {
-        csvSections.push('Time Slots');
-        csvSections.push(convertToCsv(exportData.time_slots));
-      }
-
-      const csvBlob = new Blob([csvSections.join('\n\n')], {
+      const csvBlob = new Blob(csvChunks, {
         type: 'text/csv;charset=utf-8;',
       });
       const csvUrl = URL.createObjectURL(csvBlob);
@@ -265,6 +331,7 @@ const Settings: React.FC = () => {
       csvLink.download = 'pulse-data.csv';
       csvLink.click();
 
+      setExportProgress(100);
       toast({
         title: 'Export complete',
         description: 'Your data has been downloaded.',
@@ -276,6 +343,8 @@ const Settings: React.FC = () => {
         description: 'Could not export your data.',
         variant: 'destructive',
       });
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -731,9 +800,16 @@ const Settings: React.FC = () => {
                     <div className="space-y-3">
                       <h3 className="font-medium">Data</h3>
                       <div className="p-4 border rounded-lg">
-                        <PulseButton variant="ghost" onClick={exportUserData}>
+                        <PulseButton
+                          variant="ghost"
+                          onClick={exportUserData}
+                          disabled={exporting}
+                        >
                           Export my data
                         </PulseButton>
+                        {exporting && (
+                          <Progress value={exportProgress} className="mt-2" />
+                        )}
                       </div>
                     </div>
 
