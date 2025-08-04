@@ -8,6 +8,7 @@ import {
 import { PulseButton } from '@/components/ui/pulse-button';
 import { Textarea } from '@/components/ui/textarea';
 import logger from '@/lib/logger';
+import { useTranslation } from '@/i18n';
 
 interface FAQItem {
   question: string;
@@ -18,6 +19,7 @@ const FAQ: React.FC = () => {
   const [items, setItems] = useState<FAQItem[]>([]);
   const [showOfflineForm, setShowOfflineForm] = useState(false);
   const [message, setMessage] = useState('');
+  const { lang } = useTranslation();
 
   useEffect(() => {
     const loadFAQ = async () => {
@@ -67,6 +69,7 @@ const FAQ: React.FC = () => {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Your message"
+            maxLength={lang === 'fr' ? 400 : 500}
           />
           <PulseButton type="submit">Save Message</PulseButton>
         </form>
