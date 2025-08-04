@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import * as Notifications from 'expo-notifications';
 import { VAPID_PUBLIC_KEY } from '@/config';
+ codex/refactor-code-to-use-imported-constants
+
 
  codex/refactor-functions-to-extract-variables
 import { getEnvVar } from '@/config';
@@ -36,6 +38,7 @@ const removeItem = async (key: string) => {
     await AsyncStorage.removeItem(key);
   }
 };
+ main
  main
  main
 
@@ -92,9 +95,13 @@ export function usePushNotifications() {
 
           let subscription = await registration.pushManager.getSubscription();
           if (!subscription) {
+ codex/refactor-code-to-use-imported-constants
+            if (!VAPID_PUBLIC_KEY) {
+
  codex/resolve-merge-conflicts-in-feature-branch
             const publicKey = VAPID_PUBLIC_KEY;
             if (!publicKey) {
+ main
               console.warn('VAPID public key is not set');
               return;
             }

@@ -3,12 +3,16 @@ import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { useErrorReporter } from '@/hooks/use-error-reporter';
+ codex/refactor-code-to-use-imported-constants
+import { isDevelopment } from '@/config';
+
  codex/resolve-merge-conflicts-in-feature-branch
 import { NODE_ENV } from '@/config';
 
 import { getEnvVar } from '@/config';
 
 const NODE_ENV = getEnvVar('NODE_ENV');
+ main
  main
 
 interface Props {
@@ -53,7 +57,11 @@ class ErrorBoundaryInner extends Component<BoundaryProps, State> {
                 We're sorry, but something unexpected happened. Don't worry, your connection with your partner is safe.
               </p>
 
+ codex/refactor-code-to-use-imported-constants
+              {isDevelopment && this.state.error && (
+
               {NODE_ENV === 'development' && this.state.error && (
+ main
                 <div className="p-3 bg-muted rounded-lg">
                   <p className="text-sm font-mono text-destructive">
                     {this.state.error.message}
