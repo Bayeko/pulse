@@ -3,6 +3,7 @@ import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { useErrorReporter } from '@/hooks/use-error-reporter';
+import { isDevelopment } from '@/config';
 
 interface Props {
   children: ReactNode;
@@ -46,7 +47,7 @@ class ErrorBoundaryInner extends Component<BoundaryProps, State> {
                 We're sorry, but something unexpected happened. Don't worry, your connection with your partner is safe.
               </p>
 
-              {process.env.NODE_ENV === 'development' && this.state.error && (
+              {isDevelopment && this.state.error && (
                 <div className="p-3 bg-muted rounded-lg">
                   <p className="text-sm font-mono text-destructive">
                     {this.state.error.message}
