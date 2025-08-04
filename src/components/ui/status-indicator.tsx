@@ -61,6 +61,7 @@ const StatusIndicator = React.forwardRef<HTMLDivElement, StatusIndicatorProps>(
       if (label) return label;
       switch (status) {
         case 'active':
+ codex/remove-merge-markers-and-update-translations
           return t('statusReady');
         case 'away':
           return t('statusAway');
@@ -68,6 +69,15 @@ const StatusIndicator = React.forwardRef<HTMLDivElement, StatusIndicatorProps>(
           return t('statusOffline');
         default:
           return t('statusUnknown');
+
+          return t('statusReadyLabel');
+        case 'away':
+          return t('statusBusyLabel');
+        case 'offline':
+          return t('statusNotAvailableLabel');
+        default:
+          return '';
+ main
       }
     };
 

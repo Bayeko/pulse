@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation, TranslationKey } from '@/i18n';
 import { LanguageSwitcher } from '@/components/ui/language-switcher';
 
+ codex/remove-merge-markers-and-update-translations
 const items: { title: TranslationKey; description: TranslationKey }[] = [
   {
     title: 'onboardingCodePulseTitle',
@@ -22,10 +23,18 @@ const items: { title: TranslationKey; description: TranslationKey }[] = [
   },
 ];
 
+
+ main
 export const StepIntro: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { user } = useAuth();
+
+  const items = [
+    { title: t('introCodePulseTitle'), description: t('introCodePulseDescription') },
+    { title: t('introStatusTitle'), description: t('introStatusDescription') },
+    { title: t('introAgendaTitle'), description: t('introAgendaDescription') },
+  ];
 
   const handleInvite = () => {
     if (user) {
