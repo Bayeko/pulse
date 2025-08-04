@@ -38,6 +38,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { serializeToCsv } from '@/lib/csv';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables, TablesUpdate } from '@/integrations/supabase/types';
 
@@ -322,7 +323,25 @@ const Settings: React.FC = () => {
       jsonLink.download = 'pulse-data.json';
       jsonLink.click();
 
+ 5mijlw-codex/replace-serializer-with-csv-utility
+      const csvSections: string[] = [];
+      if (exportData.profile) {
+        csvSections.push('Profiles');
+        csvSections.push(serializeToCsv([exportData.profile]));
+      }
+      if (exportData.messages) {
+        csvSections.push('Messages');
+        csvSections.push(serializeToCsv(exportData.messages));
+      }
+      if (exportData.time_slots) {
+        csvSections.push('Time Slots');
+        csvSections.push(serializeToCsv(exportData.time_slots));
+      }
+
+      const csvBlob = new Blob([csvSections.join('\n\n')], {
+
       const csvBlob = new Blob(csvChunks, {
+ main
         type: 'text/csv;charset=utf-8;',
       });
       const csvUrl = URL.createObjectURL(csvBlob);
