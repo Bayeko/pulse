@@ -3,9 +3,13 @@ import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { useErrorReporter } from '@/hooks/use-error-reporter';
+ codex/resolve-merge-conflicts-in-feature-branch
+import { NODE_ENV } from '@/config';
+
 import { getEnvVar } from '@/config';
 
 const NODE_ENV = getEnvVar('NODE_ENV');
+ main
 
 interface Props {
   children: ReactNode;
