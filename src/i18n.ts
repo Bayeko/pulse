@@ -10,6 +10,12 @@ const translations = {
     useFaceID: 'Use Face ID',
     autoDelete30d: 'Auto delete messages after 30 days',
     sent: 'Pulse sent!',
+    statusReadyLabel: 'Ready',
+    statusReadyDescription: 'Available for connection',
+    statusBusyLabel: 'Busy',
+    statusBusyDescription: 'Catch you later',
+    statusNotAvailableLabel: 'Not Available',
+    statusNotAvailableDescription: 'Need a moment',
   },
   fr: {
     addFirstAvailability: 'Ajoutez votre première disponibilité',
@@ -20,6 +26,12 @@ const translations = {
     useFaceID: 'Utiliser Face ID',
     autoDelete30d: 'Supprimer automatiquement les messages après 30 jours',
     sent: 'Pulse envoyé !',
+    statusReadyLabel: 'Prêt',
+    statusReadyDescription: 'Disponible pour se connecter',
+    statusBusyLabel: 'Occupé',
+    statusBusyDescription: 'À plus tard',
+    statusNotAvailableLabel: 'Indisponible',
+    statusNotAvailableDescription: "Besoin d'un moment",
   },
 } as const;
 
