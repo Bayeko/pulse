@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PulseButton } from '@/components/ui/pulse-button';
+import { CentralPulseButton } from './central-pulse-button';
 import { StatusIndicator } from '@/components/ui/status-indicator';
 import { Heart, Moon, Coffee, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SnoozeToggle } from './snooze-toggle';
 
 type PulseStatus = 'active' | 'away' | 'offline';
 
@@ -45,6 +46,8 @@ export const PulseStatusCard: React.FC<PulseStatusProps> = ({ className }) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        <SnoozeToggle />
+
         {/* Partner Status */}
         <div className="space-y-3">
           <h3 className="font-medium text-foreground">Your Partner</h3>
@@ -111,9 +114,9 @@ export const PulseStatusCard: React.FC<PulseStatusProps> = ({ className }) => {
             <p className="text-sm text-muted-foreground mb-3">
               Perfect timing! You're both available for connection.
             </p>
-            <PulseButton variant="pulse" size="sm" className="w-full">
-              Send Pulse
-            </PulseButton>
+            <div className="flex justify-center">
+              <CentralPulseButton />
+            </div>
           </div>
         )}
       </CardContent>

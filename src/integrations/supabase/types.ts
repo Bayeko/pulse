@@ -50,7 +50,11 @@ export type Database = {
           email: string
           id: string
           name: string
+          avatar_url: string | null
+          is_premium: boolean | null
           partner_id: string | null
+          snooze_until: string | null
+          use_face_id: boolean | null
           updated_at: string
           user_id: string
         }
@@ -59,7 +63,11 @@ export type Database = {
           email: string
           id?: string
           name: string
+          avatar_url?: string | null
+          is_premium?: boolean | null
           partner_id?: string | null
+          snooze_until?: string | null
+          use_face_id?: boolean | null
           updated_at?: string
           user_id: string
         }
@@ -68,7 +76,11 @@ export type Database = {
           email?: string
           id?: string
           name?: string
+          avatar_url?: string | null
+          is_premium?: boolean | null
           partner_id?: string | null
+          snooze_until?: string | null
+          use_face_id?: boolean | null
           updated_at?: string
           user_id?: string
         }
@@ -106,6 +118,60 @@ export type Database = {
           id?: string
           p256dh?: string
           user_id?: string
+        }
+        Relationships: []
+      },
+      reminders: {
+        Row: {
+          id: string
+          user_id: string
+          time_slot_id: string
+          remind_at: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          time_slot_id: string
+          remind_at: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          time_slot_id?: string
+          remind_at?: string
+          created_at?: string
+        }
+        Relationships: []
+      },
+      time_slots: {
+        Row: {
+          id: string
+          user_id: string
+          start: string
+          end: string
+          date: string
+          type: string
+          title: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          start: string
+          end: string
+          date: string
+          type: string
+          title?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          start?: string
+          end?: string
+          date?: string
+          type?: string
+          title?: string | null
         }
         Relationships: []
       }

@@ -9,6 +9,9 @@ interface User {
   email: string;
   partnerId?: string;
   partnerName?: string;
+  snoozeUntil?: string | null;
+  partnerSnoozeUntil?: string | null;
+  isPremium?: boolean;
 }
 
 interface AuthContextType {
@@ -17,7 +20,12 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
   connectPartner: (partnerEmail: string) => Promise<boolean>;
+ codex/identify-and-propose-fixes-for-code-issues
+
+  connectByCode: (code: string) => Promise<boolean>;
+ main
   logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -71,7 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .from('profiles')
         .select(`
           *,
-          partner:partner_id(name)
+          partner:partner_id(name, snooze_until)
         `)
         .eq('user_id', supabaseUser.id)
         .single();
@@ -87,11 +95,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           name: profile.name,
           email: profile.email,
           partnerId: profile.partner_id,
-          partnerName: profile.partner?.name
+          partnerName: profile.partner?.name,
+          snoozeUntil: profile.snooze_until,
+          partnerSnoozeUntil: profile.partner?.snooze_until,
+          isPremium: profile.is_premium
         });
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
+    }
+  };
+
+  const refreshUser = async () => {
+    if (session?.user) {
+      await fetchUserProfile(session.user);
     }
   };
 
@@ -185,7 +202,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false;
       }
 
+ codex/identify-and-propose-fixes-for-code-issues
       // Find partner by email (used as unique identifier)
+      // Find partner by email (used as a temporary unique code)
+ main
       const { data: partnerProfile, error: findError } = await supabase
         .from('profiles')
         .select('id, user_id, name')
@@ -233,10 +253,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // Also update partner's partner_id to create mutual connection
-      await supabase
+      const { error: partnerUpdateError } = await supabase
         .from('profiles')
         .update({ partner_id: currentProfile.id })
         .eq('user_id', partnerProfile.user_id);
+
+      if (partnerUpdateError) {
+        toast({
+          title: "Connection failed",
+          description: "Unable to connect with partner. Please try again.",
+          variant: "destructive",
+        });
+        return false;
+      }
 
       // Refresh user profile
       await fetchUserProfile(session.user);
@@ -246,6 +275,96 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: `Successfully connected with ${partnerProfile.name}.`,
       });
       
+      return true;
+    } catch (error) {
+      toast({
+        title: "Connection failed",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const connectByCode = async (code: string): Promise<boolean> => {
+    setIsLoading(true);
+    try {
+      if (!user || !session) {
+        toast({
+          title: "Connection failed",
+          description: "You must be logged in to connect with a partner.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      const { data: partnerProfile, error: findError } = await supabase
+        .from('profiles')
+        .select('id, user_id, name')
+        .like('id', `${code}%`)
+        .single();
+
+      if (findError || !partnerProfile) {
+        toast({
+          title: "Connection failed",
+          description: "Partner not found. Please check the code.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      const { data: currentProfile, error: currentProfileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (currentProfileError || !currentProfile) {
+        toast({
+          title: "Connection failed",
+          description: "Unable to retrieve your profile.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ partner_id: partnerProfile.id })
+        .eq('user_id', user.id);
+
+      if (updateError) {
+        toast({
+          title: "Connection failed",
+          description: "Unable to connect with partner. Please try again.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      const { error: partnerUpdateError } = await supabase
+        .from('profiles')
+        .update({ partner_id: currentProfile.id })
+        .eq('user_id', partnerProfile.user_id);
+
+      if (partnerUpdateError) {
+        toast({
+          title: "Connection failed",
+          description: "Unable to connect with partner. Please try again.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      await fetchUserProfile(session.user);
+
+      toast({
+        title: "Partner connected!",
+        description: `Successfully connected with ${partnerProfile.name}.`,
+      });
+
       return true;
     } catch (error) {
       toast({
@@ -275,7 +394,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login,
     register,
     connectPartner,
-    logout
+    connectByCode,
+    logout,
+    refreshUser
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

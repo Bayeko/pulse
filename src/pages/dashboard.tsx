@@ -8,10 +8,12 @@ import { Badge } from '@/components/ui/badge';
 import { Heart, Bell, Settings, Shield, Calendar, MessageCircle, LogOut, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '@/i18n';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   const handleEmojiSend = (emoji: string, category: string) => {
     console.log(`Sending ${emoji} from ${category} category`);
@@ -37,15 +39,30 @@ const Dashboard = () => {
             </div>
             
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground mr-2">
-                Connected with {user?.partnerName || 'No partner'}
-              </span>
+              {user?.partnerId ? (
+                <span className="text-sm text-muted-foreground mr-2">
+                  Connected with {user.partnerName}
+                </span>
+              ) : (
+                <>
+                  <span className="text-sm text-muted-foreground mr-2">
+                    {t('notLinked')}
+                  </span>
+                  <PulseButton
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate('/pair')}
+                  >
+                    {t('joinPartner')}
+                  </PulseButton>
+                </>
+              )}
               <PulseButton variant="ghost" size="sm" title="Notifications">
                 <Bell className="w-4 h-4" />
               </PulseButton>
-              <PulseButton 
-                variant="ghost" 
-                size="sm" 
+              <PulseButton
+                variant="ghost"
+                size="sm"
                 title="Profile"
                 onClick={() => navigate('/settings')}
               >

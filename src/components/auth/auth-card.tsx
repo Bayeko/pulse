@@ -3,11 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { PulseButton } from '@/components/ui/pulse-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Heart, Shield, Users, Copy } from 'lucide-react';
+import { Heart, Shield, Users, Copy, Apple, Chrome } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AuthCardProps {
   mode: 'login' | 'register' | 'connect';
@@ -31,6 +32,28 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
   
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleOAuthLogin = async (provider: 'google' | 'apple') => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`
+        }
+      });
+
+      if (error) {
+        toast({
+          title: 'Login failed',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -277,16 +300,46 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
           <div className="space-y-4">
             {content.fields}
           </div>
-          <PulseButton 
+          <PulseButton
             type="submit"
-            variant="pulse" 
-            size="lg" 
+            variant="pulse"
+            size="lg"
             className="w-full"
             disabled={isLoading}
           >
             {isLoading ? 'Loading...' : content.button}
           </PulseButton>
         </form>
+        {mode !== 'connect' && (
+          <>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <PulseButton
+                type="button"
+                variant="ghost"
+                onClick={() => handleOAuthLogin('google')}
+                disabled={isLoading}
+              >
+                <Chrome className="w-4 h-4 mr-2" /> Google
+              </PulseButton>
+              <PulseButton
+                type="button"
+                variant="ghost"
+                onClick={() => handleOAuthLogin('apple')}
+                disabled={isLoading}
+              >
+                <Apple className="w-4 h-4 mr-2" /> Apple
+              </PulseButton>
+            </div>
+          </>
+        )}
         {content.footer}
       </CardContent>
     </Card>
