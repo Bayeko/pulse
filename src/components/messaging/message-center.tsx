@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/i18n';
 
 interface Message {
   id: string;
@@ -38,6 +39,7 @@ interface MessageCenterProps {
 export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -195,15 +197,15 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
     const now = new Date();
     if (user.snoozeUntil && new Date(user.snoozeUntil) > now) {
       toast({
-        title: 'Snoozed',
-        description: 'You are currently snoozed.',
+        title: t('snoozedTitle'),
+        description: t('snoozedDescription'),
       });
       return;
     }
     if (user.partnerSnoozeUntil && new Date(user.partnerSnoozeUntil) > now) {
       toast({
-        title: 'Partner snoozed',
-        description: 'Your partner is currently snoozed.',
+        title: t('partnerSnoozedTitle'),
+        description: t('partnerSnoozedDescription'),
       });
       return;
     }
@@ -211,9 +213,10 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
     // Check partner availability through status or explicit message
     const partnerStatus = (user as unknown as { partnerStatus?: string })?.partnerStatus;
     if (partnerStatus === 'away' || partnerStatus === 'offline') {
+      const message = t('catchUpLater');
       const feedback: Message = {
         id: `local-${Date.now()}`,
-        content: 'Merci, on se retrouve plus tard !',
+        content: message,
         type: 'text',
         sender_id: user.id,
         receiver_id: user.partnerId,
@@ -222,7 +225,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
         sender_name: user.name,
       };
       setMessages(prev => [...prev, feedback]);
-      toast({ description: 'Merci, on se retrouve plus tard !' });
+      toast({ description: message });
       return;
     }
 
@@ -234,9 +237,10 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
         .maybeSingle();
 
       if (!statusError && (profile?.status === 'away' || profile?.status === 'offline')) {
+        const message = t('catchUpLater');
         const feedback: Message = {
           id: `local-${Date.now()}`,
-          content: 'Merci, on se retrouve plus tard !',
+          content: message,
           type: 'text',
           sender_id: user.id,
           receiver_id: user.partnerId,
@@ -245,7 +249,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
           sender_name: user.name,
         };
         setMessages(prev => [...prev, feedback]);
-        toast({ description: 'Merci, on se retrouve plus tard !' });
+        toast({ description: message });
         return;
       }
 
@@ -258,10 +262,11 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
         .limit(1)
         .maybeSingle();
 
-      if (!messageError && lastMessage?.content === '⏰ Pas dispo') {
+      if (!messageError && lastMessage?.content === t('notAvailable')) {
+        const message = t('catchUpLater');
         const feedback: Message = {
           id: `local-${Date.now()}`,
-          content: 'Merci, on se retrouve plus tard !',
+          content: message,
           type: 'text',
           sender_id: user.id,
           receiver_id: user.partnerId,
@@ -270,7 +275,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
           sender_name: user.name,
         };
         setMessages(prev => [...prev, feedback]);
-        toast({ description: 'Merci, on se retrouve plus tard !' });
+        toast({ description: message });
         return;
       }
     } catch (err) {
@@ -455,7 +460,11 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
         <div className="flex items-end gap-2">
           <div className="flex-1 space-y-2">
             <Textarea
-              placeholder={disabledMessaging ? 'Messaging unavailable during snooze' : 'Type your message...'}
+              placeholder={
+                disabledMessaging
+                  ? t('messagingUnavailableSnooze')
+                  : t('typeMessagePlaceholder')
+              }
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={(e) => {

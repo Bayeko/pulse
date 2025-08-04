@@ -4,9 +4,27 @@ import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTranslation } from '@/i18n';
+import { useTranslation, TranslationKey } from '@/i18n';
 import { LanguageSwitcher } from '@/components/ui/language-switcher';
 
+ codex/remove-merge-markers-and-update-translations
+const items: { title: TranslationKey; description: TranslationKey }[] = [
+  {
+    title: 'onboardingCodePulseTitle',
+    description: 'onboardingCodePulseDesc',
+  },
+  {
+    title: 'onboardingStatusTitle',
+    description: 'onboardingStatusDesc',
+  },
+  {
+    title: 'onboardingAgendaTitle',
+    description: 'onboardingAgendaDesc',
+  },
+];
+
+
+ main
 export const StepIntro: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -37,10 +55,12 @@ export const StepIntro: React.FC = () => {
             <CarouselItem key={index}>
               <Card className="p-6">
                 <CardHeader>
-                  <CardTitle>{item.title}</CardTitle>
+                  <CardTitle>{t(item.title)}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">{item.description}</p>
+                  <p className="text-muted-foreground">
+                    {t(item.description)}
+                  </p>
                 </CardContent>
               </Card>
             </CarouselItem>
