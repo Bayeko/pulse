@@ -1,8 +1,11 @@
 import React from 'react';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { Heart, Shield, Sparkles } from 'lucide-react';
+import { useTranslation } from '@/i18n';
 
 const Paywall = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen bg-gradient-soft flex flex-col">
       <div className="flex-1 container mx-auto px-4 py-12 max-w-2xl">
@@ -35,6 +38,10 @@ const Paywall = () => {
             <p className="text-sm text-muted-foreground">Paiement unique</p>
           </div>
         </div>
+
+        <p className="text-center text-sm text-muted-foreground mb-4">
+          {t('premiumNoPulseFrequency')}
+        </p>
 
         <div className="text-center">
           <PulseButton size="lg">Essai 7 jours</PulseButton>
