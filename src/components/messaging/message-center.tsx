@@ -216,11 +216,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
       const message = t('catchUpLater');
       const feedback: Message = {
         id: `local-${Date.now()}`,
- codex/add-translation-key-for-refusal-text
         content: t('laterThanks'),
-
-        content: message,
- main
         type: 'text',
         sender_id: user.id,
         receiver_id: user.partnerId,
@@ -229,11 +225,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
         sender_name: user.name,
       };
       setMessages(prev => [...prev, feedback]);
- codex/add-translation-key-for-refusal-text
-      toast({ description: t('laterThanks') });
-
       toast({ description: message });
- main
       return;
     }
 
@@ -248,11 +240,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
         const message = t('catchUpLater');
         const feedback: Message = {
           id: `local-${Date.now()}`,
- codex/add-translation-key-for-refusal-text
           content: t('laterThanks'),
-
-          content: message,
- main
           type: 'text',
           sender_id: user.id,
           receiver_id: user.partnerId,
@@ -261,11 +249,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
           sender_name: user.name,
         };
         setMessages(prev => [...prev, feedback]);
- codex/add-translation-key-for-refusal-text
-        toast({ description: t('laterThanks') });
-
         toast({ description: message });
- main
         return;
       }
 
@@ -282,11 +266,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
         const message = t('catchUpLater');
         const feedback: Message = {
           id: `local-${Date.now()}`,
- codex/add-translation-key-for-refusal-text
           content: t('laterThanks'),
-
-          content: message,
- main
           type: 'text',
           sender_id: user.id,
           receiver_id: user.partnerId,
@@ -295,11 +275,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
           sender_name: user.name,
         };
         setMessages(prev => [...prev, feedback]);
- codex/add-translation-key-for-refusal-text
-        toast({ description: t('laterThanks') });
-
         toast({ description: message });
- main
         return;
       }
     } catch (err) {

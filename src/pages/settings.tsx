@@ -15,12 +15,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
- codex/refactor-routes-and-clean-up-imports
 
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/i18n';
 
- main
 import {
   Settings as SettingsIcon,
   User,
@@ -36,17 +34,13 @@ import {
   Save,
   ArrowLeft,
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { useTranslation } from '@/i18n';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables, TablesUpdate } from '@/integrations/supabase/types';
- codex/refactor-routes-and-clean-up-imports
 
 
- main
 
 interface SettingsData {
   name: string;
@@ -81,15 +75,12 @@ const Settings: React.FC = () => {
     toast({ description: `Language set to ${value === 'en' ? 'English' : 'Français'}` });
   };
 
- codex/refactor-routes-and-clean-up-imports
 
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
- main
   const [settings, setSettings] = useState<SettingsData>({
     name: user?.name || '',
     email: user?.email || '',

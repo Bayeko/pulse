@@ -40,13 +40,7 @@ export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ classNam
     // Check partner availability via status field if present
     const partnerStatus = (user as unknown as { partnerStatus?: string })?.partnerStatus;
     if (partnerStatus === 'away' || partnerStatus === 'offline') {
-      toast({
- codex/add-translation-key-for-refusal-text
-        description: t('laterThanks'),
-
-        description: t('catchUpLater'),
- main
-      });
+      toast({ description: t('catchUpLater') });
       return;
     }
 
@@ -58,11 +52,7 @@ export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ classNam
         .maybeSingle();
 
       if (!statusError && (profile?.status === 'away' || profile?.status === 'offline')) {
- codex/add-translation-key-for-refusal-text
-        toast({ description: t('laterThanks') });
-
         toast({ description: t('catchUpLater') });
- main
         return;
       }
 
@@ -75,13 +65,8 @@ export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ classNam
         .limit(1)
         .maybeSingle();
 
- codex/add-translation-key-for-refusal-text
-      if (!messageError && lastMessage?.content === '⏰ Pas dispo') {
-        toast({ description: t('laterThanks') });
-
       if (!messageError && lastMessage?.content === t('notAvailable')) {
         toast({ description: t('catchUpLater') });
- main
         return;
       }
     } catch (err) {
