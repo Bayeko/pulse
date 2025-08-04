@@ -4,6 +4,13 @@
 
 **URL**: https://lovable.dev/projects/87a2c8c0-a491-491c-867d-7c092b5d4541
 
+## Age Policy
+
+Pulse is intended for users who meet minimum digital consent ages. You must be
+at least **13 years old** to create an account, or **16 years old** if you are
+located in a European Union member state. Your birthdate is requested during
+registration and sign‑up is blocked for underage users.
+
 ## How can I edit this code?
 
 There are several ways of editing your application.
