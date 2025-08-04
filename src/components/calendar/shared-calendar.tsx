@@ -19,6 +19,7 @@ import { useTranslation } from "@/i18n";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { getConfetti } from "@/lib/confetti";
 import type { Options as ConfettiOptions } from "canvas-confetti";
+ codex/add-modal-component-for-time-slots
 import {
   Dialog,
   DialogContent,
@@ -29,6 +30,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+ main
 
 interface TimeSlot {
   id: string;
