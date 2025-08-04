@@ -41,7 +41,7 @@ export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ classNam
     const partnerStatus = (user as unknown as { partnerStatus?: string })?.partnerStatus;
     if (partnerStatus === 'away' || partnerStatus === 'offline') {
       toast({
-        description: 'Merci, on se retrouve plus tard !',
+        description: t('laterThanks'),
       });
       return;
     }
@@ -54,7 +54,7 @@ export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ classNam
         .maybeSingle();
 
       if (!statusError && (profile?.status === 'away' || profile?.status === 'offline')) {
-        toast({ description: 'Merci, on se retrouve plus tard !' });
+        toast({ description: t('laterThanks') });
         return;
       }
 
@@ -68,7 +68,7 @@ export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ classNam
         .maybeSingle();
 
       if (!messageError && lastMessage?.content === '⏰ Pas dispo') {
-        toast({ description: 'Merci, on se retrouve plus tard !' });
+        toast({ description: t('laterThanks') });
         return;
       }
     } catch (err) {

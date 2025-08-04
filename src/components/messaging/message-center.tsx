@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/i18n';
 
 interface Message {
   id: string;
@@ -38,6 +39,7 @@ interface MessageCenterProps {
 export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -213,7 +215,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
     if (partnerStatus === 'away' || partnerStatus === 'offline') {
       const feedback: Message = {
         id: `local-${Date.now()}`,
-        content: 'Merci, on se retrouve plus tard !',
+        content: t('laterThanks'),
         type: 'text',
         sender_id: user.id,
         receiver_id: user.partnerId,
@@ -222,7 +224,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
         sender_name: user.name,
       };
       setMessages(prev => [...prev, feedback]);
-      toast({ description: 'Merci, on se retrouve plus tard !' });
+      toast({ description: t('laterThanks') });
       return;
     }
 
@@ -236,7 +238,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
       if (!statusError && (profile?.status === 'away' || profile?.status === 'offline')) {
         const feedback: Message = {
           id: `local-${Date.now()}`,
-          content: 'Merci, on se retrouve plus tard !',
+          content: t('laterThanks'),
           type: 'text',
           sender_id: user.id,
           receiver_id: user.partnerId,
@@ -245,7 +247,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
           sender_name: user.name,
         };
         setMessages(prev => [...prev, feedback]);
-        toast({ description: 'Merci, on se retrouve plus tard !' });
+        toast({ description: t('laterThanks') });
         return;
       }
 
@@ -261,7 +263,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
       if (!messageError && lastMessage?.content === '⏰ Pas dispo') {
         const feedback: Message = {
           id: `local-${Date.now()}`,
-          content: 'Merci, on se retrouve plus tard !',
+          content: t('laterThanks'),
           type: 'text',
           sender_id: user.id,
           receiver_id: user.partnerId,
@@ -270,7 +272,7 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
           sender_name: user.name,
         };
         setMessages(prev => [...prev, feedback]);
-        toast({ description: 'Merci, on se retrouve plus tard !' });
+        toast({ description: t('laterThanks') });
         return;
       }
     } catch (err) {

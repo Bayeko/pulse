@@ -10,6 +10,7 @@ const translations = {
     useFaceID: 'Use Face ID',
     autoDelete30d: 'Auto delete messages after 30 days',
     sent: 'Pulse sent!',
+    laterThanks: 'Thanks for letting us know. We\'ll check back later!',
   },
   fr: {
     addFirstAvailability: 'Ajoutez votre première disponibilité',
@@ -20,6 +21,7 @@ const translations = {
     useFaceID: 'Utiliser Face ID',
     autoDelete30d: 'Supprimer automatiquement les messages après 30 jours',
     sent: 'Pulse envoyé !',
+    laterThanks: 'Merci de nous l\'avoir signalé ! On se retrouve plus tard !',
   },
 } as const;
 
