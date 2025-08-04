@@ -407,7 +407,7 @@ const Settings: React.FC = () => {
     { id: 'notifications', name: 'Notifications', icon: Bell },
     { id: 'privacy', name: 'Privacy', icon: Shield },
     { id: 'general', name: 'General', icon: SettingsIcon },
-    { id: 'help', name: 'Help Center', icon: HelpCircle },
+    { id: 'help', name: t('helpCenter'), icon: HelpCircle },
   ] as const;
 
   return (
@@ -817,10 +817,10 @@ const Settings: React.FC = () => {
 
                     <div className="space-y-3">
                       <h3 className="font-medium">Support</h3>
-                      <p className="text-sm text-muted-foreground">Need help with Pulse?</p>
+                      <p className="text-sm text-muted-foreground">{t('needHelp')}</p>
                       <PulseButton onClick={() => navigate('/faq')}>
                         <LifeBuoy className="w-4 h-4 mr-2" />
-                        Help Center
+                        {t('helpCenter')}
                       </PulseButton>
                     </div>
 
@@ -849,10 +849,10 @@ const Settings: React.FC = () => {
                   </p>
                   <div className="flex flex-col sm:flex-row gap-2">
                     <PulseButton asChild variant="ghost" size="sm">
-                      <Link to="/faq">FAQ</Link>
+                      <Link to="/faq">{t('helpCenter')}</Link>
                     </PulseButton>
                     <PulseButton asChild variant="ghost" size="sm">
-                      <Link to="/contact">Contact Support</Link>
+                      <Link to="/contact">{t('contactSupport')}</Link>
                     </PulseButton>
                   </div>
                 </div>

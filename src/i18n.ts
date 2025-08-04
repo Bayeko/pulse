@@ -42,6 +42,9 @@ const translations = {
     statusBusyDescription: 'Catch you later',
     statusNotAvailableLabel: 'Not Available',
     statusNotAvailableDescription: 'Need a moment',
+    needHelp: 'Need help?',
+    helpCenter: 'Help Center',
+    contactSupport: 'Contact support',
   },
   fr: {
     addFirstAvailability: 'Ajoutez votre première disponibilité',
@@ -84,6 +87,9 @@ const translations = {
     statusBusyDescription: 'À plus tard',
     statusNotAvailableLabel: 'Indisponible',
     statusNotAvailableDescription: "Besoin d'un moment",
+    needHelp: 'Besoin d’aide ?',
+    helpCenter: 'FAQ',
+    contactSupport: 'Contacter le support',
   },
 } as const;
 
