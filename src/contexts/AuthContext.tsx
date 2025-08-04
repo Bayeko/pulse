@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import * as authService from '@/services/auth';
 
 interface User {
   id: string;
@@ -17,13 +18,10 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (name: string, email: string, password: string) => Promise<boolean>;
+  signIn: (email: string, password: string) => Promise<boolean>;
+  signUp: (name: string, email: string, password: string) => Promise<boolean>;
   connectPartner: (partnerEmail: string) => Promise<boolean>;
- codex/identify-and-propose-fixes-for-code-issues
-
   connectByCode: (code: string) => Promise<boolean>;
- main
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -45,9 +43,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { toast } = useToast();
 
   useEffect(() => {
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (_event, session) => {
         setSession(session);
         if (session?.user) {
           await fetchUserProfile(session.user);
@@ -58,7 +55,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
-    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session?.user) {
@@ -75,20 +71,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchUserProfile = async (supabaseUser: SupabaseUser) => {
     try {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select(`
-          *,
-          partner:partner_id(name, snooze_until)
-        `)
-        .eq('user_id', supabaseUser.id)
-        .single();
-
+      const { data: profile, error } = await authService.getProfile(supabaseUser.id);
       if (error) {
         console.error('Error fetching profile:', error);
         return;
       }
-
       if (profile) {
         setUser({
           id: profile.user_id,
@@ -112,34 +99,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const signIn = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
+      const { error } = await authService.signIn(email, password);
       if (error) {
         toast({
-          title: "Login failed",
+          title: 'Login failed',
           description: error.message,
-          variant: "destructive",
+          variant: 'destructive',
         });
         return false;
       }
-
       toast({
-        title: "Welcome back!",
-        description: "Successfully logged in to Pulse.",
+        title: 'Welcome back!',
+        description: 'Successfully logged in to Pulse.',
       });
-      
       return true;
-    } catch (error) {
+    } catch (_error) {
       toast({
-        title: "Login failed",
-        description: "An unexpected error occurred.",
-        variant: "destructive",
+        title: 'Login failed',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
       });
       return false;
     } finally {
@@ -147,42 +128,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (name: string, email: string, password: string): Promise<boolean> => {
+  const signUp = async (name: string, email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const redirectUrl = `${window.location.origin}/`;
-      
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            name: name
-          }
-        }
-      });
-
+      const { error } = await authService.signUp(name, email, password);
       if (error) {
         toast({
-          title: "Registration failed",
+          title: 'Registration failed',
           description: error.message,
-          variant: "destructive",
+          variant: 'destructive',
         });
         return false;
       }
-
       toast({
-        title: "Account created!",
-        description: "Welcome to Pulse. Connect with your partner to get started.",
+        title: 'Account created!',
+        description: 'Welcome to Pulse. Connect with your partner to get started.',
       });
-      
       return true;
-    } catch (error) {
+    } catch (_error) {
       toast({
-        title: "Registration failed",
-        description: "An unexpected error occurred.",
-        variant: "destructive",
+        title: 'Registration failed',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
       });
       return false;
     } finally {
@@ -195,92 +162,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (!user || !session) {
         toast({
-          title: "Connection failed",
-          description: "You must be logged in to connect with a partner.",
-          variant: "destructive",
+          title: 'Connection failed',
+          description: 'You must be logged in to connect with a partner.',
+          variant: 'destructive',
         });
         return false;
       }
 
- codex/identify-and-propose-fixes-for-code-issues
-      // Find partner by email (used as unique identifier)
-      // Find partner by email (used as a temporary unique code)
- main
-      const { data: partnerProfile, error: findError } = await supabase
-        .from('profiles')
-        .select('id, user_id, name')
-        .eq('email', partnerEmail)
-        .single();
-
-      if (findError || !partnerProfile) {
+      const { data, error } = await authService.connectPartner(partnerEmail, user.id);
+      if (error) {
         toast({
-          title: "Connection failed",
-          description: "Partner not found. Please check the email address.",
-          variant: "destructive",
+          title: 'Connection failed',
+          description: error,
+          variant: 'destructive',
         });
         return false;
       }
 
-      // Get current user's profile ID
-      const { data: currentProfile, error: currentProfileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (currentProfileError || !currentProfile) {
-        toast({
-          title: "Connection failed",
-          description: "Unable to retrieve your profile.",
-          variant: "destructive",
-        });
-        return false;
-      }
-
-      // Update current user's partner_id
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ partner_id: partnerProfile.id })
-        .eq('user_id', user.id);
-
-      if (updateError) {
-        toast({
-          title: "Connection failed",
-          description: "Unable to connect with partner. Please try again.",
-          variant: "destructive",
-        });
-        return false;
-      }
-
-      // Also update partner's partner_id to create mutual connection
-      const { error: partnerUpdateError } = await supabase
-        .from('profiles')
-        .update({ partner_id: currentProfile.id })
-        .eq('user_id', partnerProfile.user_id);
-
-      if (partnerUpdateError) {
-        toast({
-          title: "Connection failed",
-          description: "Unable to connect with partner. Please try again.",
-          variant: "destructive",
-        });
-        return false;
-      }
-
-      // Refresh user profile
       await fetchUserProfile(session.user);
-      
       toast({
-        title: "Partner connected!",
-        description: `Successfully connected with ${partnerProfile.name}.`,
+        title: 'Partner connected!',
+        description: `Successfully connected with ${data?.name}.`,
       });
-      
       return true;
-    } catch (error) {
+    } catch (_error) {
       toast({
-        title: "Connection failed",
-        description: "An unexpected error occurred.",
-        variant: "destructive",
+        title: 'Connection failed',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
       });
       return false;
     } finally {
@@ -293,84 +202,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (!user || !session) {
         toast({
-          title: "Connection failed",
-          description: "You must be logged in to connect with a partner.",
-          variant: "destructive",
+          title: 'Connection failed',
+          description: 'You must be logged in to connect with a partner.',
+          variant: 'destructive',
         });
         return false;
       }
 
-      const { data: partnerProfile, error: findError } = await supabase
-        .from('profiles')
-        .select('id, user_id, name')
-        .like('id', `${code}%`)
-        .single();
-
-      if (findError || !partnerProfile) {
+      const { data, error } = await authService.connectByCode(code, user.id);
+      if (error) {
         toast({
-          title: "Connection failed",
-          description: "Partner not found. Please check the code.",
-          variant: "destructive",
-        });
-        return false;
-      }
-
-      const { data: currentProfile, error: currentProfileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (currentProfileError || !currentProfile) {
-        toast({
-          title: "Connection failed",
-          description: "Unable to retrieve your profile.",
-          variant: "destructive",
-        });
-        return false;
-      }
-
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ partner_id: partnerProfile.id })
-        .eq('user_id', user.id);
-
-      if (updateError) {
-        toast({
-          title: "Connection failed",
-          description: "Unable to connect with partner. Please try again.",
-          variant: "destructive",
-        });
-        return false;
-      }
-
-      const { error: partnerUpdateError } = await supabase
-        .from('profiles')
-        .update({ partner_id: currentProfile.id })
-        .eq('user_id', partnerProfile.user_id);
-
-      if (partnerUpdateError) {
-        toast({
-          title: "Connection failed",
-          description: "Unable to connect with partner. Please try again.",
-          variant: "destructive",
+          title: 'Connection failed',
+          description: error,
+          variant: 'destructive',
         });
         return false;
       }
 
       await fetchUserProfile(session.user);
-
       toast({
-        title: "Partner connected!",
-        description: `Successfully connected with ${partnerProfile.name}.`,
+        title: 'Partner connected!',
+        description: `Successfully connected with ${data?.name}.`,
       });
-
       return true;
-    } catch (error) {
+    } catch (_error) {
       toast({
-        title: "Connection failed",
-        description: "An unexpected error occurred.",
-        variant: "destructive",
+        title: 'Connection failed',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
       });
       return false;
     } finally {
@@ -379,25 +238,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
+    await authService.signOut();
     setUser(null);
     setSession(null);
     toast({
-      title: "Logged out",
-      description: "See you soon!",
+      title: 'Logged out',
+      description: 'See you soon!',
     });
   };
 
   const value = {
     user,
     isLoading,
-    login,
-    register,
+    signIn,
+    signUp,
     connectPartner,
     connectByCode,
     logout,
-    refreshUser
+    refreshUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
