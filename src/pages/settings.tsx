@@ -738,6 +738,7 @@ const Settings: React.FC = () => {
                     </div>
 
 
+                    <div className="space-y-3">
                       <h3 className="font-medium">Support</h3>
                       <p className="text-sm text-muted-foreground">Need help with Pulse?</p>
                       <PulseButton onClick={() => navigate('/faq')}>

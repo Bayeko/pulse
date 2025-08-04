@@ -1,4 +1,4 @@
-export async function withRetry<T extends { error?: any }>(
+export async function withRetry<T extends { error?: unknown }>(
   fn: () => Promise<T>,
   retries = 3,
   delayMs = 500
