@@ -8,6 +8,36 @@ export function usePushNotifications() {
 
   useEffect(() => {
     const register = async () => {
+ lkf5ue-codex/remove-vite-and-add-expo
+      try {
+        const registration = await navigator.serviceWorker.register('/sw.js');
+
+        let subscription = await registration.pushManager.getSubscription();
+        if (!subscription) {
+          const publicKey = process.env.EXPO_PUBLIC_VAPID_PUBLIC_KEY;
+          if (!publicKey) {
+            console.warn('VAPID public key is not set');
+            return;
+          }
+          subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(publicKey),
+          });
+        }
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { endpoint, keys } = subscription.toJSON();
+          await supabase.from('push_subscriptions').insert({
+            endpoint,
+            auth: keys?.auth ?? '',
+            p256dh: keys?.p256dh ?? '',
+            user_id: user.id,
+          });
+        }
+      } catch (error) {
+        console.error('Error registering push notifications', error);
+
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
       if (existingStatus !== 'granted') {
@@ -30,6 +60,7 @@ export function usePushNotifications() {
           p256dh: '',
           user_id: user.id,
         });
+ main
       }
     };
 
