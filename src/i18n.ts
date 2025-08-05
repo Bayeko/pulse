@@ -45,23 +45,11 @@ const translations = {
     statusBusyDescription: 'Catch you later',
     statusNotAvailableLabel: 'Not Available',
     statusNotAvailableDescription: 'Need a moment',
- codex/add-translation-keys-and-localize-strings
     needHelp: 'Need help?',
     helpCenter: 'Help Center',
     contactSupport: 'Contact support',
-
- codex/add-translation-keys-and-localize-strings
-    needHelp: 'Need help?',
-    helpCenter: 'Help Center',
-    contactSupport: 'Contact support',
-
- codex/add-premium-access-disclaimer
     premiumNoPulseFrequency: 'Premium access does not affect the frequency of pulses.',
-
     proResources: 'Certified sexologists',
- main
- main
- main
   },
   fr: {
     addFirstAvailability: 'Ajoutez votre première disponibilité',
@@ -107,23 +95,11 @@ const translations = {
     statusBusyDescription: 'À plus tard',
     statusNotAvailableLabel: 'Indisponible',
     statusNotAvailableDescription: "Besoin d'un moment",
- codex/add-translation-keys-and-localize-strings
-    needHelp: 'Besoin d’aide ?',
+    needHelp: "Besoin d'aide ?",
     helpCenter: 'FAQ',
     contactSupport: 'Contacter le support',
-
- codex/add-translation-keys-and-localize-strings
-    needHelp: 'Besoin d’aide ?',
-    helpCenter: 'FAQ',
-    contactSupport: 'Contacter le support',
-
- codex/add-premium-access-disclaimer
-    premiumNoPulseFrequency: 'L’accès Premium n’influe pas sur la fréquence des Pulses.',
-
+    premiumNoPulseFrequency: "L'accès Premium n'influe pas sur la fréquence des Pulses.",
     proResources: 'Sexologues certifiés',
- main
- main
- main
   },
 } as const;
 

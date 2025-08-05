@@ -4,11 +4,6 @@ import { useTranslation } from "@/i18n"
 import { cn } from "@/lib/utils"
 import { useScaledFont } from "@/hooks/use-scaled-font"
 
- codex/create-utility-for-scaled-font-sizes
-const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
-  ({ className, type, style, ...props }, ref) => {
-    const scaleFont = useScaledFont()
-
 type InputProps = React.ComponentProps<"input"> & {
   maxLength?: number
 }
@@ -21,8 +16,8 @@ const defaultMaxLength = {
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, maxLength, ...props }, ref) => {
     const { lang } = useTranslation()
+    const scaleFont = useScaledFont()
     const computedMax = maxLength ?? defaultMaxLength[lang]
- main
     return (
       <input
         type={type}

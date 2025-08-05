@@ -15,14 +15,10 @@ const defaultMaxLength = {
 } as const
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
- codex/create-utility-for-scaled-font-sizes
-  ({ className, style, ...props }, ref) => {
-    const scaleFont = useScaledFont()
-
   ({ className, maxLength, ...props }, ref) => {
     const { lang } = useTranslation()
+    const scaleFont = useScaledFont()
     const computedMax = maxLength ?? defaultMaxLength[lang]
- main
     return (
       <textarea
         style={{ fontSize: scaleFont(14), ...style }}
