@@ -4,9 +4,14 @@ vi.mock('@/lib/retry', () => ({
   withRetry: (fn: any) => fn(),
 }));
 
+ codex/delete-stray-tokens-and-remove-duplicate-button
+import { signIn, signUp, connectPartner, connectByCode } from './auth';
+
+
 vi.mock('@/config', () => ({ SITE_URL: 'https://example.com' }));
 
 import { signIn, signUp, connectPartner, connectByCode } from './auth';
+ main
 import { supabase } from '@/integrations/supabase/client';
 
 test('signIn calls supabase auth method', async () => {
