@@ -11,8 +11,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/i18n';
 import { supabase } from '@/integrations/supabase/client';
 import { SITE_URL } from '@/config';
- codex/add-translation-keys-and-localize-strings
-
 
 const EU_COUNTRIES = [
   'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU',
@@ -31,7 +29,6 @@ const calculateAge = (birthdate: string) => {
   }
   return age;
 };
- main
 
 interface AuthCardProps {
   mode: 'login' | 'register' | 'connect';
@@ -95,7 +92,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
         case 'login':
           success = await signIn(formData.email, formData.password);
           break;
-        case 'register':
+        case 'register': {
           if (formData.password !== formData.confirmPassword) {
             alert('Passwords do not match');
             return;
@@ -112,6 +109,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
           }
           success = await signUp(formData.name, formData.email, formData.password, formData.birthdate);
           break;
+        }
         case 'connect':
           success = await connectPartner(formData.partnerEmail);
           break;
