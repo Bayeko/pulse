@@ -4,11 +4,8 @@ vi.mock('@/lib/retry', () => ({
   withRetry: (fn: any) => fn(),
 }));
 
- 4ynwu2-codex/create-shared-helper-for-profile-management
-import { signIn, connectPartner, connectByCode } from './auth';
-
 import { signIn, signUp, connectPartner, connectByCode } from './auth';
- main
+
 import { supabase } from '@/integrations/supabase/client';
 
 test('signIn calls supabase auth method', async () => {

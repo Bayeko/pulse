@@ -19,11 +19,9 @@ const FAQ: React.FC = () => {
   const [items, setItems] = useState<FAQItem[]>([]);
   const [showOfflineForm, setShowOfflineForm] = useState(false);
   const [message, setMessage] = useState('');
- codex/add-certified-sexologists-link
   const { t } = useTranslation();
 
   const { lang } = useTranslation();
- main
 
   useEffect(() => {
     const loadFAQ = async () => {
