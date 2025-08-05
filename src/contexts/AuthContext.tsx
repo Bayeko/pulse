@@ -19,7 +19,13 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<boolean>;
-  signUp: (name: string, email: string, password: string, birthdate?: string) => Promise<boolean>;
+  signUp: (
+    name: string,
+    email: string,
+    password: string,
+    birthdate?: string,
+    redirectUrl?: string
+  ) => Promise<boolean>;
   connectPartner: (partnerEmail: string) => Promise<boolean>;
   connectByCode: (code: string) => Promise<boolean>;
   logout: () => void;
@@ -128,10 +134,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUp = async (name: string, email: string, password: string, birthdate?: string): Promise<boolean> => {
+  const signUp = async (
+    name: string,
+    email: string,
+    password: string,
+    birthdate?: string,
+    redirectUrl?: string
+  ): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const { error } = await authService.signUp(name, email, password, birthdate);
+      const url =
+        redirectUrl ??
+        (typeof window !== 'undefined' ? `${window.location.origin}/` : undefined);
+      const { error } = await authService.signUp(
+        name,
+        email,
+        password,
+        birthdate,
+        url
+      );
       if (error) {
         toast({
           title: 'Registration failed',
