@@ -4,8 +4,14 @@ vi.mock('@/lib/retry', () => ({
   withRetry: (fn: any) => fn(),
 }));
 
+ codex/delete-stray-tokens-and-remove-duplicate-button
 import { signIn, signUp, connectPartner, connectByCode } from './auth';
 
+
+vi.mock('@/config', () => ({ SITE_URL: 'https://example.com' }));
+
+import { signIn, signUp, connectPartner, connectByCode } from './auth';
+ main
 import { supabase } from '@/integrations/supabase/client';
 
 test('signIn calls supabase auth method', async () => {
@@ -22,7 +28,26 @@ test('signUp calls supabase auth method with profile data', async () => {
     email: 'new@example.com',
     password: 'secret',
     options: {
-      emailRedirectTo: `${window.location.origin}/`,
+      emailRedirectTo: 'https://example.com',
+      data: { name: 'Test User', birthdate: '2000-01-01' },
+    },
+  });
+});
+
+test('signUp uses provided redirect URL when specified', async () => {
+  supabase.auth.signUp.mockClear();
+  await signUp(
+    'Test User',
+    'new@example.com',
+    'secret',
+    '2000-01-01',
+    'https://redirect.com'
+  );
+  expect(supabase.auth.signUp).toHaveBeenCalledWith({
+    email: 'new@example.com',
+    password: 'secret',
+    options: {
+      emailRedirectTo: 'https://redirect.com',
       data: { name: 'Test User', birthdate: '2000-01-01' },
     },
   });

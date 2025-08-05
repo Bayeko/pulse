@@ -19,9 +19,13 @@ const FAQ: React.FC = () => {
   const [items, setItems] = useState<FAQItem[]>([]);
   const [showOfflineForm, setShowOfflineForm] = useState(false);
   const [message, setMessage] = useState('');
+ codex/delete-stray-tokens-and-remove-duplicate-button
   const { t } = useTranslation();
 
   const { lang } = useTranslation();
+
+  const { t, lang } = useTranslation();
+ main
 
   useEffect(() => {
     const loadFAQ = async () => {
