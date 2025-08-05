@@ -1,4 +1,5 @@
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ToastNotificationOptions {
   title: string;
@@ -9,6 +10,7 @@ interface ToastNotificationOptions {
 
 export const useToastNotification = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const showSuccess = (message: string, description?: string) => {
     toast({
@@ -32,8 +34,11 @@ export const useToastNotification = () => {
 
   // Simulate receiving notifications from partner
   const simulatePartnerNotification = () => {
+    const pulseIcon = user?.secretPulse
+      ? user?.secretPulseIcon || '🔔'
+      : user?.pulseEmoji || '💕';
     const notifications = [
-      { title: "💕 New pulse from Alex", description: "Your partner sent you a heart!" },
+      { title: `${pulseIcon} New pulse from Alex`, description: "Your partner sent you a heart!" },
       { title: "📅 Calendar reminder", description: "Date night in 30 minutes" },
       { title: "💬 New message", description: "Alex: Can't wait to see you tonight!" },
     ];

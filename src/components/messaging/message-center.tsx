@@ -16,7 +16,7 @@ import { useMessages } from '@/hooks/use-messages';
 interface Message {
   id: string;
   content: string;
-  type: 'text' | 'emoji';
+  type: 'text' | 'emoji' | 'pulse';
   sender_id: string;
   receiver_id: string;
   created_at: string;
@@ -27,7 +27,7 @@ interface Message {
 interface DatabaseMessage {
   id: string;
   content: string;
-  type: 'text' | 'emoji';
+  type: 'text' | 'emoji' | 'pulse';
   sender_id: string;
   receiver_id: string;
   created_at: string;
@@ -36,9 +36,13 @@ interface DatabaseMessage {
 
 interface MessageCenterProps {
   className?: string;
+  pulseEmoji?: string;
+  pulseColor?: string;
+  secretPulse?: boolean;
+  secretPulseIcon?: string;
 }
 
-export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
+export const MessageCenter: React.FC<MessageCenterProps> = ({ className, pulseEmoji, pulseColor, secretPulse, secretPulseIcon }) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { t } = useTranslation();
@@ -61,6 +65,10 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
       }))
       .reverse();
   }, [data, user]);
+  const pulseDisplayEmoji = pulseEmoji ?? user?.pulseEmoji ?? '❤️';
+  const pulseDisplayColor = pulseColor ?? user?.pulseColor ?? '#ff0066';
+  const pulseSecret = secretPulse ?? user?.secretPulse ?? false;
+  const pulseSecretIcon = secretPulseIcon ?? user?.secretPulseIcon ?? '❔';
   const now = new Date();
   const isSnoozed = user?.snoozeUntil && new Date(user.snoozeUntil) > now;
   const partnerSnoozed = user?.partnerSnoozeUntil && new Date(user.partnerSnoozeUntil) > now;
@@ -430,6 +438,10 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className }) => {
                     >
                       {message.type === 'emoji' ? (
                         <div className="text-2xl">{message.content}</div>
+                      ) : message.type === 'pulse' ? (
+                        <div className="text-2xl" style={{ color: pulseDisplayColor }}>
+                          {pulseSecret ? pulseSecretIcon : pulseDisplayEmoji}
+                        </div>
                       ) : (
                         <p className="text-sm">{message.content}</p>
                       )}
