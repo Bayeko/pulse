@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { Sparkles, BarChart3, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,40 +11,81 @@ import { useTranslation } from '@/i18n';
 
 interface PulseRecord {
   created_at: string;
+  sender_id: string;
+  receiver_id: string;
 }
 
 const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const hourLabels = Array.from({ length: 24 }, (_, i) => i);
 const fullDayLabels = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 const Insights: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [chartData, setChartData] = useState<{ day: string; pulses: number }[]>([]);
+  const [heatmap, setHeatmap] = useState<number[][]>(Array.from({ length: 7 }, () => Array(24).fill(0)));
+  const [counts, setCounts] = useState({ sent: 0, received: 0, matched: 0 });
   const [suggestions, setSuggestions] = useState<string[]>([]);
-  const isPremium = Boolean((user as { is_premium?: boolean } | null)?.is_premium);
+  const isPremium = Boolean(user?.isPremium);
   const { t } = useTranslation();
+  const maxHeat = Math.max(...heatmap.flat());
 
   useEffect(() => {
     if (!user) return;
 
     const fetchHistory = async () => {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
       const { data } = await supabase
         .from('messages')
-        .select('created_at')
+        .select('created_at,sender_id,receiver_id')
         .eq('type', 'pulse')
-        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`);
+        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+        .gte('created_at', thirtyDaysAgo.toISOString());
 
       const pulses = (data as PulseRecord[]) || [];
-      const dayCounts = Array(7).fill(0);
-      const hourCounts = Array(24).fill(0);
+      const grid = Array.from({ length: 7 }, () => Array(24).fill(0));
+      let sent = 0;
+      let received = 0;
+      const sentTimes: number[] = [];
+      const receivedTimes: number[] = [];
 
       pulses.forEach((p) => {
         const date = new Date(p.created_at);
-        dayCounts[date.getDay()]++;
-        hourCounts[date.getHours()]++;
+        grid[date.getDay()][date.getHours()]++;
+        if (p.sender_id === user.id) {
+          sent++;
+          sentTimes.push(date.getTime());
+        } else if (p.receiver_id === user.id) {
+          received++;
+          receivedTimes.push(date.getTime());
+        }
       });
 
-      setChartData(dayLabels.map((d, i) => ({ day: d, pulses: dayCounts[i] })));
+      sentTimes.sort();
+      receivedTimes.sort();
+      let i = 0;
+      let j = 0;
+      let matched = 0;
+      while (i < sentTimes.length && j < receivedTimes.length) {
+        const diff = sentTimes[i] - receivedTimes[j];
+        if (Math.abs(diff) <= 60 * 60 * 1000) {
+          matched++;
+          i++;
+          j++;
+        } else if (diff < 0) {
+          i++;
+        } else {
+          j++;
+        }
+      }
+
+      setCounts({ sent, received, matched });
+      setHeatmap(grid);
+
+      const dayCounts = grid.map((row) => row.reduce((a, b) => a + b, 0));
+      const hourCounts = Array(24).fill(0);
+      grid.forEach((row) => row.forEach((c, h) => (hourCounts[h] += c)));
 
       const suggestionList: string[] = [];
       if (pulses.length > 0) {
@@ -96,18 +135,55 @@ const Insights: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className={cn(!isPremium && 'blur-sm pointer-events-none')}>
-              <ChartContainer
-                className="h-64 w-full"
-                config={{ pulses: { label: 'Pulses', color: 'hsl(var(--primary))' } }}
+              <div className="grid grid-cols-3 gap-4 mb-6 text-center">
+                <div>
+                  <p className="text-sm text-muted-foreground">Sent</p>
+                  <p className="text-2xl font-bold">{counts.sent}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Received</p>
+                  <p className="text-2xl font-bold">{counts.received}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Matched</p>
+                  <p className="text-2xl font-bold">{counts.matched}</p>
+                </div>
+              </div>
+
+              <div
+                className="ml-8 mb-2 grid text-[10px] text-muted-foreground"
+                style={{ gridTemplateColumns: 'repeat(24,minmax(0,1fr))' }}
               >
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="day" />
-                  <YAxis allowDecimals={false} />
-                  <Bar dataKey="pulses" fill="var(--color-pulses)" />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                </BarChart>
-              </ChartContainer>
+                {hourLabels.map((h) => (
+                  <div key={h} className="text-center">
+                    {h}
+                  </div>
+                ))}
+              </div>
+              <div className="space-y-1">
+                {heatmap.map((row, day) => (
+                  <div key={day} className="flex items-center">
+                    <div className="w-8 text-xs text-muted-foreground">
+                      {dayLabels[day]}
+                    </div>
+                    <div
+                      className="grid gap-[1px] flex-1"
+                      style={{ gridTemplateColumns: 'repeat(24,minmax(0,1fr))' }}
+                    >
+                      {row.map((c, hour) => (
+                        <div
+                          key={hour}
+                          className="h-4"
+                          style={{
+                            backgroundColor: 'hsl(var(--primary))',
+                            opacity: maxHeat ? c / maxHeat : 0,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
 
               <ul className="mt-4 space-y-2 text-sm">
                 {suggestions.map((s, i) => (
