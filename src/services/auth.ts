@@ -1,18 +1,25 @@
 import { supabase } from '@/integrations/supabase/client';
 import { withRetry } from '@/lib/retry';
+import { SITE_URL } from '@/config';
 
 export const signIn = (email: string, password: string) => {
   return withRetry(() => supabase.auth.signInWithPassword({ email, password }));
 };
 
-export const signUp = (name: string, email: string, password: string, birthdate?: string) => {
-  const redirectUrl = `${window.location.origin}/`;
+export const signUp = (
+  name: string,
+  email: string,
+  password: string,
+  birthdate?: string,
+  redirectUrl?: string
+) => {
+  const url = redirectUrl ?? SITE_URL;
   return withRetry(() =>
     supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl,
+        ...(url ? { emailRedirectTo: url } : {}),
         data: { name, birthdate }
       }
     })

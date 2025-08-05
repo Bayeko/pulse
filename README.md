@@ -27,7 +27,7 @@ If you want to work locally using your own IDE, you can clone this repo and push
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-Before running the app, create a `.env` file from `.env.example` and set `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_KEY` with your Supabase project credentials. You should also set `CRON_AUTH_TOKEN` to a secret value and include it in an `Authorization: Bearer` header when calling protected Supabase functions.
+Before running the app, create a `.env` file from `.env.example` and set `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_KEY` with your Supabase project credentials. You should also set `EXPO_PUBLIC_SITE_URL` to the public URL of your application and `CRON_AUTH_TOKEN` to a secret value and include it in an `Authorization: Bearer` header when calling protected Supabase functions.
 
 Follow these steps:
 
