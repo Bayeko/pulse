@@ -65,7 +65,17 @@ interface SettingsData {
     autoDelete30d: boolean;
   };
   theme: 'light' | 'dark' | 'auto';
+ codex/add-parent-mode-toggle-and-features
   parentMode: boolean;
+
+  pulse: {
+    emoji: string;
+    color: string;
+    vibration: number;
+    secret: boolean;
+    secretIcon: string;
+  };
+ main
 }
 
 const Settings: React.FC = () => {
@@ -105,7 +115,17 @@ const Settings: React.FC = () => {
       autoDelete30d: false,
     },
     theme: 'light',
+ codex/add-parent-mode-toggle-and-features
     parentMode: user?.parentMode ?? false,
+
+    pulse: {
+      emoji: user?.pulseEmoji || '❤️',
+      color: user?.pulseColor || '#ff0066',
+      vibration: user?.pulseVibration ?? 50,
+      secret: user?.secretPulse || false,
+      secretIcon: user?.secretPulseIcon || '❔',
+    },
+ main
   });
 
   const [activeSection, setActiveSection] = useState<'profile' | 'notifications' | 'privacy' | 'general' | 'help'>('profile');
@@ -125,7 +145,11 @@ const Settings: React.FC = () => {
       if (!user) return;
       const { data, error } = await supabase
         .from('profiles')
+ codex/add-parent-mode-toggle-and-features
         .select('name, email, bio, avatar, use_face_id, parent_mode')
+
+        .select('name, email, bio, avatar, use_face_id, pulse_emoji, pulse_color, pulse_vibration, secret_pulse, secret_pulse_icon')
+ main
         .eq('user_id', user.id)
         .single();
 
@@ -147,7 +171,17 @@ const Settings: React.FC = () => {
             ...prev.privacy,
             useFaceID: profile.use_face_id ?? false,
           },
+ codex/add-parent-mode-toggle-and-features
           parentMode: profile.parent_mode ?? false,
+
+          pulse: {
+            emoji: profile.pulse_emoji || '❤️',
+            color: profile.pulse_color || '#ff0066',
+            vibration: profile.pulse_vibration ?? 50,
+            secret: profile.secret_pulse ?? false,
+            secretIcon: profile.secret_pulse_icon || '❔',
+          },
+ main
         }));
       }
     };
@@ -157,12 +191,28 @@ const Settings: React.FC = () => {
 
   const saveSettings = async () => {
     if (!user) return;
-    const updates: TablesUpdate<'profiles'> & { bio?: string; avatar?: string } = {
+    const updates: TablesUpdate<'profiles'> & {
+      bio?: string;
+      avatar?: string;
+      pulse_emoji?: string;
+      pulse_color?: string;
+      pulse_vibration?: number;
+      secret_pulse?: boolean;
+      secret_pulse_icon?: string;
+    } = {
       name: settings.name,
       email: settings.email,
       bio: settings.bio,
       avatar: settings.avatar,
+ codex/add-parent-mode-toggle-and-features
       parent_mode: settings.parentMode,
+
+      pulse_emoji: settings.pulse.emoji,
+      pulse_color: settings.pulse.color,
+      pulse_vibration: settings.pulse.vibration,
+      secret_pulse: settings.pulse.secret,
+      secret_pulse_icon: settings.pulse.secretIcon,
+ main
     };
 
     const { error } = await supabase
@@ -751,6 +801,90 @@ const Settings: React.FC = () => {
               {activeSection === 'general' && (
                 <div className="space-y-6">
                   <div className="space-y-4">
+                    <div className="space-y-4">
+                      <h3 className="font-medium mb-1">Pulse Customization</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <Label>Emoji</Label>
+                          <Input
+                            value={settings.pulse.emoji}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                pulse: { ...settings.pulse, emoji: e.target.value },
+                              })
+                            }
+                            className="w-20 text-center text-2xl"
+                          />
+                        </div>
+                        <div>
+                          <Label>Color</Label>
+                          <Input
+                            type="color"
+                            value={settings.pulse.color}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                pulse: { ...settings.pulse, color: e.target.value },
+                              })
+                            }
+                          />
+                        </div>
+                        <div>
+                          <Label>Vibration (ms)</Label>
+                          <Input
+                            type="number"
+                            value={settings.pulse.vibration}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                pulse: {
+                                  ...settings.pulse,
+                                  vibration: Number(e.target.value),
+                                },
+                              })
+                            }
+                            className="w-24"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between col-span-1 sm:col-span-2">
+                          <div>
+                            <Label>Secret Pulse</Label>
+                            <p className="text-sm text-muted-foreground">
+                              Hide pulse visuals
+                            </p>
+                          </div>
+                          <Switch
+                            checked={settings.pulse.secret}
+                            onCheckedChange={(checked) =>
+                              setSettings({
+                                ...settings,
+                                pulse: { ...settings.pulse, secret: checked },
+                              })
+                            }
+                          />
+                        </div>
+                        <div>
+                          <Label>Secret Icon</Label>
+                          <Input
+                            value={settings.pulse.secretIcon}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                pulse: {
+                                  ...settings.pulse,
+                                  secretIcon: e.target.value,
+                                },
+                              })
+                            }
+                            className="w-20 text-center text-2xl"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator />
+
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-medium">Pulse History</h3>

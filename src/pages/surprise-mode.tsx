@@ -3,11 +3,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { ArrowLeft, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Input } from '@/components/ui/input';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { scheduleSurprise } from '@/lib/reminders';
 
 const SurpriseMode: React.FC = () => {
   const [ideas, setIdeas] = useState<string[]>([]);
   const [currentIdea, setCurrentIdea] = useState<string>('');
+  const [scheduledAt, setScheduledAt] = useState('');
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     const loadIdeas = async () => {
@@ -31,6 +38,22 @@ const SurpriseMode: React.FC = () => {
     setCurrentIdea(ideas[Math.floor(Math.random() * ideas.length)]);
   };
 
+  const handleSchedule = async () => {
+    if (!user || !currentIdea || !scheduledAt) return;
+    try {
+      await scheduleSurprise(user.id, currentIdea, scheduledAt);
+      toast({ title: 'Surprise scheduled', description: 'We\'ll remind you!' });
+      setScheduledAt('');
+    } catch (error) {
+      console.error('Failed to schedule surprise', error);
+      toast({
+        title: 'Failed to schedule',
+        description: 'Please try again later',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-soft">
       <header className="bg-card/80 backdrop-blur-sm border-b border-border/50 sticky top-0 z-40">
@@ -52,17 +75,25 @@ const SurpriseMode: React.FC = () => {
               Idea
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <p className="text-lg text-center">{currentIdea || 'Loading...'}</p>
-            <div className="flex justify-center">
-              <PulseButton onClick={pickRandom}>Another Idea</PulseButton>
-            </div>
-          </CardContent>
-        </Card>
-      </main>
-    </div>
-  );
-};
+            <CardContent className="space-y-6">
+              <p className="text-lg text-center">{currentIdea || 'Loading...'}</p>
+              <Input
+                type="datetime-local"
+                value={scheduledAt}
+                onChange={(e) => setScheduledAt(e.target.value)}
+              />
+              <div className="flex justify-center gap-2">
+                <PulseButton onClick={pickRandom}>Another Idea</PulseButton>
+                <PulseButton onClick={handleSchedule} disabled={!scheduledAt}>
+                  Schedule
+                </PulseButton>
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
+  };
 
 export default SurpriseMode;
 

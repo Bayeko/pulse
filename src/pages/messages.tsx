@@ -5,9 +5,11 @@ import { PulseButton } from '@/components/ui/pulse-button';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import logger from '@/lib/logger';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Messages: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleEmojiSend = (emoji: string, category: string) => {
     logger.info('Sending emoji:', emoji, 'from category:', category);
@@ -37,7 +39,12 @@ const Messages: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Message Center */}
           <div className="lg:col-span-2">
-            <MessageCenter />
+            <MessageCenter
+              pulseEmoji={user?.pulseEmoji}
+              pulseColor={user?.pulseColor}
+              secretPulse={user?.secretPulse}
+              secretPulseIcon={user?.secretPulseIcon}
+            />
           </div>
 
           {/* Emoji Picker Sidebar */}

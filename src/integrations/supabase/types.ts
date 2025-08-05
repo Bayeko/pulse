@@ -55,7 +55,15 @@ export type Database = {
           partner_id: string | null
           snooze_until: string | null
           use_face_id: boolean | null
+ codex/add-parent-mode-toggle-and-features
           parent_mode: boolean | null
+
+          pulse_emoji: string | null
+          pulse_color: string | null
+          pulse_vibration: number | null
+          secret_pulse: boolean | null
+          secret_pulse_icon: string | null
+ main
           updated_at: string
           user_id: string
         }
@@ -69,7 +77,15 @@ export type Database = {
           partner_id?: string | null
           snooze_until?: string | null
           use_face_id?: boolean | null
+ codex/add-parent-mode-toggle-and-features
           parent_mode?: boolean | null
+
+          pulse_emoji?: string | null
+          pulse_color?: string | null
+          pulse_vibration?: number | null
+          secret_pulse?: boolean | null
+          secret_pulse_icon?: string | null
+ main
           updated_at?: string
           user_id: string
         }
@@ -83,7 +99,15 @@ export type Database = {
           partner_id?: string | null
           snooze_until?: string | null
           use_face_id?: boolean | null
+ codex/add-parent-mode-toggle-and-features
           parent_mode?: boolean | null
+
+          pulse_emoji?: string | null
+          pulse_color?: string | null
+          pulse_vibration?: number | null
+          secret_pulse?: boolean | null
+          secret_pulse_icon?: string | null
+ main
           updated_at?: string
           user_id?: string
         }
@@ -144,6 +168,30 @@ export type Database = {
           user_id?: string
           time_slot_id?: string
           remind_at?: string
+          created_at?: string
+        }
+        Relationships: []
+      },
+      scheduled_surprises: {
+        Row: {
+          id: string
+          user_id: string
+          idea: string
+          scheduled_at: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          idea: string
+          scheduled_at: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          idea?: string
+          scheduled_at?: string
           created_at?: string
         }
         Relationships: []

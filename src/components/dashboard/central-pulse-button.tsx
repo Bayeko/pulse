@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Heart, Check } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Check } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/i18n';
 import { cn } from '@/lib/utils';
@@ -73,7 +73,7 @@ export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ classNam
       console.error('Error checking partner availability:', err);
     }
 
-    navigator.vibrate?.(50);
+    navigator.vibrate?.(user?.pulseVibration || 50);
 
     setState('sending');
 
@@ -97,23 +97,28 @@ export const CentralPulseButton: React.FC<CentralPulseButtonProps> = ({ classNam
     }, 1000);
   };
 
+  const pulseSymbol = user?.secretPulse
+    ? user?.secretPulseIcon || '❔'
+    : user?.pulseEmoji || '❤️';
+
   return (
     <button
       aria-label="Send Pulse"
       onClick={handleClick}
       className={cn(
-        'relative w-16 h-16 rounded-full flex items-center justify-center bg-gradient-primary text-primary-foreground shadow-glow',
+        'relative w-16 h-16 rounded-full flex items-center justify-center text-primary-foreground shadow-glow',
         state === 'sending' && 'animate-pulse',
         className
       )}
+      style={{ backgroundColor: user?.pulseColor || '#ff0066' }}
     >
       {state === 'sending' && (
-        <span className="pointer-events-none absolute inset-0 rounded-full bg-primary/40 animate-ping" />
+        <span className="pointer-events-none absolute inset-0 rounded-full opacity-40 animate-ping" style={{ backgroundColor: user?.pulseColor || '#ff0066' }} />
       )}
       {state === 'sent' ? (
         <Check className="w-8 h-8" />
       ) : (
-        <Heart className="w-8 h-8" />
+        <span className="text-3xl leading-none">{pulseSymbol}</span>
       )}
     </button>
   );
