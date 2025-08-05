@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/i18n';
 import { supabase } from '@/integrations/supabase/client';
-import { useTranslation } from '@/i18n';
+import { SITE_URL } from '@/config';
  codex/add-translation-keys-and-localize-strings
 
 
@@ -63,10 +63,12 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode, onModeChange, classNam
   const handleOAuthLogin = async (provider: 'google' | 'apple') => {
     setIsLoading(true);
     try {
+      const origin =
+        typeof window !== 'undefined' ? window.location.origin : SITE_URL;
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
+          ...(origin ? { redirectTo: `${origin}/dashboard` } : {})
         }
       });
 
