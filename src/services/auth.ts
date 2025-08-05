@@ -34,20 +34,22 @@ export const getProfile = (userId: string) => {
   );
 };
 
-export const connectPartner = async (
-  partnerEmail: string,
-  currentUserId: string
+const linkProfiles = async (
+  lookupField: string,
+  lookupValue: string,
+  currentUserId: string,
+  notFoundMessage: string
 ) => {
   const { data: partnerProfile, error: findError } = await withRetry(() =>
     supabase
       .from('profiles')
       .select('id, user_id, name, partner_id')
-      .eq('email', partnerEmail)
+      .eq(lookupField, lookupValue)
       .single()
   );
 
   if (findError || !partnerProfile) {
-    return { error: 'Partner not found. Please check the email address.' };
+    return { error: notFoundMessage };
   }
 
   const { data: currentProfile, error: currentProfileError } = await withRetry(() =>
@@ -104,69 +106,13 @@ export const connectPartner = async (
   return { data: partnerProfile };
 };
 
-export const connectByCode = async (code: string, currentUserId: string) => {
-  const { data: partnerProfile, error: findError } = await withRetry(() =>
-    supabase
-      .from('profiles')
-      .select('id, user_id, name, partner_id')
-      .eq('short_code', code)
-      .single()
+export const connectPartner = (partnerEmail: string, currentUserId: string) =>
+  linkProfiles(
+    'email',
+    partnerEmail,
+    currentUserId,
+    'Partner not found. Please check the email address.'
   );
 
-  if (findError || !partnerProfile) {
-    return { error: 'Partner not found. Please check the code.' };
-  }
-
-  const { data: currentProfile, error: currentProfileError } = await withRetry(() =>
-    supabase
-      .from('profiles')
-      .select('id, partner_id')
-      .eq('user_id', currentUserId)
-      .single()
-  );
-
-  if (currentProfileError || !currentProfile) {
-    return { error: 'Unable to retrieve your profile.' };
-  }
-
-  if (currentProfile.id === partnerProfile.id) {
-    return { error: 'Cannot connect with yourself.' };
-  }
-
-  if (
-    (currentProfile.partner_id && currentProfile.partner_id !== partnerProfile.id) ||
-    (partnerProfile.partner_id && partnerProfile.partner_id !== currentProfile.id)
-  ) {
-    return { error: 'User already paired' };
-  }
-
-  const { error: updateError } = await withRetry(() =>
-    supabase
-      .from('profiles')
-      .update({ partner_id: partnerProfile.id })
-      .eq('user_id', currentUserId)
-  );
-
-  if (updateError) {
-    return { error: 'Unable to connect with partner. Please try again.' };
-  }
-
-  const { error: partnerUpdateError } = await withRetry(() =>
-    supabase
-      .from('profiles')
-      .update({ partner_id: currentProfile.id })
-      .eq('user_id', partnerProfile.user_id)
-  );
-
-  if (partnerUpdateError) {
-    await withRetry(() =>
-      supabase
-        .from('profiles')
-        .update({ partner_id: null })
-        .eq('user_id', currentUserId)
-    );
-    return { error: 'Unable to connect with partner. Please try again.' };
-  }
-
-  return { data: partnerProfile };
-};
+export const connectByCode = (code: string, currentUserId: string) =>
+  linkProfiles('short_code', code, currentUserId, 'Partner not found. Please check the code.');
