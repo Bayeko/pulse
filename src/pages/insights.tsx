@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
+ codex/add-parent-mode-toggle-and-features
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { Sparkles, BarChart3, ArrowLeft, Heart } from 'lucide-react';
+
 import { Sparkles, BarChart3, ArrowLeft } from 'lucide-react';
+ main
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchEnergyCycleMetrics } from '@/integrations/wearable';
@@ -15,6 +21,14 @@ interface PulseRecord {
   receiver_id: string;
 }
 
+interface TimeSlotRecord {
+  start: string;
+  end: string;
+  date: string;
+  title: string | null;
+  type: string;
+}
+
 const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const hourLabels = Array.from({ length: 24 }, (_, i) => i);
 const fullDayLabels = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -25,12 +39,22 @@ const Insights: React.FC = () => {
   const [heatmap, setHeatmap] = useState<number[][]>(Array.from({ length: 7 }, () => Array(24).fill(0)));
   const [counts, setCounts] = useState({ sent: 0, received: 0, matched: 0 });
   const [suggestions, setSuggestions] = useState<string[]>([]);
+ codex/add-parent-mode-toggle-and-features
+  const [microMinutes, setMicroMinutes] = useState(0);
+  const isPremium = Boolean((user as { is_premium?: boolean } | null)?.is_premium);
+
   const isPremium = Boolean(user?.isPremium);
+ main
   const { t } = useTranslation();
   const maxHeat = Math.max(...heatmap.flat());
 
   useEffect(() => {
     if (!user) return;
+
+    const parseTime = (time: string) => {
+      const [h, m] = time.split(':').map(Number);
+      return h * 60 + m;
+    };
 
     const fetchHistory = async () => {
       const thirtyDaysAgo = new Date();
@@ -102,6 +126,27 @@ const Insights: React.FC = () => {
         suggestionList.push('No pulse history yet. Send some pulses to see insights!');
       }
 
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+      const endOfMonth = new Date(startOfMonth);
+      endOfMonth.setMonth(endOfMonth.getMonth() + 1);
+
+      const { data: microData } = await supabase
+        .from('time_slots')
+        .select('start,end,date,title,type')
+        .eq('user_id', user.id)
+        .eq('type', 'booked')
+        .eq('title', 'Micro-sieste')
+        .gte('date', startOfMonth.toISOString().split('T')[0])
+        .lt('date', endOfMonth.toISOString().split('T')[0]);
+
+      const totalMicro = (microData as TimeSlotRecord[] | null)?.reduce(
+        (sum, slot) => sum + (parseTime(slot.end) - parseTime(slot.start)),
+        0,
+      ) ?? 0;
+      setMicroMinutes(totalMicro);
+
       const energyCycle = await fetchEnergyCycleMetrics();
       if (energyCycle?.phase) {
         suggestionList.push(`Current energy cycle: ${energyCycle.phase}`);
@@ -125,6 +170,18 @@ const Insights: React.FC = () => {
             <p className="text-muted-foreground">Understand your pulse habits</p>
           </div>
         </div>
+
+        <Card className="relative shadow-card mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 font-serif">
+              <Heart className="w-5 h-5 text-primary" />
+              Time d'intimité gagné
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">{microMinutes} min</p>
+          </CardContent>
+        </Card>
 
         <Card className="relative shadow-card">
           <CardHeader>

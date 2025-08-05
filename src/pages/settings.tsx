@@ -65,6 +65,9 @@ interface SettingsData {
     autoDelete30d: boolean;
   };
   theme: 'light' | 'dark' | 'auto';
+ codex/add-parent-mode-toggle-and-features
+  parentMode: boolean;
+
   pulse: {
     emoji: string;
     color: string;
@@ -72,10 +75,11 @@ interface SettingsData {
     secret: boolean;
     secretIcon: string;
   };
+ main
 }
 
 const Settings: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const navigate = useNavigate();
   const { t, lang, setLang } = useTranslation();
   const { toast } = useToast();
@@ -111,6 +115,9 @@ const Settings: React.FC = () => {
       autoDelete30d: false,
     },
     theme: 'light',
+ codex/add-parent-mode-toggle-and-features
+    parentMode: user?.parentMode ?? false,
+
     pulse: {
       emoji: user?.pulseEmoji || '❤️',
       color: user?.pulseColor || '#ff0066',
@@ -118,6 +125,7 @@ const Settings: React.FC = () => {
       secret: user?.secretPulse || false,
       secretIcon: user?.secretPulseIcon || '❔',
     },
+ main
   });
 
   const [activeSection, setActiveSection] = useState<'profile' | 'notifications' | 'privacy' | 'general' | 'help'>('profile');
@@ -137,7 +145,11 @@ const Settings: React.FC = () => {
       if (!user) return;
       const { data, error } = await supabase
         .from('profiles')
+ codex/add-parent-mode-toggle-and-features
+        .select('name, email, bio, avatar, use_face_id, parent_mode')
+
         .select('name, email, bio, avatar, use_face_id, pulse_emoji, pulse_color, pulse_vibration, secret_pulse, secret_pulse_icon')
+ main
         .eq('user_id', user.id)
         .single();
 
@@ -159,6 +171,9 @@ const Settings: React.FC = () => {
             ...prev.privacy,
             useFaceID: profile.use_face_id ?? false,
           },
+ codex/add-parent-mode-toggle-and-features
+          parentMode: profile.parent_mode ?? false,
+
           pulse: {
             emoji: profile.pulse_emoji || '❤️',
             color: profile.pulse_color || '#ff0066',
@@ -166,6 +181,7 @@ const Settings: React.FC = () => {
             secret: profile.secret_pulse ?? false,
             secretIcon: profile.secret_pulse_icon || '❔',
           },
+ main
         }));
       }
     };
@@ -188,11 +204,15 @@ const Settings: React.FC = () => {
       email: settings.email,
       bio: settings.bio,
       avatar: settings.avatar,
+ codex/add-parent-mode-toggle-and-features
+      parent_mode: settings.parentMode,
+
       pulse_emoji: settings.pulse.emoji,
       pulse_color: settings.pulse.color,
       pulse_vibration: settings.pulse.vibration,
       secret_pulse: settings.pulse.secret,
       secret_pulse_icon: settings.pulse.secretIcon,
+ main
     };
 
     const { error } = await supabase
@@ -212,6 +232,7 @@ const Settings: React.FC = () => {
       toast({ description: 'Failed to save settings' });
     } else {
       toast({ description: 'Settings saved' });
+      await refreshUser();
     }
   };
 
@@ -877,6 +898,23 @@ const Settings: React.FC = () => {
                           setSettings({ ...settings, historyEnabled: checked });
                           localStorage.setItem('historyEnabled', String(checked));
                         }}
+                      />
+                    </div>
+
+                    <Separator />
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-medium">Parent Mode</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Offer micro-sieste slots and gentle alerts
+                        </p>
+                      </div>
+                      <Switch
+                        checked={settings.parentMode}
+                        onCheckedChange={(checked) =>
+                          setSettings({ ...settings, parentMode: checked })
+                        }
                       />
                     </div>
 

@@ -173,6 +173,8 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
     [energyMetrics],
   );
 
+  const parentMode = user?.parentMode;
+
   const generateSuggestions = useCallback(
     (mine: TimeSlot[], partner: TimeSlot[]): Suggestion[] => {
       const suggestions: Suggestion[] = [];
@@ -212,6 +214,21 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
               match,
               reason,
             });
+            if (parentMode) {
+              [10, 20].forEach((dur) => {
+                if (start + dur <= end) {
+                  const mEnd = minutesToTime(start + dur);
+                  suggestions.push({
+                    date: slot.date,
+                    start: startStr,
+                    end: mEnd,
+                    display: formatDisplay(slot.date, startStr, mEnd),
+                    match: "100%",
+                    reason: "Micro-sieste",
+                  });
+                }
+              });
+            }
           }
         });
       });
@@ -220,7 +237,11 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
         (a, b) => parseInt(b.match) - parseInt(a.match),
       );
     },
+ codex/add-parent-mode-toggle-and-features
+    [parentMode],
+
     [computeMatchAndReason],
+ main
   );
 
   useEffect(() => {
