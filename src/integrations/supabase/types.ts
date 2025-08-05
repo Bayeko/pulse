@@ -145,6 +145,30 @@ export type Database = {
         }
         Relationships: []
       },
+      scheduled_surprises: {
+        Row: {
+          id: string
+          user_id: string
+          idea: string
+          scheduled_at: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          idea: string
+          scheduled_at: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          idea?: string
+          scheduled_at?: string
+          created_at?: string
+        }
+        Relationships: []
+      },
       time_slots: {
         Row: {
           id: string
