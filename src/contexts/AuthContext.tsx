@@ -13,6 +13,11 @@ interface User {
   snoozeUntil?: string | null;
   partnerSnoozeUntil?: string | null;
   isPremium?: boolean;
+  pulseEmoji?: string | null;
+  pulseColor?: string | null;
+  pulseVibration?: number | null;
+  secretPulse?: boolean | null;
+  secretPulseIcon?: string | null;
 }
 
 interface AuthContextType {
@@ -91,7 +96,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           partnerName: profile.partner?.name,
           snoozeUntil: profile.snooze_until,
           partnerSnoozeUntil: profile.partner?.snooze_until,
-          isPremium: profile.is_premium
+          isPremium: profile.is_premium,
+          pulseEmoji: profile.pulse_emoji,
+          pulseColor: profile.pulse_color,
+          pulseVibration: profile.pulse_vibration,
+          secretPulse: profile.secret_pulse,
+          secretPulseIcon: profile.secret_pulse_icon
         });
       }
     } catch (error) {
