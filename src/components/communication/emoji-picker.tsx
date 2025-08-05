@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
 import { Badge } from '@/components/ui/badge';
@@ -13,24 +13,29 @@ interface EmojiPickerProps {
 
 export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onSend, className }) => {
   const { t } = useTranslation();
-  const emojiCategories = {
-    romantic: {
-      name: 'Romantic',
-      emojis: ['❤️', '💕', '💖', '💗', '💘', '💝', '💞', '💌', '💐', '🌹', '🥰', '😍']
-    },
-    playful: {
-      name: 'Playful',
-      emojis: ['😉', '😘', '🤗', '😜', '🙃', '😏', '🤭', '😇', '🥳', '✨', '🎉', '🔥']
-    },
-    intimate: {
-      name: `${t('intimacy')[0].toUpperCase()}${t('intimacy').slice(1)}`,
-      emojis: ['🫦', '👀', '🤫', '💋', '🌙', '🌟', '🍾', '🥂', '🛁', '🕯️', '🎭', '💎']
-    },
-    moods: {
-      name: 'Moods',
-      emojis: ['☺️', '😌', '🤤', '😴', '🥱', '🤒', '🤧', '😋', '🍯', '🧘‍♀️', '💭', '💤']
-    }
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const emojiCategories = useMemo(
+    () =>
+      ({
+        romantic: {
+          name: 'Romantic',
+          emojis: ['❤️', '💕', '💖', '💗', '💘', '💝', '💞', '💌', '💐', '🌹', '🥰', '😍']
+        },
+        playful: {
+          name: 'Playful',
+          emojis: ['😉', '😘', '🤗', '😜', '🙃', '😏', '🤭', '😇', '🥳', '✨', '🎉', '🔥']
+        },
+        intimate: {
+          name: `${t('intimacy')[0].toUpperCase()}${t('intimacy').slice(1)}`,
+          emojis: ['🫦', '👀', '🤫', '💋', '🌙', '🌟', '🍾', '🥂', '🛁', '🕯️', '🎭', '💎']
+        },
+        moods: {
+          name: 'Moods',
+          emojis: ['☺️', '😌', '🤤', '😴', '🥱', '🤒', '🤧', '😋', '🍯', '🧘‍♀️', '💭', '💤']
+        }
+      } as const),
+    []
+  );
 
   const [selectedCategory, setSelectedCategory] = useState<keyof typeof emojiCategories>('romantic');
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
