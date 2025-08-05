@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PulseButton } from "@/components/ui/pulse-button";
 import { Badge } from "@/components/ui/badge";
@@ -29,8 +29,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { fetchGoogleCalendarEvents } from "@/integrations/google-calendar";
+import { fetchMicrosoftCalendarEvents } from "@/integrations/microsoft-calendar";
+import { fetchEnergyCycleMetrics, type EnergyCycleMetrics } from "@/integrations/wearable";
 
-interface TimeSlot {
+export interface TimeSlot {
   id: string;
   user_id: string;
   start: string;
@@ -38,6 +41,7 @@ interface TimeSlot {
   date: string;
   type: "mutual" | "suggested" | "booked";
   title?: string | null;
+  source?: "internal" | "google" | "microsoft";
 }
 
 interface Suggestion {
@@ -66,12 +70,14 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
   const { t } = useTranslation();
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [partnerSlots, setPartnerSlots] = useState<TimeSlot[]>([]);
+  const [importedEvents, setImportedEvents] = useState<TimeSlot[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [selectedDate, setSelectedDate] = useState("2024-01-15");
   const [view, setView] = useState<"week" | "suggestions">("week");
   const [showMutualOnly, setShowMutualOnly] = useState(false);
   const [now, setNow] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [energyMetrics, setEnergyMetrics] = useState<EnergyCycleMetrics | null>(null);
   const [formData, setFormData] = useState<{
     id: string | null;
     start: string;
@@ -84,7 +90,15 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    fetchEnergyCycleMetrics().then(setEnergyMetrics);
+  }, []);
+
   const celebratedSlots = useRef<Set<string>>(new Set());
+  const allTimeSlots = useMemo(
+    () => [...timeSlots, ...importedEvents],
+    [timeSlots, importedEvents],
+  );
 
   const parseTime = (time: string) => {
     const [h, m] = time.split(":").map(Number);
@@ -128,24 +142,36 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
     return `${dayLabel}, ${startStr} - ${endStr}`;
   };
 
-  const computeMatchAndReason = (date: string, startMinutes: number) => {
-    const day = new Date(date).getDay();
-    const isWeekend = day === 0 || day === 6;
-    let match = 85;
-    let reason = "Morning time";
-    if (startMinutes >= 18 * 60) {
-      match = 95;
-      reason = "Evening time";
-    } else if (startMinutes >= 12 * 60) {
-      match = 90;
-      reason = "Afternoon time";
-    }
-    if (isWeekend) {
-      match += 2;
-      reason += " on weekend";
-    }
-    return { match: `${match}%`, reason };
-  };
+  const computeMatchAndReason = useCallback(
+    (date: string, startMinutes: number) => {
+      let match = 80;
+      let reason = "Balanced energy";
+      const phase = energyMetrics?.phase;
+      const ranges: Record<string, [number, number]> = {
+        peak: [9 * 60, 17 * 60],
+        low: [13 * 60, 15 * 60],
+        recovery: [18 * 60, 21 * 60],
+      };
+      if (phase) {
+        const range = ranges[phase] || [0, 24 * 60];
+        if (startMinutes >= range[0] && startMinutes <= range[1]) {
+          match = 95;
+          reason = `Aligns with your ${phase} energy`;
+        } else {
+          match = 70;
+          reason = `Outside your ${phase} energy`;
+        }
+      }
+      const day = new Date(date).getDay();
+      const isWeekend = day === 0 || day === 6;
+      if (isWeekend) {
+        match += 2;
+        reason += " on weekend";
+      }
+      return { match: `${match}%`, reason };
+    },
+    [energyMetrics],
+  );
 
   const generateSuggestions = useCallback(
     (mine: TimeSlot[], partner: TimeSlot[]): Suggestion[] => {
@@ -159,6 +185,7 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
         },
         {},
       );
+      const busySlots = mine.filter((s) => s.type === "booked");
 
       mine.forEach((slot) => {
         if (slot.type === "booked") return;
@@ -167,6 +194,13 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
           const start = Math.max(parseTime(slot.start), parseTime(pSlot.start));
           const end = Math.min(parseTime(slot.end), parseTime(pSlot.end));
           if (start < end) {
+            const hasConflict = busySlots.some(
+              (b) =>
+                b.date === slot.date &&
+                parseTime(b.start) < end &&
+                parseTime(b.end) > start,
+            );
+            if (hasConflict) return;
             const startStr = minutesToTime(start);
             const endStr = minutesToTime(end);
             const { match, reason } = computeMatchAndReason(slot.date, start);
@@ -182,11 +216,11 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
         });
       });
 
-      return suggestions
-        .sort((a, b) => parseInt(b.match) - parseInt(a.match))
-        .slice(0, 3);
+      return suggestions.sort(
+        (a, b) => parseInt(b.match) - parseInt(a.match),
+      );
     },
-    [],
+    [computeMatchAndReason],
   );
 
   useEffect(() => {
@@ -198,7 +232,9 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
         .select("*")
         .eq("user_id", user.id);
       if (!myError && myData) {
-        setTimeSlots(myData as TimeSlot[]);
+        setTimeSlots(
+          (myData as TimeSlot[]).map((s) => ({ ...s, source: "internal" })),
+        );
       }
 
       if (user.partnerId) {
@@ -212,6 +248,12 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
       } else {
         setPartnerSlots([]);
       }
+
+      const [googleEvents, microsoftEvents] = await Promise.all([
+        fetchGoogleCalendarEvents(),
+        fetchMicrosoftCalendarEvents(),
+      ]);
+      setImportedEvents([...googleEvents, ...microsoftEvents]);
     };
 
     fetchSlots();
@@ -219,8 +261,8 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
 
   useEffect(() => {
     if (!user) return;
-    setSuggestions(generateSuggestions(timeSlots, partnerSlots));
-  }, [timeSlots, partnerSlots, user, generateSuggestions]);
+    setSuggestions(generateSuggestions(allTimeSlots, partnerSlots));
+  }, [allTimeSlots, partnerSlots, user, generateSuggestions]);
 
   useEffect(() => {
     timeSlots
@@ -283,7 +325,9 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
       if (!error && data) {
         setTimeSlots((prev) =>
           prev.map((slot) =>
-            slot.id === formData.id ? (data as TimeSlot) : slot,
+            slot.id === formData.id
+              ? ({ ...(data as TimeSlot), source: "internal" })
+              : slot,
           ),
         );
       }
@@ -301,7 +345,10 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
         .select()
         .single();
       if (!error && data) {
-        setTimeSlots((prev) => [...prev, data as TimeSlot]);
+        setTimeSlots((prev) => [
+          ...prev,
+          { ...(data as TimeSlot), source: "internal" },
+        ]);
       }
     }
     setIsModalOpen(false);
@@ -334,7 +381,10 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
       .select()
       .single();
     if (!error && data) {
-      setTimeSlots((prev) => [...prev, data as TimeSlot]);
+      setTimeSlots((prev) => [
+        ...prev,
+        { ...(data as TimeSlot), source: "internal" },
+      ]);
     }
   };
 
@@ -353,7 +403,10 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
       .select()
       .single();
     if (!error && data) {
-      setTimeSlots((prev) => [...prev, data as TimeSlot]);
+      setTimeSlots((prev) => [
+        ...prev,
+        { ...(data as TimeSlot), source: "internal" },
+      ]);
     }
 
     const now = new Date();
@@ -402,7 +455,7 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
   };
 
   const getSlotsForDate = (date: string) => {
-    return timeSlots.filter(
+    return allTimeSlots.filter(
       (slot) =>
         slot.date === date && (!showMutualOnly || slot.type === "mutual"),
     );
@@ -427,10 +480,8 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
   const slotsForSelectedDate = getSlotsForDate(selectedDate);
   const overlappingSlots = findOverlaps(slotsForSelectedDate);
 
-
-
   const halfHourMarks = Array.from({ length: 48 }, (_, i) => minutesToTime(i * 30));
-  const allSlotsForSelectedDate = timeSlots.filter(
+  const allSlotsForSelectedDate = allTimeSlots.filter(
     (slot) => slot.date === selectedDate,
   );
 
@@ -623,19 +674,22 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
                           <Badge variant="outline" className="text-[10px]">
                             {typeInfo.label}
                           </Badge>
-                          <button
-                            onClick={() => updateTimeSlot(slot.id)}
-                            className="p-1 hover:text-foreground text-muted-foreground"
-                          >
-                            <Pencil className="w-3 h-3" />
-                          </button>
-                          <button
-                            onClick={() => deleteTimeSlot(slot.id)}
-                            className="p-1 hover:text-destructive text-destructive/80"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </button>
-
+                          {!slot.source && (
+                            <>
+                              <button
+                                onClick={() => updateTimeSlot(slot.id)}
+                                className="p-1 hover:text-foreground text-muted-foreground"
+                              >
+                                <Pencil className="w-3 h-3" />
+                              </button>
+                              <button
+                                onClick={() => deleteTimeSlot(slot.id)}
+                                className="p-1 hover:text-destructive text-destructive/80"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -684,18 +738,22 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
                             <Badge variant="outline" className="text-xs">
                               {typeInfo.label}
                             </Badge>
-                            <button
-                              onClick={() => updateTimeSlot(slot.id)}
-                              className="p-1 hover:text-foreground text-muted-foreground"
-                            >
-                              <Pencil className="w-3 h-3" />
-                            </button>
-                            <button
-                              onClick={() => deleteTimeSlot(slot.id)}
-                              className="p-1 hover:text-destructive text-destructive/80"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
+                            {!slot.source && (
+                              <>
+                                <button
+                                  onClick={() => updateTimeSlot(slot.id)}
+                                  className="p-1 hover:text-foreground text-muted-foreground"
+                                >
+                                  <Pencil className="w-3 h-3" />
+                                </button>
+                                <button
+                                  onClick={() => deleteTimeSlot(slot.id)}
+                                  className="p-1 hover:text-destructive text-destructive/80"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              </>
+                            )}
                           </div>
                         </div>
                         {slot.title && (
