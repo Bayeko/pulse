@@ -1,0 +1,14 @@
+{
+  "appId": "app.lovable.87a2c8c0a491491c867d7c092b5d4541",
+  "appName": "pulse-sync",
+  "webDir": "dist",
+  "server": {
+    "url": "https://87a2c8c0-a491-491c-867d-7c092b5d4541.lovableproject.com?forceHideBadge=true",
+    "cleartext": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  }
+}
