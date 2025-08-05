@@ -7,6 +7,8 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const TRIAL_START_KEY = 'trialStartDate';
 const TRIAL_NOTIFICATION_ID_KEY = 'trialNotificationId';
+const PREFERRED_SLOT_KEY = 'preferredSlot';
+const PREFERRED_SLOT_NOTIFICATION_ID_KEY = 'preferredSlotNotificationId';
 
 const getItem = async (key: string): Promise<string | null> => {
   if (typeof window !== 'undefined' && window.localStorage) {
@@ -189,6 +191,12 @@ export function usePushNotifications() {
           await removeItem(TRIAL_NOTIFICATION_ID_KEY);
         }
         await removeItem(TRIAL_START_KEY);
+        const preferredId = await getItem(PREFERRED_SLOT_NOTIFICATION_ID_KEY);
+        if (preferredId) {
+          await Notifications.cancelScheduledNotificationAsync(preferredId);
+          await removeItem(PREFERRED_SLOT_NOTIFICATION_ID_KEY);
+          await removeItem(PREFERRED_SLOT_KEY);
+        }
       }
     });
 
@@ -231,6 +239,62 @@ export function usePushNotifications() {
     };
 
     handleTrial();
+  }, [user]);
+
+  useEffect(() => {
+    const schedulePreferredSlot = async () => {
+      if (!user?.isPremium) return;
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      const { data } = await supabase
+        .from('messages')
+        .select('created_at')
+        .eq('type', 'pulse')
+        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+        .gte('created_at', thirtyDaysAgo.toISOString());
+
+      const grid = Array.from({ length: 7 }, () => Array(24).fill(0));
+      (data || []).forEach((p: { created_at: string }) => {
+        const d = new Date(p.created_at);
+        grid[d.getDay()][d.getHours()]++;
+      });
+
+      let topDay = 0;
+      let topHour = 0;
+      let max = 0;
+      grid.forEach((row, day) =>
+        row.forEach((cnt, hour) => {
+          if (cnt > max) {
+            max = cnt;
+            topDay = day;
+            topHour = hour;
+          }
+        }),
+      );
+
+      if (max === 0) return;
+
+      const storedSlot = await getItem(PREFERRED_SLOT_KEY);
+      const storedId = await getItem(PREFERRED_SLOT_NOTIFICATION_ID_KEY);
+      if (storedSlot) {
+        const { day, hour } = JSON.parse(storedSlot);
+        if (day === topDay && hour === topHour && storedId) return;
+      }
+      if (storedId) {
+        await Notifications.cancelScheduledNotificationAsync(storedId);
+      }
+
+      const id = await Notifications.scheduleNotificationAsync({
+        content: { body: "It's your preferred pulse time" },
+        trigger: { weekday: topDay + 1, hour: topHour, minute: 0, repeats: true },
+      });
+
+      await setItem(PREFERRED_SLOT_NOTIFICATION_ID_KEY, id);
+      await setItem(PREFERRED_SLOT_KEY, JSON.stringify({ day: topDay, hour: topHour }));
+    };
+
+    schedulePreferredSlot();
   }, [user]);
 }
 
