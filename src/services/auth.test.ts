@@ -4,7 +4,7 @@ vi.mock('@/lib/retry', () => ({
   withRetry: (fn: any) => fn(),
 }));
 
-import { signIn, connectPartner } from './auth';
+import { signIn, connectPartner, connectByCode } from './auth';
 import { supabase } from '@/integrations/supabase/client';
 
 test('signIn calls supabase auth method', async () => {
@@ -102,5 +102,22 @@ describe('partner connections', () => {
     expect(qb.update).toHaveBeenNthCalledWith(1, { partner_id: 2 });
     expect(qb.update).toHaveBeenNthCalledWith(2, { partner_id: 1 });
     expect(qb.update).toHaveBeenNthCalledWith(3, { partner_id: null });
+  });
+
+  test('prevents self pairing via code', async () => {
+    const qb: any = supabase.from('profiles');
+    qb.single
+      .mockResolvedValueOnce({
+        data: { id: 1, user_id: 'user1', name: 'User1', partner_id: null },
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        data: { id: 1, partner_id: null },
+        error: null,
+      });
+
+    const result = await connectByCode('code123', 'user1');
+    expect(result).toEqual({ error: 'Cannot connect with yourself.' });
+    expect(qb.update).not.toHaveBeenCalled();
   });
 });
