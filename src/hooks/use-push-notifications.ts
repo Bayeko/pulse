@@ -50,6 +50,14 @@ export function usePushNotifications() {
   const responseListener = useRef<Notifications.Subscription>();
 
   useEffect(() => {
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: !user?.parentMode,
+        shouldSetBadge: false,
+      }),
+    });
+
     const pruneSubscription = async (endpoint?: string) => {
       try {
         if (endpoint) {
@@ -168,6 +176,15 @@ export function usePushNotifications() {
 
     notificationListener.current = Notifications.addNotificationReceivedListener(
       notification => {
+        if (user?.parentMode && typeof window !== 'undefined') {
+          if ('vibrate' in navigator) navigator.vibrate(20);
+          if (typeof document !== 'undefined') {
+            document.documentElement.style.filter = 'brightness(0.5)';
+            setTimeout(() => {
+              document.documentElement.style.filter = '';
+            }, 2000);
+          }
+        }
         console.log('Notification received', notification);
       },
     );
@@ -201,7 +218,7 @@ export function usePushNotifications() {
       }
       authSubscription.unsubscribe();
     };
-  }, []);
+  }, [user?.parentMode]);
 
   useEffect(() => {
     const handleTrial = async () => {

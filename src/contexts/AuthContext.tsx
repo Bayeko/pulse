@@ -13,6 +13,7 @@ interface User {
   snoozeUntil?: string | null;
   partnerSnoozeUntil?: string | null;
   isPremium?: boolean;
+  parentMode?: boolean;
 }
 
 interface AuthContextType {
@@ -91,7 +92,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           partnerName: profile.partner?.name,
           snoozeUntil: profile.snooze_until,
           partnerSnoozeUntil: profile.partner?.snooze_until,
-          isPremium: profile.is_premium
+          isPremium: profile.is_premium,
+          parentMode: profile.parent_mode
         });
       }
     } catch (error) {

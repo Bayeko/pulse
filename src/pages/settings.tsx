@@ -65,10 +65,11 @@ interface SettingsData {
     autoDelete30d: boolean;
   };
   theme: 'light' | 'dark' | 'auto';
+  parentMode: boolean;
 }
 
 const Settings: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const navigate = useNavigate();
   const { t, lang, setLang } = useTranslation();
   const { toast } = useToast();
@@ -104,6 +105,7 @@ const Settings: React.FC = () => {
       autoDelete30d: false,
     },
     theme: 'light',
+    parentMode: user?.parentMode ?? false,
   });
 
   const [activeSection, setActiveSection] = useState<'profile' | 'notifications' | 'privacy' | 'general' | 'help'>('profile');
@@ -123,7 +125,7 @@ const Settings: React.FC = () => {
       if (!user) return;
       const { data, error } = await supabase
         .from('profiles')
-        .select('name, email, bio, avatar, use_face_id')
+        .select('name, email, bio, avatar, use_face_id, parent_mode')
         .eq('user_id', user.id)
         .single();
 
@@ -145,6 +147,7 @@ const Settings: React.FC = () => {
             ...prev.privacy,
             useFaceID: profile.use_face_id ?? false,
           },
+          parentMode: profile.parent_mode ?? false,
         }));
       }
     };
@@ -159,6 +162,7 @@ const Settings: React.FC = () => {
       email: settings.email,
       bio: settings.bio,
       avatar: settings.avatar,
+      parent_mode: settings.parentMode,
     };
 
     const { error } = await supabase
@@ -178,6 +182,7 @@ const Settings: React.FC = () => {
       toast({ description: 'Failed to save settings' });
     } else {
       toast({ description: 'Settings saved' });
+      await refreshUser();
     }
   };
 
@@ -759,6 +764,23 @@ const Settings: React.FC = () => {
                           setSettings({ ...settings, historyEnabled: checked });
                           localStorage.setItem('historyEnabled', String(checked));
                         }}
+                      />
+                    </div>
+
+                    <Separator />
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-medium">Parent Mode</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Offer micro-sieste slots and gentle alerts
+                        </p>
+                      </div>
+                      <Switch
+                        checked={settings.parentMode}
+                        onCheckedChange={(checked) =>
+                          setSettings({ ...settings, parentMode: checked })
+                        }
                       />
                     </div>
 
