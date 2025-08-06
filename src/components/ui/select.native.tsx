@@ -1,0 +1,12 @@
+import React from 'react';
+import { View } from 'react-native';
+export const Select = (props: any) => <View {...props} />;
+export const SelectGroup = (props: any) => <View {...props} />;
+export const SelectValue = (props: any) => <View {...props} />;
+export const SelectTrigger = (props: any) => <View {...props} />;
+export const SelectContent = (props: any) => <View {...props} />;
+export const SelectLabel = (props: any) => <View {...props} />;
+export const SelectItem = (props: any) => <View {...props} />;
+export const SelectSeparator = (props: any) => <View {...props} />;
+export const SelectScrollUpButton = (props: any) => <View {...props} />;
+export const SelectScrollDownButton = (props: any) => <View {...props} />;

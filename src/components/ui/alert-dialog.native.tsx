@@ -1,0 +1,13 @@
+import React from 'react';
+import { View } from 'react-native';
+export const AlertDialog = (props: any) => <View {...props} />;
+export const AlertDialogPortal = (props: any) => <View {...props} />;
+export const AlertDialogOverlay = (props: any) => <View {...props} />;
+export const AlertDialogTrigger = (props: any) => <View {...props} />;
+export const AlertDialogContent = (props: any) => <View {...props} />;
+export const AlertDialogHeader = (props: any) => <View {...props} />;
+export const AlertDialogFooter = (props: any) => <View {...props} />;
+export const AlertDialogTitle = (props: any) => <View {...props} />;
+export const AlertDialogDescription = (props: any) => <View {...props} />;
+export const AlertDialogAction = (props: any) => <View {...props} />;
+export const AlertDialogCancel = (props: any) => <View {...props} />;

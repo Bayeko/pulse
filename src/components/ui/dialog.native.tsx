@@ -1,0 +1,12 @@
+import React from 'react';
+import { View } from 'react-native';
+export const Dialog = (props: any) => <View {...props} />;
+export const DialogPortal = (props: any) => <View {...props} />;
+export const DialogOverlay = (props: any) => <View {...props} />;
+export const DialogClose = (props: any) => <View {...props} />;
+export const DialogTrigger = (props: any) => <View {...props} />;
+export const DialogContent = (props: any) => <View {...props} />;
+export const DialogHeader = (props: any) => <View {...props} />;
+export const DialogFooter = (props: any) => <View {...props} />;
+export const DialogTitle = (props: any) => <View {...props} />;
+export const DialogDescription = (props: any) => <View {...props} />;

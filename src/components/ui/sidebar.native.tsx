@@ -1,0 +1,27 @@
+import React from 'react';
+import { View } from 'react-native';
+
+export const Sidebar = (props: any) => <View {...props} />;
+export const SidebarContent = (props: any) => <View {...props} />;
+export const SidebarFooter = (props: any) => <View {...props} />;
+export const SidebarGroup = (props: any) => <View {...props} />;
+export const SidebarGroupAction = (props: any) => <View {...props} />;
+export const SidebarGroupContent = (props: any) => <View {...props} />;
+export const SidebarGroupLabel = (props: any) => <View {...props} />;
+export const SidebarHeader = (props: any) => <View {...props} />;
+export const SidebarInput = (props: any) => <View {...props} />;
+export const SidebarInset = (props: any) => <View {...props} />;
+export const SidebarMenu = (props: any) => <View {...props} />;
+export const SidebarMenuAction = (props: any) => <View {...props} />;
+export const SidebarMenuBadge = (props: any) => <View {...props} />;
+export const SidebarMenuButton = (props: any) => <View {...props} />;
+export const SidebarMenuItem = (props: any) => <View {...props} />;
+export const SidebarMenuSkeleton = (props: any) => <View {...props} />;
+export const SidebarMenuSub = (props: any) => <View {...props} />;
+export const SidebarMenuSubButton = (props: any) => <View {...props} />;
+export const SidebarMenuSubItem = (props: any) => <View {...props} />;
+export const SidebarProvider = (props: any) => <View {...props} />;
+export const SidebarRail = (props: any) => <View {...props} />;
+export const SidebarSeparator = (props: any) => <View {...props} />;
+export const SidebarTrigger = (props: any) => <View {...props} />;
+export const useSidebar = () => ({ open: true, toggle: () => {} });

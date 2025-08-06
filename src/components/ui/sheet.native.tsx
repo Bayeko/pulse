@@ -1,0 +1,12 @@
+import React from 'react';
+import { View } from 'react-native';
+export const Sheet = (props: any) => <View {...props} />;
+export const SheetClose = (props: any) => <View {...props} />;
+export const SheetContent = (props: any) => <View {...props} />;
+export const SheetDescription = (props: any) => <View {...props} />;
+export const SheetFooter = (props: any) => <View {...props} />;
+export const SheetHeader = (props: any) => <View {...props} />;
+export const SheetOverlay = (props: any) => <View {...props} />;
+export const SheetPortal = (props: any) => <View {...props} />;
+export const SheetTitle = (props: any) => <View {...props} />;
+export const SheetTrigger = (props: any) => <View {...props} />;

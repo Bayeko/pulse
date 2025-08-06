@@ -1,0 +1,18 @@
+import React from 'react';
+import { View } from 'react-native';
+export const Menubar = (props: any) => <View {...props} />;
+export const MenubarMenu = (props: any) => <View {...props} />;
+export const MenubarTrigger = (props: any) => <View {...props} />;
+export const MenubarContent = (props: any) => <View {...props} />;
+export const MenubarItem = (props: any) => <View {...props} />;
+export const MenubarSeparator = (props: any) => <View {...props} />;
+export const MenubarLabel = (props: any) => <View {...props} />;
+export const MenubarCheckboxItem = (props: any) => <View {...props} />;
+export const MenubarRadioGroup = (props: any) => <View {...props} />;
+export const MenubarRadioItem = (props: any) => <View {...props} />;
+export const MenubarPortal = (props: any) => <View {...props} />;
+export const MenubarSubContent = (props: any) => <View {...props} />;
+export const MenubarSubTrigger = (props: any) => <View {...props} />;
+export const MenubarGroup = (props: any) => <View {...props} />;
+export const MenubarSub = (props: any) => <View {...props} />;
+export const MenubarShortcut = (props: any) => <View {...props} />;
