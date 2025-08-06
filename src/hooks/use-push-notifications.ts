@@ -48,6 +48,7 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 
 export function usePushNotifications() {
   const { user } = useAuth();
+  const parentMode = user?.parentMode;
   const notificationListener = useRef<Notifications.Subscription>();
   const responseListener = useRef<Notifications.Subscription>();
 
@@ -55,7 +56,7 @@ export function usePushNotifications() {
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
         shouldShowAlert: true,
-        shouldPlaySound: !user?.parentMode,
+        shouldPlaySound: !parentMode,
         shouldSetBadge: false,
       }),
     });
@@ -178,7 +179,7 @@ export function usePushNotifications() {
 
     notificationListener.current = Notifications.addNotificationReceivedListener(
       notification => {
-        if (user?.parentMode && typeof window !== 'undefined') {
+        if (parentMode && typeof window !== 'undefined') {
           if ('vibrate' in navigator) navigator.vibrate(20);
           if (typeof document !== 'undefined') {
             document.documentElement.style.filter = 'brightness(0.5)';
@@ -226,7 +227,7 @@ export function usePushNotifications() {
       }
       authSubscription.unsubscribe();
     };
-  }, [user?.parentMode]);
+  }, [user, parentMode]);
 
   useEffect(() => {
     const handleTrial = async () => {
