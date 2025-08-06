@@ -11,10 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/i18n';
 import { supabase } from '@/integrations/supabase/client';
 import { SITE_URL } from '@/config';
- codex/delete-stray-tokens-and-remove-duplicate-button
 
 
- main
 const EU_COUNTRIES = [
   'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU',
   'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'

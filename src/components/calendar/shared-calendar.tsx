@@ -237,11 +237,7 @@ export const SharedCalendar: React.FC<SharedCalendarProps> = ({
         (a, b) => parseInt(b.match) - parseInt(a.match),
       );
     },
- codex/add-parent-mode-toggle-and-features
-    [parentMode],
-
-    [computeMatchAndReason],
- main
+    [parentMode, computeMatchAndReason],
   );
 
   useEffect(() => {

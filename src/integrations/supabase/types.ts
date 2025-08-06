@@ -55,15 +55,12 @@ export type Database = {
           partner_id: string | null
           snooze_until: string | null
           use_face_id: boolean | null
- codex/add-parent-mode-toggle-and-features
           parent_mode: boolean | null
-
           pulse_emoji: string | null
           pulse_color: string | null
           pulse_vibration: number | null
           secret_pulse: boolean | null
           secret_pulse_icon: string | null
- main
           updated_at: string
           user_id: string
         }
@@ -77,15 +74,12 @@ export type Database = {
           partner_id?: string | null
           snooze_until?: string | null
           use_face_id?: boolean | null
- codex/add-parent-mode-toggle-and-features
           parent_mode?: boolean | null
-
           pulse_emoji?: string | null
           pulse_color?: string | null
           pulse_vibration?: number | null
           secret_pulse?: boolean | null
           secret_pulse_icon?: string | null
- main
           updated_at?: string
           user_id: string
         }
@@ -99,15 +93,12 @@ export type Database = {
           partner_id?: string | null
           snooze_until?: string | null
           use_face_id?: boolean | null
- codex/add-parent-mode-toggle-and-features
           parent_mode?: boolean | null
-
           pulse_emoji?: string | null
           pulse_color?: string | null
           pulse_vibration?: number | null
           secret_pulse?: boolean | null
           secret_pulse_icon?: string | null
- main
           updated_at?: string
           user_id?: string
         }
