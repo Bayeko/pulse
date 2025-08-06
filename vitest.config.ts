@@ -1,18 +1,20 @@
-import { defineConfig } from 'vitest/config';
-import path from 'path';
+import path from "path";
+import type { UserConfig as Config } from "vitest/config";
 
-export default defineConfig({
+const config: Config = {
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src'),
+      "@": path.resolve(__dirname, "src"),
     },
   },
   test: {
-    environment: 'jsdom',
+    environment: "jsdom",
     globals: true,
-    setupFiles: './vitest.setup.ts',
+    setupFiles: "./vitest.setup.ts",
     coverage: {
-      reporter: ['text', 'lcov'],
+      reporter: ["text", "lcov"],
     },
   },
-});
+};
+
+export default config;
