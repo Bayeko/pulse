@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
- codex/add-parent-mode-toggle-and-features
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { Sparkles, BarChart3, ArrowLeft, Heart } from 'lucide-react';
-
-import { Sparkles, BarChart3, ArrowLeft } from 'lucide-react';
- main
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchEnergyCycleMetrics } from '@/integrations/wearable';
@@ -39,12 +35,8 @@ const Insights: React.FC = () => {
   const [heatmap, setHeatmap] = useState<number[][]>(Array.from({ length: 7 }, () => Array(24).fill(0)));
   const [counts, setCounts] = useState({ sent: 0, received: 0, matched: 0 });
   const [suggestions, setSuggestions] = useState<string[]>([]);
- codex/add-parent-mode-toggle-and-features
   const [microMinutes, setMicroMinutes] = useState(0);
-  const isPremium = Boolean((user as { is_premium?: boolean } | null)?.is_premium);
-
   const isPremium = Boolean(user?.isPremium);
- main
   const { t } = useTranslation();
   const maxHeat = Math.max(...heatmap.flat());
 

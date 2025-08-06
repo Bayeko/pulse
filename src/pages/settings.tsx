@@ -65,7 +65,6 @@ interface SettingsData {
     autoDelete30d: boolean;
   };
   theme: 'light' | 'dark' | 'auto';
- codex/add-parent-mode-toggle-and-features
   parentMode: boolean;
 
   pulse: {
@@ -75,7 +74,6 @@ interface SettingsData {
     secret: boolean;
     secretIcon: string;
   };
- main
 }
 
 const Settings: React.FC = () => {
@@ -115,7 +113,6 @@ const Settings: React.FC = () => {
       autoDelete30d: false,
     },
     theme: 'light',
- codex/add-parent-mode-toggle-and-features
     parentMode: user?.parentMode ?? false,
 
     pulse: {
@@ -125,7 +122,6 @@ const Settings: React.FC = () => {
       secret: user?.secretPulse || false,
       secretIcon: user?.secretPulseIcon || '❔',
     },
- main
   });
 
   const [activeSection, setActiveSection] = useState<'profile' | 'notifications' | 'privacy' | 'general' | 'help'>('profile');
@@ -145,11 +141,7 @@ const Settings: React.FC = () => {
       if (!user) return;
       const { data, error } = await supabase
         .from('profiles')
- codex/add-parent-mode-toggle-and-features
-        .select('name, email, bio, avatar, use_face_id, parent_mode')
-
-        .select('name, email, bio, avatar, use_face_id, pulse_emoji, pulse_color, pulse_vibration, secret_pulse, secret_pulse_icon')
- main
+        .select('name, email, bio, avatar, use_face_id, parent_mode, pulse_emoji, pulse_color, pulse_vibration, secret_pulse, secret_pulse_icon')
         .eq('user_id', user.id)
         .single();
 
@@ -171,9 +163,7 @@ const Settings: React.FC = () => {
             ...prev.privacy,
             useFaceID: profile.use_face_id ?? false,
           },
- codex/add-parent-mode-toggle-and-features
           parentMode: profile.parent_mode ?? false,
-
           pulse: {
             emoji: profile.pulse_emoji || '❤️',
             color: profile.pulse_color || '#ff0066',
@@ -181,7 +171,6 @@ const Settings: React.FC = () => {
             secret: profile.secret_pulse ?? false,
             secretIcon: profile.secret_pulse_icon || '❔',
           },
- main
         }));
       }
     };
@@ -204,15 +193,12 @@ const Settings: React.FC = () => {
       email: settings.email,
       bio: settings.bio,
       avatar: settings.avatar,
- codex/add-parent-mode-toggle-and-features
       parent_mode: settings.parentMode,
-
       pulse_emoji: settings.pulse.emoji,
       pulse_color: settings.pulse.color,
       pulse_vibration: settings.pulse.vibration,
       secret_pulse: settings.pulse.secret,
       secret_pulse_icon: settings.pulse.secretIcon,
- main
     };
 
     const { error } = await supabase
