@@ -5,7 +5,7 @@ export async function withRetry<T extends { error?: unknown }>(
 ): Promise<T> {
   let attempt = 0;
   let result: T;
-  while (attempt <= retries) {
+  while (attempt < retries) {
     try {
       result = await fn();
       if (!result?.error) {
@@ -17,11 +17,12 @@ export async function withRetry<T extends { error?: unknown }>(
 
     attempt++;
     console.error(`Supabase call failed (attempt ${attempt}):`, result.error);
-    if (attempt > retries) {
+    if (attempt >= retries) {
       return result;
     }
     await new Promise((resolve) =>
       setTimeout(resolve, delayMs * Math.pow(2, attempt - 1))
     );
   }
+  return result!;
 }
