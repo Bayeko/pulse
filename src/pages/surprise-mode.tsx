@@ -67,7 +67,7 @@ const SurpriseMode: React.FC = () => {
           </h1>
         </div>
       </header>
-      <main className="container mx-auto px-4 py-8 flex justify-center">
+      <div className="container mx-auto px-4 py-8 flex justify-center">
         <Card className="w-full max-w-md shadow-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 font-serif">
@@ -90,7 +90,7 @@ const SurpriseMode: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-        </main>
+        </div>
       </div>
     );
   };
