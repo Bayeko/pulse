@@ -1,0 +1,11 @@
+import React from 'react';
+import { View } from 'react-native';
+export const navigationMenuTriggerStyle = (props: any) => <View {...props} />;
+export const NavigationMenu = (props: any) => <View {...props} />;
+export const NavigationMenuList = (props: any) => <View {...props} />;
+export const NavigationMenuItem = (props: any) => <View {...props} />;
+export const NavigationMenuContent = (props: any) => <View {...props} />;
+export const NavigationMenuTrigger = (props: any) => <View {...props} />;
+export const NavigationMenuLink = (props: any) => <View {...props} />;
+export const NavigationMenuIndicator = (props: any) => <View {...props} />;
+export const NavigationMenuViewport = (props: any) => <View {...props} />;

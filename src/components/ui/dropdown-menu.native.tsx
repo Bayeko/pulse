@@ -1,0 +1,17 @@
+import React from 'react';
+import { View } from 'react-native';
+export const DropdownMenu = (props: any) => <View {...props} />;
+export const DropdownMenuTrigger = (props: any) => <View {...props} />;
+export const DropdownMenuContent = (props: any) => <View {...props} />;
+export const DropdownMenuItem = (props: any) => <View {...props} />;
+export const DropdownMenuCheckboxItem = (props: any) => <View {...props} />;
+export const DropdownMenuRadioItem = (props: any) => <View {...props} />;
+export const DropdownMenuLabel = (props: any) => <View {...props} />;
+export const DropdownMenuSeparator = (props: any) => <View {...props} />;
+export const DropdownMenuShortcut = (props: any) => <View {...props} />;
+export const DropdownMenuGroup = (props: any) => <View {...props} />;
+export const DropdownMenuPortal = (props: any) => <View {...props} />;
+export const DropdownMenuSub = (props: any) => <View {...props} />;
+export const DropdownMenuSubContent = (props: any) => <View {...props} />;
+export const DropdownMenuSubTrigger = (props: any) => <View {...props} />;
+export const DropdownMenuRadioGroup = (props: any) => <View {...props} />;

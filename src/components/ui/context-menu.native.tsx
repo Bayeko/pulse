@@ -1,0 +1,17 @@
+import React from 'react';
+import { View } from 'react-native';
+export const ContextMenu = (props: any) => <View {...props} />;
+export const ContextMenuTrigger = (props: any) => <View {...props} />;
+export const ContextMenuContent = (props: any) => <View {...props} />;
+export const ContextMenuItem = (props: any) => <View {...props} />;
+export const ContextMenuCheckboxItem = (props: any) => <View {...props} />;
+export const ContextMenuRadioItem = (props: any) => <View {...props} />;
+export const ContextMenuLabel = (props: any) => <View {...props} />;
+export const ContextMenuSeparator = (props: any) => <View {...props} />;
+export const ContextMenuShortcut = (props: any) => <View {...props} />;
+export const ContextMenuGroup = (props: any) => <View {...props} />;
+export const ContextMenuPortal = (props: any) => <View {...props} />;
+export const ContextMenuSub = (props: any) => <View {...props} />;
+export const ContextMenuSubContent = (props: any) => <View {...props} />;
+export const ContextMenuSubTrigger = (props: any) => <View {...props} />;
+export const ContextMenuRadioGroup = (props: any) => <View {...props} />;

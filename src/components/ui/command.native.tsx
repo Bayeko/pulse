@@ -1,0 +1,11 @@
+import React from 'react';
+import { View } from 'react-native';
+export const Command = (props: any) => <View {...props} />;
+export const CommandDialog = (props: any) => <View {...props} />;
+export const CommandInput = (props: any) => <View {...props} />;
+export const CommandList = (props: any) => <View {...props} />;
+export const CommandEmpty = (props: any) => <View {...props} />;
+export const CommandGroup = (props: any) => <View {...props} />;
+export const CommandItem = (props: any) => <View {...props} />;
+export const CommandShortcut = (props: any) => <View {...props} />;
+export const CommandSeparator = (props: any) => <View {...props} />;
