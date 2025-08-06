@@ -4,3 +4,20 @@ supabase/
 docs/
 public/
 src/assets/
+
+# Config and test files not needed for Expo Snack demo
+babel.config.js
+capacitor.config.json
+components.json
+eslint.config.js
+metro.config.js
+postcss.config.js
+tailwind.config.ts
+tsconfig.json
+tsconfig.app.json
+vite.config.ts
+vitest.config.ts
+vitest.setup.ts
+package-lock.json
+**/*.test.*
+**/*.spec.*
