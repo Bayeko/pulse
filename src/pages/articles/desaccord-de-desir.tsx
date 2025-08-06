@@ -10,7 +10,7 @@ const DesaccordDeDesir = () => (
     </p>
     <p>
       Exprimer clairement ses sentiments, écouter activement l'autre et chercher des compromis aide
-      à maintenir la connexion. Si nécessaire, planifiez des moments de partage et n'hésitez pas à
+      à garder la connexion. Si nécessaire, planifiez des moments de partage et n'hésitez pas à
       consulter un spécialiste pour un accompagnement.
     </p>
   </div>
