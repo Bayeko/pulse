@@ -26,5 +26,5 @@ dist-ssr
 # Local environment variables
 .env
 
-# Bun lockfile
+# Bun lockfile (ignored)
 bun.lockb
