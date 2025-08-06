@@ -1,0 +1,6 @@
+# Directories not needed for Expo Snack demo
+supabase/
+**/migrations/
+docs/
+public/
+src/assets/
