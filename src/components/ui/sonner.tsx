@@ -1,10 +1,11 @@
-import { useTheme } from "next-themes"
+import { useColorScheme } from "react-native"
 import { Toaster as Sonner, toast } from "sonner"
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
+  const colorScheme = useColorScheme()
+  const theme = colorScheme === "dark" ? "dark" : "light"
 
   return (
     <Sonner
