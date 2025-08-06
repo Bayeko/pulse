@@ -5,7 +5,7 @@ export async function withRetry<T extends { error?: unknown }>(
 ): Promise<T> {
   let attempt = 0;
   let result: T;
-  while (true) {
+  while (attempt <= retries) {
     try {
       result = await fn();
       if (!result?.error) {
