@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import type { InfiniteData } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PulseButton } from '@/components/ui/pulse-button';
@@ -169,38 +169,41 @@ export const MessageCenter: React.FC<MessageCenterProps> = ({ className, pulseEm
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     listRef.current?.scrollToItem(messages.length - 1);
-  }, [messages.length]);
+  }, [messages]);
 
   // Mark messages as read when they come into view
   useEffect(() => {
     if (!user) return;
-    
-    const unreadMessages = messages.filter(msg => 
-      msg.sender_id !== user.id && !msg.read_at
+
+    const unreadMessages = messages.filter(
+      msg => msg.sender_id !== user.id && !msg.read_at,
     );
 
     if (unreadMessages.length > 0) {
       markMessagesAsRead(unreadMessages.map(msg => msg.id));
     }
-  }, [messages, user]);
+  }, [messages, user, markMessagesAsRead]);
 
-  const markMessagesAsRead = async (messageIds: string[]) => {
-    if (!user || messageIds.length === 0) return;
+  const markMessagesAsRead = useCallback(
+    async (messageIds: string[]) => {
+      if (!user || messageIds.length === 0) return;
 
-    try {
-      const { error } = await supabase
-        .from('messages')
-        .update({ read_at: new Date().toISOString() })
-        .in('id', messageIds)
-        .eq('receiver_id', user.id);
+      try {
+        const { error } = await supabase
+          .from('messages')
+          .update({ read_at: new Date().toISOString() })
+          .in('id', messageIds)
+          .eq('receiver_id', user.id);
 
-      if (error) {
-        console.error('Error marking messages as read:', error);
+        if (error) {
+          console.error('Error marking messages as read:', error);
+        }
+      } catch (error) {
+        console.error('Error in markMessagesAsRead:', error);
       }
-    } catch (error) {
-      console.error('Error in markMessagesAsRead:', error);
-    }
-  };
+    },
+    [user]
+  );
 
   const sendMessage = async (content: string, type: 'text' | 'emoji' = 'text') => {
     if (!content.trim() || !user || !user.partnerId) return;

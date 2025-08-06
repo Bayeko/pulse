@@ -13,7 +13,6 @@ interface EmojiPickerProps {
 
 export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onSend, className }) => {
   const { t } = useTranslation();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const emojiCategories = useMemo(
     () =>
       ({
@@ -34,7 +33,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onSend, className }) =
           emojis: ['☺️', '😌', '🤤', '😴', '🥱', '🤒', '🤧', '😋', '🍯', '🧘‍♀️', '💭', '💤']
         }
       } as const),
-    []
+    [t]
   );
 
   const [selectedCategory, setSelectedCategory] = useState<keyof typeof emojiCategories>('romantic');
