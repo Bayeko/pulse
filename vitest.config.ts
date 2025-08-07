@@ -8,7 +8,7 @@ const config: Config = {
     },
   },
   test: {
-    environment: "jsdom",
+    environment: "node",
     globals: true,
     setupFiles: "./vitest.setup.ts",
     coverage: {
