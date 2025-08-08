@@ -28,3 +28,12 @@ dist-ssr
 
 # Bun lockfile (ignored)
 bun.lockb
+
+# Supabase local environment
+supabase/
+
+# Deno configuration files
+deno.json
+deno.jsonc
+deno.lock
+*.deno.*
