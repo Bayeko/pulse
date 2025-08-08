@@ -1,15 +1,15 @@
 import React from 'react';
-import { PulseStatusCard } from '@/components/dashboard/pulse-status';
-import { EmojiPicker } from '@/components/communication/emoji-picker';
-import { SharedCalendar } from '@/components/calendar/shared-calendar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PulseButton } from '@/components/ui/pulse-button';
-import { Badge } from '@/components/ui/badge';
+import { PulseStatusCard } from '../components/dashboard/pulse-status';
+import { EmojiPicker } from '../components/communication/emoji-picker';
+import { SharedCalendar } from '../components/calendar/shared-calendar';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { PulseButton } from '../components/ui/pulse-button';
+import { Badge } from '../components/ui/badge';
 import { Heart, Bell, Settings, Shield, Calendar, MessageCircle, LogOut, User, Sparkles } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from '@/i18n';
-import logger from '@/lib/logger';
+import { useTranslation } from '../i18n';
+import logger from '../lib/logger';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();

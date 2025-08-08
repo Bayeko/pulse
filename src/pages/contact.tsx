@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { PulseButton } from '@/components/ui/pulse-button';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
-import { useTranslation } from '@/i18n';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Label } from '../components/ui/label';
+import { Input } from '../components/ui/input';
+import { Textarea } from '../components/ui/textarea';
+import { PulseButton } from '../components/ui/pulse-button';
+import { useToast } from '../hooks/use-toast';
+import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from '../i18n';
 
 const Contact: React.FC = () => {
   const { user } = useAuth();

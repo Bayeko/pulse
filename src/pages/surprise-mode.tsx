@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PulseButton } from '@/components/ui/pulse-button';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { PulseButton } from '../components/ui/pulse-button';
 import { ArrowLeft, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Input } from '@/components/ui/input';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
-import { scheduleSurprise } from '@/lib/reminders';
+import { Input } from '../components/ui/input';
+import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../hooks/use-toast';
+import { scheduleSurprise } from '../lib/reminders';
 
 const SurpriseMode: React.FC = () => {
   const [ideas, setIdeas] = useState<string[]>([]);

@@ -1,11 +1,11 @@
 import React from 'react';
-import { MessageCenter } from '@/components/messaging/message-center';
-import { EmojiPicker } from '@/components/communication/emoji-picker';
-import { PulseButton } from '@/components/ui/pulse-button';
+import { MessageCenter } from '../components/messaging/message-center';
+import { EmojiPicker } from '../components/communication/emoji-picker';
+import { PulseButton } from '../components/ui/pulse-button';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import logger from '@/lib/logger';
-import { useAuth } from '@/contexts/AuthContext';
+import logger from '../lib/logger';
+import { useAuth } from '../contexts/AuthContext';
 
 const Messages: React.FC = () => {
   const navigate = useNavigate();

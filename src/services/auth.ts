@@ -1,6 +1,6 @@
-import { supabase } from '@/integrations/supabase/client';
-import { withRetry } from '@/lib/retry';
-import { SITE_URL } from '@/config';
+import { supabase } from '../integrations/supabase/client';
+import { withRetry } from '../lib/retry';
+import { SITE_URL } from '../config';
 
 export const signIn = (email: string, password: string) => {
   return withRetry(() => supabase.auth.signInWithPassword({ email, password }));

@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PulseButton } from '@/components/ui/pulse-button';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { PulseButton } from '../components/ui/pulse-button';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '../components/ui/chart';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { Sparkles, BarChart3, ArrowLeft, Heart } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { fetchEnergyCycleMetrics } from '@/integrations/wearable';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../integrations/supabase/client';
+import { fetchEnergyCycleMetrics } from '../integrations/wearable';
 import { useNavigate } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import { useTranslation } from '@/i18n';
+import { cn } from '../lib/utils';
+import { useTranslation } from '../i18n';
 
 interface PulseRecord {
   created_at: string;

@@ -1,7 +1,7 @@
 import React from 'react';
-import { PulseButton } from '@/components/ui/pulse-button';
+import { PulseButton } from '../components/ui/pulse-button';
 import { Heart, Shield, Sparkles } from 'lucide-react';
-import { useTranslation } from '@/i18n';
+import { useTranslation } from '../i18n';
 
 const Paywall = () => {
   const { t } = useTranslation();

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Check } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { useTranslation } from '@/i18n';
-import { cn } from '@/lib/utils';
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../integrations/supabase/client';
+import { useToast } from '../../hooks/use-toast';
+import { useTranslation } from '../../i18n';
+import { cn } from '../../lib/utils';
 
 interface CentralPulseButtonProps {
   className?: string;

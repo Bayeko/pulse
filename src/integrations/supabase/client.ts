@@ -3,10 +3,10 @@ import 'react-native-url-polyfill/auto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
-import { SUPABASE_URL, SUPABASE_KEY } from '@/config';
+import { SUPABASE_URL, SUPABASE_KEY } from '../../config';
 
 // Import the supabase client like this:
-// import { supabase } from "@/integrations/supabase/client";
+// import { supabase } from './client';
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_KEY, {
   auth: {

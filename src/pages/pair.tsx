@@ -1,4 +1,4 @@
-import Pairing from '@/components/coupling/pairing';
+import Pairing from '../components/coupling/pairing';
 
 const PairPage = () => <Pairing />;
 

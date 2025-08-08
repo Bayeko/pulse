@@ -1,9 +1,9 @@
 import React from 'react';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
+import { Button } from '../ui/button';
+import { supabase } from '../../integrations/supabase/client';
+import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '../../hooks/use-toast';
 import { format } from 'date-fns';
 
 export const SnoozeToggle: React.FC = () => {

@@ -1,4 +1,4 @@
-import type { TimeSlot } from '@/components/calendar/shared-calendar';
+import type { TimeSlot } from '../components/calendar/shared-calendar';
 
 const MICROSOFT_CLIENT_ID = import.meta.env.VITE_MICROSOFT_CLIENT_ID;
 

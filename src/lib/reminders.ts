@@ -1,5 +1,5 @@
-import { supabase } from '@/integrations/supabase/client';
-import { withRetry } from '@/lib/retry';
+import { supabase } from '../integrations/supabase/client';
+import { withRetry } from './retry';
 
 interface ReminderSlot {
   id: string;

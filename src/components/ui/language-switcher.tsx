@@ -1,6 +1,6 @@
 import React from 'react';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { useTranslation } from '@/i18n';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './select';
+import { useTranslation } from '../../i18n';
 
 export const LanguageSwitcher: React.FC = () => {
   const { lang, setLang } = useTranslation();
