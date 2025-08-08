@@ -3,7 +3,7 @@
 Components should respect the user's system font size settings. Use the `useScaledFont` hook to scale any base font size using `PixelRatio.getFontScale()`.
 
 ```tsx
-import { useScaledFont } from '@/hooks/use-scaled-font'
+import { useScaledFont } from '../src/hooks/use-scaled-font'
 
 const Example = () => {
   const scaleFont = useScaledFont()
