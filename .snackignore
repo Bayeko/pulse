@@ -6,7 +6,6 @@ public/
 src/assets/
 
 # Config and test files not needed for Expo Snack demo
-babel.config.js
 capacitor.config.json
 components.json
 eslint.config.js
