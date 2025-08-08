@@ -14,6 +14,8 @@
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
 
+
+
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-navigation/native": "^7.1.17",
     "@react-navigation/native-stack": "^7.3.24",
@@ -38,6 +40,7 @@
 
 
     "zod": "^3.23.8",
+
     "@radix-ui/react-accordion": "^1.0.0",
     "@radix-ui/react-alert-dialog": "^1.0.0",
     "@radix-ui/react-aspect-ratio": "^1.0.0",
@@ -76,12 +79,13 @@
     "cmdk": "^0.2.0",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.0.0",
-    "expo": "^53.0.20",
+    "expo": "~53.0.20",
     "expo-constants": "~17.1.7",
     "expo-device": "^7.1.4",
     "expo-notifications": "~0.29.14",
     "input-otp": "^1.1.4",
     "lucide-react": "^0.441.0",
+    "metro": "^0.83.1",
     "papaparse": "^5.4.1",
     "qrcode.react": "^3.1.0",
     "react": "18.2.0",
@@ -89,7 +93,7 @@
     "react-dom": "18.2.0",
     "react-hook-form": "^7.53.0",
     "react-native": "^0.74.1",
-    "react-native-safe-area-context": "4.12.0",
+    "react-native-safe-area-context": "^4.12.0",
     "react-native-screens": "~4.4.0",
     "react-native-url-polyfill": "^2.0.0",
     "react-resizable-panels": "^0.0.58",
@@ -99,11 +103,8 @@
     "sonner": "^1.4.0",
     "tailwind-merge": "^1.14.0",
     "vaul": "^0.9.1",
-
-
     "zod": "^3.23.8"
   },
-  
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@expo/metro-config": "^0.20.17",
