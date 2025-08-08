@@ -1,0 +1,7 @@
+{
+  "expo": {
+    "name": "pulse-snack",
+    "slug": "pulse-snack",
+    "entryPoint": "./App.snack.tsx"
+  }
+}
