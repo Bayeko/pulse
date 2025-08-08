@@ -28,3 +28,6 @@ dist-ssr
 
 # Bun lockfile (ignored)
 bun.lockb
+
+# Lockfile
+package-lock.json
