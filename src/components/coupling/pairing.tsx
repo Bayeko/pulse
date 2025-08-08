@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import type { Database } from '@/integrations/supabase/types';
-import { useAuth } from '@/contexts/AuthContext';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
+import { supabase } from '../../integrations/supabase/client';
+import type { Database } from '../../integrations/supabase/types';
+import { useAuth } from '../../contexts/AuthContext';
+import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
+import { Button } from '../ui/button';
 import QRCode from 'qrcode.react';
-import { getConfetti } from '@/lib/confetti';
+import { getConfetti } from '../../lib/confetti';
 
 type ProfileSummary = Pick<
   Database['public']['Tables']['profiles']['Row'],

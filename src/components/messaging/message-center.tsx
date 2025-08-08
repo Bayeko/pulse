@@ -1,17 +1,17 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import type { InfiniteData } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PulseButton } from '@/components/ui/pulse-button';
-import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { PulseButton } from '../ui/pulse-button';
+import { Badge } from '../ui/badge';
+import { Textarea } from '../ui/textarea';
 import { MessageCircle, Send, Heart, Image, Smile } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { useTranslation } from '@/i18n';
+import { cn } from '../../lib/utils';
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../integrations/supabase/client';
+import { useToast } from '../../hooks/use-toast';
+import { useTranslation } from '../../i18n';
 import { FixedSizeList as List } from 'react-window';
-import { useMessages } from '@/hooks/use-messages';
+import { useMessages } from '../../hooks/use-messages';
 
 interface Message {
   id: string;

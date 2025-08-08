@@ -1,9 +1,9 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PulseButton } from '@/components/ui/pulse-button';
-import { useErrorReporter } from '@/hooks/use-error-reporter';
-import { isDevelopment } from '@/config';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { PulseButton } from './ui/pulse-button';
+import { useErrorReporter } from '../hooks/use-error-reporter';
+import { isDevelopment } from '../config';
 
 interface Props {
   children: ReactNode;

@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '../integrations/supabase/client';
 import * as Notifications from 'expo-notifications';
-import { VAPID_PUBLIC_KEY } from '@/config';
+import { VAPID_PUBLIC_KEY } from '../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const TRIAL_START_KEY = 'trialStartDate';
 const TRIAL_NOTIFICATION_ID_KEY = 'trialNotificationId';

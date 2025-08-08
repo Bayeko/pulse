@@ -1,4 +1,4 @@
-import type { TimeSlot } from '@/components/calendar/shared-calendar';
+import type { TimeSlot } from '../components/calendar/shared-calendar';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 

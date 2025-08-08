@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { CentralPulseButton } from './central-pulse-button';
-import { StatusIndicator } from '@/components/ui/status-indicator';
+import { StatusIndicator } from '../ui/status-indicator';
 import { Heart, Moon, Coffee, Sparkles } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 import { SnoozeToggle } from './snooze-toggle';
-import { useTranslation } from '@/i18n';
+import { useTranslation } from '../../i18n';
 
 type PulseStatus = 'active' | 'away' | 'offline';
 

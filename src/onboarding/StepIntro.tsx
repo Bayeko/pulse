@@ -1,11 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from '@/components/ui/carousel';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { PulseButton } from '@/components/ui/pulse-button';
-import { useAuth } from '@/contexts/AuthContext';
-import { useTranslation } from '@/i18n';
-import { LanguageSwitcher } from '@/components/ui/language-switcher';
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from '../components/ui/carousel';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
+import { PulseButton } from '../components/ui/pulse-button';
+import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from '../i18n';
+import { LanguageSwitcher } from '../components/ui/language-switcher';
 
 export const StepIntro: React.FC = () => {
   const navigate = useNavigate();

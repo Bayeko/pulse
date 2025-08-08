@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Linking } from "react-native";
-import logger from '@/lib/logger';
+import logger from '../lib/logger';
 
 const NotFound = () => {
   const location = useLocation();

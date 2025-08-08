@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PulseButton } from '@/components/ui/pulse-button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { PulseButton } from '../ui/pulse-button';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
 import { Heart, Shield, Users, Copy, Apple, Chrome } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useAuth } from '@/contexts/AuthContext';
+import { cn } from '../../lib/utils';
+import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
-import { useTranslation } from '@/i18n';
-import { supabase } from '@/integrations/supabase/client';
-import { SITE_URL } from '@/config';
+import { useToast } from '../../hooks/use-toast';
+import { useTranslation } from '../../i18n';
+import { supabase } from '../../integrations/supabase/client';
+import { SITE_URL } from '../../config';
 
 
 const EU_COUNTRIES = [

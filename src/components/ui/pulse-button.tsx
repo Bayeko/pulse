@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, TouchableOpacityProps, ViewStyle, TextStyle } from 'react-native';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 export type PulseButtonVariant = 'pulse' | 'ghost' | 'soft' | 'intimate';
 export type PulseButtonSize = 'default' | 'sm' | 'lg' | 'xl';

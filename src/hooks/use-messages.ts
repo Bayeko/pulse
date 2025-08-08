@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Tables } from '@/integrations/supabase/types';
+import { supabase } from '../integrations/supabase/client';
+import { Tables } from '../integrations/supabase/types';
 
 const PAGE_SIZE = 20;
 
