@@ -1,1 +1,0 @@
-ALTER TABLE profiles ADD COLUMN parent_mode BOOLEAN DEFAULT FALSE;
