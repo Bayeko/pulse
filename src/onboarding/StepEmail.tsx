@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AuthCard } from '@/components/auth/auth-card';
+import { AuthCard } from '../components/auth/auth-card';
 
 export const StepEmail: React.FC = () => {
   const [mode, setMode] = useState<'login' | 'register' | 'connect'>('login');

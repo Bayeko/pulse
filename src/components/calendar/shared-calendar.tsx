@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PulseButton } from "@/components/ui/pulse-button";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { PulseButton } from "../ui/pulse-button";
+import { Badge } from "../ui/badge";
 import {
   Calendar,
   Clock,
@@ -11,13 +11,13 @@ import {
   Trash2,
   Pencil,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
-import { scheduleReminder } from "@/lib/reminders";
-import { useTranslation } from "@/i18n";
-import { ProgressRing } from "@/components/ui/progress-ring";
-import { getConfetti } from "@/lib/confetti";
+import { cn } from "../../lib/utils";
+import { supabase } from "../../integrations/supabase/client";
+import { useAuth } from "../../contexts/AuthContext";
+import { scheduleReminder } from "../../lib/reminders";
+import { useTranslation } from "../../i18n";
+import { ProgressRing } from "../ui/progress-ring";
+import { getConfetti } from "../../lib/confetti";
 import type { Options as ConfettiOptions } from "canvas-confetti";
 import {
   Dialog,
@@ -26,12 +26,12 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { fetchGoogleCalendarEvents } from "@/integrations/google-calendar";
-import { fetchMicrosoftCalendarEvents } from "@/integrations/microsoft-calendar";
-import { fetchEnergyCycleMetrics, type EnergyCycleMetrics } from "@/integrations/wearable";
+} from "../ui/dialog";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { fetchGoogleCalendarEvents } from "../../integrations/google-calendar";
+import { fetchMicrosoftCalendarEvents } from "../../integrations/microsoft-calendar";
+import { fetchEnergyCycleMetrics, type EnergyCycleMetrics } from "../../integrations/wearable";
 
 export interface TimeSlot {
   id: string;

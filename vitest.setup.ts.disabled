@@ -19,6 +19,6 @@ const supabase = {
   from: vi.fn(() => queryBuilder),
 };
 
-vi.mock('@/integrations/supabase/client', () => ({
+vi.mock('./src/integrations/supabase/client', () => ({
   supabase,
 }));

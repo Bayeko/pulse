@@ -1,8 +1,8 @@
 import * as React from "react"
 
-import { useTranslation } from "@/i18n"
-import { cn } from "@/lib/utils"
-import { useScaledFont } from "@/hooks/use-scaled-font"
+import { useTranslation } from "../../i18n"
+import { cn } from "../../lib/utils"
+import { useScaledFont } from "../../hooks/use-scaled-font"
 
 export type TextareaProps =
   React.TextareaHTMLAttributes<HTMLTextAreaElement> & {

@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
-import { PulseButton } from '@/components/ui/pulse-button';
+import { PulseButton } from '../components/ui/pulse-button';
 import { Heart, Shield, Calendar, Sparkles, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { useTranslation } from '@/i18n';
-import heroImage from '@/assets/pulse-hero.jpg';
+import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from '../i18n';
+import heroImage from '../assets/pulse-hero.jpg';
 
 const Index = () => {
   const navigate = useNavigate();

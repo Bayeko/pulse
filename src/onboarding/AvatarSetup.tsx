@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { PulseButton } from '@/components/ui/pulse-button';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { Avatar, AvatarImage, AvatarFallback } from '../components/ui/avatar';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { PulseButton } from '../components/ui/pulse-button';
+import { supabase } from '../integrations/supabase/client';
+import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../hooks/use-toast';
 
 export const AvatarSetup: React.FC = () => {
   const { user } = useAuth();

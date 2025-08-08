@@ -1,13 +1,13 @@
 import { vi } from 'vitest';
 
-vi.mock('@/lib/retry', () => ({
+vi.mock('../lib/retry', () => ({
   withRetry: (fn: any) => fn(),
 }));
 
-vi.mock('@/config', () => ({ SITE_URL: 'https://example.com' }));
+vi.mock('../config', () => ({ SITE_URL: 'https://example.com' }));
 
 import { signIn, signUp, connectPartner, connectByCode } from './auth';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '../integrations/supabase/client';
 
 test('signIn calls supabase auth method', async () => {
   await signIn('test@example.com', 'password');

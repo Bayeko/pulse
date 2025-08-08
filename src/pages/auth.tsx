@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { AuthCard } from '@/components/auth/auth-card';
-import heroImage from '@/assets/pulse-hero.jpg';
+import { AuthCard } from '../components/auth/auth-card';
+import heroImage from '../assets/pulse-hero.jpg';
 import { useSearchParams } from 'react-router-dom';
-import { LanguageSwitcher } from '@/components/ui/language-switcher';
+import { LanguageSwitcher } from '../components/ui/language-switcher';
 
 const Auth = () => {
   const [searchParams] = useSearchParams();

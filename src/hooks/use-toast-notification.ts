@@ -1,5 +1,5 @@
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from './use-toast';
+import { useAuth } from '../contexts/AuthContext';
 
 interface ToastNotificationOptions {
   title: string;

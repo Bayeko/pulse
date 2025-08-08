@@ -4,11 +4,11 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion';
-import { PulseButton } from '@/components/ui/pulse-button';
-import { Textarea } from '@/components/ui/textarea';
-import logger from '@/lib/logger';
-import { useTranslation } from '@/i18n';
+} from '../components/ui/accordion';
+import { PulseButton } from '../components/ui/pulse-button';
+import { Textarea } from '../components/ui/textarea';
+import logger from '../lib/logger';
+import { useTranslation } from '../i18n';
 
 interface FAQItem {
   question: string;

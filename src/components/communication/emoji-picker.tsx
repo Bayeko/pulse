@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PulseButton } from '@/components/ui/pulse-button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { PulseButton } from '../ui/pulse-button';
+import { Badge } from '../ui/badge';
 import { Heart, Send, Sparkles } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useTranslation } from '@/i18n';
+import { cn } from '../../lib/utils';
+import { useTranslation } from '../../i18n';
 
 interface EmojiPickerProps {
   onSend: (emoji: string, category: string) => void;

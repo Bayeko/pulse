@@ -1,24 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PulseButton } from '@/components/ui/pulse-button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Progress } from '@/components/ui/progress';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { PulseButton } from '../components/ui/pulse-button';
+import { Badge } from '../components/ui/badge';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Textarea } from '../components/ui/textarea';
+import { Switch } from '../components/ui/switch';
+import { Separator } from '../components/ui/separator';
+import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
+import { Progress } from '../components/ui/progress';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '../components/ui/select';
 
-import { useToast } from '@/hooks/use-toast';
-import { useTranslation } from '@/i18n';
+import { useToast } from '../hooks/use-toast';
+import { useTranslation } from '../i18n';
 
 import {
   Settings as SettingsIcon,
@@ -36,12 +36,12 @@ import {
   ArrowLeft,
   Sparkles,
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import logger from '@/lib/logger';
-import { supabase } from '@/integrations/supabase/client';
-import type { Tables, TablesUpdate } from '@/integrations/supabase/types';
+import { cn } from '../lib/utils';
+import logger from '../lib/logger';
+import { supabase } from '../integrations/supabase/client';
+import type { Tables, TablesUpdate } from '../integrations/supabase/types';
 
 
 

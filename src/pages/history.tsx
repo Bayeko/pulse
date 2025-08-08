@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { useScaledFont } from '@/hooks/use-scaled-font';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { PulseButton } from '@/components/ui/pulse-button';
-import logger from '@/lib/logger';
+import { useScaledFont } from '../hooks/use-scaled-font';
+import { supabase } from '../integrations/supabase/client';
+import { useAuth } from '../contexts/AuthContext';
+import { PulseButton } from '../components/ui/pulse-button';
+import logger from '../lib/logger';
 
 interface Pulse {
   id: string;

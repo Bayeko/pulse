@@ -1,6 +1,6 @@
 import React from 'react';
-import { SharedCalendar } from '@/components/calendar/shared-calendar';
-import { PulseButton } from '@/components/ui/pulse-button';
+import { SharedCalendar } from '../components/calendar/shared-calendar';
+import { PulseButton } from '../components/ui/pulse-button';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
